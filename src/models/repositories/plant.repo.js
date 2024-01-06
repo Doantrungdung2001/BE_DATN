@@ -3,6 +3,7 @@
 const { plant } = require('../../models/plant.model')
 const { Types } = require('mongoose')
 const { getSelectData, unGetSelectData } = require('../../utils/index')
+const { NotFoundError, MethodFailureError } = require('../../core/error.response')
 
 const searchPlantByUser = async ({ keySearch }) => {
   const regexSearch = new RegExp(keySearch)
@@ -38,15 +39,14 @@ const findAllPlants = async ({ limit, sort, page, filter } = {}) => {
 }
 
 const findPlantByPlantId = async ({ plantId }, unSelect = ['__v']) => {
-  return await plant.findById(plantId).select(unGetSelectData(unSelect)).exec()
+  return await plant.findById(plantId).select(unGetSelectData(unSelect)).lean().exec()
 }
 
 const addPlant = async ({ plantData, farmId }) => {
-  const createdPlant = await plant.create({
+  return await plant.create({
     ...plantData,
     farm: new Types.ObjectId(farmId)
   })
-  return createdPlant
 }
 
 const updatePlant = async ({ plantId, bodyUpdate }) => {
@@ -54,8 +54,7 @@ const updatePlant = async ({ plantId, bodyUpdate }) => {
 }
 
 const deletePlant = async (plantId) => {
-  const deletedPlant = await plant.findByIdAndDelete(plantId).exec()
-  return deletedPlant
+  return await plant.findByIdAndDelete(plantId).exec()
 }
 
 module.exports = {
