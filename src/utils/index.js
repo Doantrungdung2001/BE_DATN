@@ -1,6 +1,8 @@
 'use strict'
 
 const _ = require('lodash')
+const { BadRequestError } = require('../core/error.response')
+const { Types } = require('mongoose')
 
 const getInfoData = ({ fields = [], object = {} }) => {
   return _.pick(object, fields)
@@ -41,10 +43,15 @@ const updateNestedObjectParser = (obj) => {
   return final
 }
 
+const isValidObjectId = (id) => {
+  return Types.ObjectId.isValid(id)
+}
+
 module.exports = {
   getInfoData,
   getSelectData,
   unGetSelectData,
   removeUndefinedObject,
-  updateNestedObjectParser
+  updateNestedObjectParser,
+  isValidObjectId
 }

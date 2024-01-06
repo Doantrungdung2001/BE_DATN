@@ -20,10 +20,20 @@ const searchPlantByUser = async ({ keySearch }) => {
   return result
 }
 
-const findAllPlants = async ({ limit, sort, page, filter }) => {
-  const skip = (page - 1) * limit
-  const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
-  const plants = await plant.find(filter).sort(sortBy).skip(skip).limit(limit).lean().exec()
+const findAllPlants = async ({ limit, sort, page, filter } = {}) => {
+  let query = plant.find(filter || {})
+
+  if (sort) {
+    const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
+    query = query.sort(sortBy)
+  }
+
+  if (page && limit) {
+    const skip = (page - 1) * limit
+    query = query.skip(skip).limit(limit)
+  }
+
+  const plants = await query.lean().exec()
   return plants
 }
 
