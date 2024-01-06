@@ -18,12 +18,13 @@ app.use(
 
 // init db
 require('./dbs/init.mongodb')
-// const { checkOverload } = require("./helpers/check.connect")
+
 // checkOverload()
+// const { checkOverload } = require("./helpers/check.connect")
+
 // init routes
 app.use('/', require('./routes/'))
 
-// handling error
 // handling error
 app.use((req, res, next) => {
   const error = new Error('Not Found')
