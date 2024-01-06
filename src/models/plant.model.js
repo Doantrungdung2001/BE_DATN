@@ -3,7 +3,7 @@
 const { Schema, model } = require('mongoose')
 const slugify = require('slugify')
 
-const DOCUMENT_NAME = 'Plants'
+const DOCUMENT_NAME = 'Plant'
 const COLLECTION_NAME = 'Plants'
 
 const timeCultivate = new Schema({

@@ -8,6 +8,7 @@ const {
   deletePlant
 } = require('../models/repositories/plant.repo')
 const { updateNestedObjectParser, removeUndefinedObject } = require('../utils')
+const { BadRequestError } = require('../core/error.response')
 
 class PlantService {
   static async searchPlantByUser({ keySearch }) {
