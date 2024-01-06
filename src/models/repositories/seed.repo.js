@@ -40,11 +40,7 @@ const findAllSeeds = async ({ limit, sort, page, filter } = {}) => {
 }
 
 const findSeedBySeedId = async ({ seedId }, unSelect = ['__v']) => {
-  const seedItem = await seed.findById(seedId).populate('plant').select(unGetSelectData(unSelect)).lean().exec()
-  if (!seedItem) {
-    throw new NotFoundError('Seed not found')
-  }
-  return seedItem
+  return await seed.findById(seedId).populate('plant').select(unGetSelectData(unSelect)).lean().exec()
 }
 
 const getSeedByPlantInFarm = async ({ plantId }) => {
@@ -57,31 +53,19 @@ const getSeedByPlantInFarm = async ({ plantId }) => {
 }
 
 const addSeed = async ({ seedData, farmId, plantId }) => {
-  const createdSeed = await seed.create({
+  return await seed.create({
     plant: new Types.ObjectId(plantId),
     ...seedData,
     farm: new Types.ObjectId(farmId)
   })
-  if (!createdSeed) {
-    throw new MethodFailureError('Create seed failed')
-  }
-  return createdSeed
 }
 
 const updateSeed = async ({ seedId, bodyUpdate }) => {
-  const updateSeedItem = await seed.findByIdAndUpdate(seedId, bodyUpdate, { new: true }).exec()
-  if (!updateSeedItem) {
-    throw new MethodFailureError('Update seed failed')
-  }
-  return updateSeedItem
+  return await seed.findByIdAndUpdate(seedId, bodyUpdate, { new: true }).exec()
 }
 
 const deleteSeed = async (seedId) => {
-  const deletedSeed = await seed.findByIdAndDelete(seedId).exec()
-  if (!deletedSeed) {
-    throw new MethodFailureError('Delete seed failed')
-  }
-  return deletedSeed
+  return await seed.findByIdAndDelete(seedId).exec()
 }
 
 module.exports = {
