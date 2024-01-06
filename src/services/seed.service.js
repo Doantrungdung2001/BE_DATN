@@ -8,7 +8,7 @@ const {
   deleteSeed,
   getSeedByPlantInFarm
 } = require('../models/repositories/seed.repo')
-const { BadRequestError } = require('../core/error.response')
+const { BadRequestError, NotFoundError, MethodFailureError } = require('../core/error.response')
 const { updateNestedObjectParser, removeUndefinedObject, isValidObjectId } = require('../utils')
 const { plant } = require('../models/plant.model')
 const { default: slugify } = require('slugify')
@@ -43,7 +43,11 @@ class SeedService {
       throw new BadRequestError('Invalid seed id')
     }
 
-    return findSeedBySeedId({ seedId })
+    const seedItem = await findSeedBySeedId({ seedId })
+    if (!seedItem) {
+      throw new NotFoundError('Seed not found')
+    }
+    return seedItem
   }
 
   static async getSeedByPlantInFarm({ plantName, plantId, farmId }) {
@@ -58,7 +62,7 @@ class SeedService {
       if (!plantItem) {
         throw new BadRequestError('Plant not found')
       }
-      return getSeedByPlantInFarm({ plantId: plantItem._id.toString() })
+      return await getSeedByPlantInFarm({ plantId: plantItem._id.toString() })
     }
     if (!plantId) {
       throw new BadRequestError('Plant id is required')
@@ -66,7 +70,7 @@ class SeedService {
     if (!isValidObjectId(plantId)) {
       throw new BadRequestError('Invalid plant id')
     }
-    return getSeedByPlantInFarm({ plantId })
+    return await getSeedByPlantInFarm({ plantId })
   }
 
   static async addSeed({ seedData, farmId, plantId }) {
@@ -100,7 +104,11 @@ class SeedService {
 
     delete seedData.plantId
 
-    return addSeed({ seedData, farmId, plantId })
+    const createdSeed = addSeed({ seedData, farmId, plantId })
+    if (!createdSeed) {
+      throw new MethodFailureError('Create seed failed')
+    }
+    return createdSeed
   }
 
   static async updateSeed({ seedId, seedData, farmId }) {
@@ -131,7 +139,13 @@ class SeedService {
     }
 
     const objectParams = removeUndefinedObject(seedData)
+    if (Object.keys(objectParams).length === 0) {
+      throw new BadRequestError('Seed data is empty')
+    }
     const bodyUpdate = updateNestedObjectParser(objectParams)
+    if (Object.keys(bodyUpdate).length === 0) {
+      throw new BadRequestError('Seed data is empty')
+    }
     delete bodyUpdate._id
     delete bodyUpdate.plantId
 
@@ -139,7 +153,11 @@ class SeedService {
       bodyUpdate.seed_slug = slugify(bodyUpdate.seed_name)
     }
 
-    return updateSeed({ seedId, bodyUpdate })
+    const updateSeedItem = await updateSeed({ seedId, bodyUpdate })
+    if (!updateSeedItem) {
+      throw new MethodFailureError('Update seed failed')
+    }
+    return updateSeedItem
   }
 
   static async deleteSeed({ seedId, farmId }) {
@@ -163,7 +181,11 @@ class SeedService {
       throw new BadRequestError('Farm does not have permission to update seeds')
     }
 
-    return deleteSeed(seedId)
+    const deletedSeed = await deleteSeed(seedId)
+    if (!deletedSeed) {
+      throw new MethodFailureError('Delete seed failed')
+    }
+    return deletedSeed
   }
 }
 
