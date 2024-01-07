@@ -22,7 +22,7 @@ const searchSeedByUser = async ({ keySearch }) => {
   return result
 }
 
-const findAllSeeds = async ({ limit, sort, page, filter } = {}) => {
+const getAllSeedsByFarm = async ({ limit, sort, page, filter } = {}) => {
   let query = seed.find(filter || {}).populate('plant')
 
   if (sort) {
@@ -39,7 +39,7 @@ const findAllSeeds = async ({ limit, sort, page, filter } = {}) => {
   return seeds
 }
 
-const findSeedBySeedId = async ({ seedId }, unSelect = ['__v']) => {
+const getSeedBySeedId = async ({ seedId }, unSelect = ['__v']) => {
   return await seed.findById(seedId).populate('plant').select(unGetSelectData(unSelect)).lean().exec()
 }
 
@@ -52,11 +52,10 @@ const getSeedByPlantInFarm = async ({ plantId }) => {
   return seeds
 }
 
-const addSeed = async ({ seedData, farmId, plantId }) => {
+const addSeed = async ({ seedData, plantId }) => {
   return await seed.create({
     plant: new Types.ObjectId(plantId),
-    ...seedData,
-    farm: new Types.ObjectId(farmId)
+    ...seedData
   })
 }
 
@@ -70,8 +69,8 @@ const deleteSeed = async (seedId) => {
 
 module.exports = {
   searchSeedByUser,
-  findAllSeeds,
-  findSeedBySeedId,
+  getAllSeedsByFarm,
+  getSeedBySeedId,
   getSeedByPlantInFarm,
   updateSeed,
   addSeed,

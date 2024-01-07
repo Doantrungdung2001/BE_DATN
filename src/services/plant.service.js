@@ -1,8 +1,8 @@
 const { Types } = require('mongoose')
 const {
   searchPlantByUser,
-  findAllPlants,
-  findPlantByPlantId,
+  getAllPlantsByFarm,
+  getPlantByPlantId,
   addPlant,
   updatePlant,
   deletePlant
@@ -15,19 +15,19 @@ class PlantService {
     return await searchPlantByUser({ keySearch })
   }
 
-  static async findAllPlants({ farmId, limit, sort, page }) {
+  static async getAllPlantsByFarm({ farmId, limit, sort, page }) {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
     const filter = { farm: new Types.ObjectId(farmId) }
-    const plants = await findAllPlants({ limit, sort, page, filter })
+    const plants = await getAllPlantsByFarm({ limit, sort, page, filter })
 
     return plants
   }
 
-  static async findPlantByPlantId({ plantId }) {
+  static async getPlantByPlantId({ plantId }) {
     if (!plantId) throw new BadRequestError('PlantId is required')
     if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
-    const plantItem = await findPlantByPlantId({ plantId })
+    const plantItem = await getPlantByPlantId({ plantId })
     if (!plantItem) {
       throw new NotFoundError('Plant not found')
     }
@@ -51,7 +51,7 @@ class PlantService {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
     if (!plantData) throw new BadRequestError('Plant data is required')
-    const plant = await findPlantByPlantId({ plantId })
+    const plant = await getPlantByPlantId({ plantId })
     if (!plant) {
       throw new NotFoundError('Plant not found')
     }
@@ -70,6 +70,9 @@ class PlantService {
     if (Object.keys(bodyUpdate).length === 0) {
       throw new BadRequestError('Plant data is empty')
     }
+
+    delete bodyUpdate._id
+    delete bodyUpdate.farm
     const updatePlantItem = await updatePlant({ plantId, bodyUpdate })
     if (!updatePlantItem) {
       throw new MethodFailureError('Update plant failed')
@@ -83,7 +86,7 @@ class PlantService {
     if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
-    const plant = await findPlantByPlantId({ plantId })
+    const plant = await getPlantByPlantId({ plantId })
     if (!plant) {
       throw new NotFoundError('Plant not found')
     }
