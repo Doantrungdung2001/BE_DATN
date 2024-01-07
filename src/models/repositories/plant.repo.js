@@ -42,6 +42,14 @@ const getPlantByPlantId = async ({ plantId }, unSelect = ['__v']) => {
   return await plant.findById(plantId).select(unGetSelectData(unSelect)).lean().exec()
 }
 
+const getPlantByPlantNameAndFarmId = async ({ plantName, farmId }, unSelect = ['__v']) => {
+  return await plant
+    .findOne({ plant_name: plantName, farm: new Types.ObjectId(farmId) })
+    .select(unGetSelectData(unSelect))
+    .lean()
+    .exec()
+}
+
 const addPlant = async ({ plantData, farmId }) => {
   return await plant.create({
     ...plantData,
@@ -61,6 +69,7 @@ module.exports = {
   searchPlantByUser,
   getAllPlantsByFarm,
   getPlantByPlantId,
+  getPlantByPlantNameAndFarmId,
   updatePlant,
   addPlant,
   deletePlant

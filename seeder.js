@@ -29,52 +29,65 @@ async function seedData() {
 
       // Add more fields as needed
     })
-    await plantItem.save()
-
-    for (let j = 0; j < 5; j++) {
-      let seedItem = new seed({
-        plant: plantItem._id,
-        seed_name: faker.commerce.productName(),
-        seed_description: faker.lorem.sentence(),
-        seed_thumb: faker.image.url(),
-        isSeedDefault: j == 0 ? true : false
-        // Add more fields as needed
-      })
-      await seedItem.save()
-
-      let plantFarmingItem = new plantFarming({
-        seed: seedItem._id,
-        plant: plantItem._id,
-
-        cultivationActivities: [{ name: faker.lorem.sentence(), description: faker.lorem.sentence() }],
-        plantingActivity: { density: faker.lorem.sentence(), description: faker.lorem.sentence() },
-        fertilizationActivities: [
-          {
-            fertilizationTime: faker.lorem.sentence(),
-            type: ['baseFertilizer', 'topFertilizer'].at(faker.number.int() % 2),
-            description: faker.lorem.sentence()
-          }
-        ],
-        pestAndDiseaseControlActivities: [
-          {
-            name: faker.lorem.sentence(),
-            type: ['pest', 'disease'].at(faker.number.int() % 2),
-            symptoms: faker.lorem.sentence(),
-            description: faker.lorem.sentence(),
-            solution: [faker.lorem.sentence()],
-            note: faker.lorem.sentence()
-          }
-        ],
-
-        timeCultivates: [{ start: (faker.number.int() % 12) + 1, end: (faker.number.int() % 12) + 1 }],
-        bestTimeCultivate: { start: (faker.number.int() % 12) + 1, end: (faker.number.int() % 12) + 1 },
-        farmingTime: (faker.number.int() % 200) + 1,
-        harvestTime: (faker.number.int() % 100) + 1,
-        isPlantFarmingDefault: true
-        // Add more fields as needed
-      })
-      await plantFarmingItem.save()
+    try {
+      await plantItem.save()
+    } catch (error) {
+      console.error(`Error while saving plantItem: ${error}`)
     }
+
+    if (plantItem)
+      for (let j = 0; j < 5; j++) {
+        let seedItem = new seed({
+          plant: plantItem._id,
+          seed_name: faker.commerce.productName(),
+          seed_description: faker.lorem.sentence(),
+          seed_thumb: faker.image.url(),
+          isSeedDefault: j == 0 ? true : false
+          // Add more fields as needed
+        })
+        try {
+          await seedItem.save()
+        } catch (error) {
+          console.error(`Error while saving plantItem: ${error}`)
+        }
+
+        let plantFarmingItem = new plantFarming({
+          seed: seedItem._id,
+          plant: plantItem._id,
+
+          cultivationActivities: [{ name: faker.lorem.sentence(), description: faker.lorem.sentence() }],
+          plantingActivity: { density: faker.lorem.sentence(), description: faker.lorem.sentence() },
+          fertilizationActivities: [
+            {
+              fertilizationTime: faker.lorem.sentence(),
+              type: ['baseFertilizer', 'topFertilizer'].at(faker.number.int() % 2),
+              description: faker.lorem.sentence()
+            }
+          ],
+          pestAndDiseaseControlActivities: [
+            {
+              name: faker.lorem.sentence(),
+              type: ['pest', 'disease'].at(faker.number.int() % 2),
+              symptoms: faker.lorem.sentence(),
+              description: faker.lorem.sentence(),
+              solution: [faker.lorem.sentence()],
+              note: faker.lorem.sentence()
+            }
+          ],
+
+          timeCultivates: [{ start: (faker.number.int() % 12) + 1, end: (faker.number.int() % 12) + 1 }],
+          bestTimeCultivate: { start: (faker.number.int() % 12) + 1, end: (faker.number.int() % 12) + 1 },
+          farmingTime: (faker.number.int() % 200) + 1,
+          harvestTime: (faker.number.int() % 100) + 1,
+          isPlantFarmingDefault: true
+          // Add more fields as needed
+        })
+        try {
+          await plantFarmingItem.save()
+        } catch (error) {
+          console.error(`Error while saving plantItem: ${error}`)
+        }
+      }
   }
   console.log('seeds and plants seeded')
   process.exit()

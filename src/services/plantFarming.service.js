@@ -6,13 +6,20 @@ const {
   getAllPlantFarmingByPlant,
   getAllPlantFarmingByFarm,
   getAllPlantFarmingBySeed,
-  getPlantFarmingByPlantFarmingId
+  getPlantFarmingByPlantFarmingId,
+  getPlantFarmingByPlantIdAndSeedId,
+  getPlantFarmingBySeedId
 } = require('../models/repositories/plantFarming.repo')
 const { MethodFailureError, BadRequestError, NotFoundError } = require('../core/error.response')
 const { plant } = require('../models/plant.model')
 const { get } = require('lodash')
-const { getPlantByPlantId } = require('./plant.service')
-const { isValidObjectId, removeUndefinedObject, updateNestedObjectParser } =  require('../utils')
+const { getPlantByPlantId, getPlantByPlantNameAndFarmId, getAllPlantsByFarm } = require('./plant.service')
+const { isValidObjectId, removeUndefinedObject, updateNestedObjectParser } = require('../utils')
+const {
+  getSeedDefaultFromPlantId,
+  getSeedFromSeedNameAndPlantId,
+  checkSeedValidFromSeedNameAndPlant
+} = require('./seed.service')
 class PlantFarmingService {
   static async addPlantFarming({ plantFarmingData, farmId, plantId, seedId }) {
     if (!farmId) throw new BadRequestError('FarmId is required')
@@ -121,6 +128,71 @@ class PlantFarmingService {
     if (!isValidObjectId(plantFarmingId)) throw new BadRequestError('Plant farming id is not valid')
 
     const plantFarmingItem = await getPlantFarmingByPlantFarmingId({ plantFarmingId })
+    if (!plantFarmingItem) {
+      throw new NotFoundError('Plant farming not found')
+    }
+    return plantFarmingItem
+  }
+
+  static async getPlantFarmingRecommend({ plantName, seedName, farmId }) {
+    if (!plantName) throw new BadRequestError('Plant name is required')
+    if (!farmId) throw new BadRequestError('FarmId is required')
+    if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
+
+    const plantItem = await getPlantByPlantNameAndFarmId({ plantName, farmId })
+    if (!plantItem) {
+      throw new NotFoundError('Plant not found')
+    }
+    let seedItem = null
+    if (!seedName) {
+      seedItem = await getSeedDefaultFromPlantId({ plantId: plantItem._id.toString() })
+    } else {
+      seedItem = await getSeedFromSeedNameAndPlantId({ seedName, plantId: plantItem._id.toString() })
+    }
+    if (!seedItem) {
+      throw new NotFoundError('Seed not found')
+    }
+    const plantFarmingItem = await getPlantFarmingByPlantIdAndSeedId({
+      plantId: plantItem._id.toString(),
+      seedId: seedItem._id.toString()
+    })
+    if (!plantFarmingItem) {
+      throw new NotFoundError('Plant farming not found')
+    }
+    return plantFarmingItem
+  }
+
+  static async getPlantFarmingBySeedId({ seedId }) {
+    if (!seedId) throw new BadRequestError('Seed id is required')
+    if (!isValidObjectId(seedId)) throw new BadRequestError('Seed id is not valid')
+    return getPlantFarmingBySeedId({ seedId })
+  }
+
+  static async getPlantFarmingBySeedNameAndFarmId({ seedName, farmId }) {
+    if (!seedName) throw new BadRequestError('Seed name is required')
+    if (!farmId) throw new BadRequestError('FarmId is required')
+    if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
+    const plantList = await getAllPlantsByFarm({ farmId })
+
+    const plantBoolean = await Promise.all(
+      plantList.map(async (plant) => {
+        const seedItem = await checkSeedValidFromSeedNameAndPlant({ seedName, plantId: plant._id.toString() })
+        return seedItem === true
+      })
+    )
+
+    const plant = plantList.find((item, index) => plantBoolean[index] === true)
+
+    if (!plant) {
+      throw new NotFoundError("Seed doesn't exist in farm")
+    }
+
+    if (!plant.plant_name) {
+      throw new NotFoundError("Plant doesn't valid in farm")
+    }
+    const plantName = plant.plant_name
+
+    const plantFarmingItem = await this.getPlantFarmingRecommend({ plantName, seedName, farmId })
     if (!plantFarmingItem) {
       throw new NotFoundError('Plant farming not found')
     }

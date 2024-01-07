@@ -4,6 +4,7 @@ const {
   getAllPlantsByFarm,
   getPlantByPlantId,
   addPlant,
+  getPlantByPlantNameAndFarmId,
   updatePlant,
   deletePlant
 } = require('../models/repositories/plant.repo')
@@ -28,6 +29,17 @@ class PlantService {
     if (!plantId) throw new BadRequestError('PlantId is required')
     if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
     const plantItem = await getPlantByPlantId({ plantId })
+    if (!plantItem) {
+      throw new NotFoundError('Plant not found')
+    }
+    return plantItem
+  }
+
+  static async getPlantByPlantNameAndFarmId({ plantName, farmId }) {
+    if (!plantName) throw new BadRequestError('PlantName is required')
+    if (!farmId) throw new BadRequestError('FarmId is required')
+    if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
+    const plantItem = await getPlantByPlantNameAndFarmId({ plantName, farmId })
     if (!plantItem) {
       throw new NotFoundError('Plant not found')
     }
