@@ -55,9 +55,9 @@ class PlantController {
     }).send(res)
   }
 
-  getAllPlantAdmin = async (req, res, next) => {
+  getRecommendPlant = async (req, res, next) => {
     return new SuccessResponse({
-      message: 'Get list getAllPlantAdmin success!',
+      message: 'Get list getRecommendPlant success!',
       metadata: await PlantService.getAllPlantsByFarm({ farmId: admin_id, ...req.query })
     }).send(res)
   }

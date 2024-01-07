@@ -2,6 +2,7 @@
 const SeedService = require('../services/seed.service')
 const { SuccessResponse } = require('../core/success.response')
 const { restart } = require('nodemon')
+const { admin_id } = require('../constant')
 class SeedController {
   // add Seed
   addSeed = async (req, res, next) => {
@@ -61,6 +62,16 @@ class SeedController {
         plantName: req.query.plantName,
         plantId: req.query.plantId,
         farmId: req.query.farmId
+      })
+    }).send(res)
+  }
+
+  getRecommendSeedByPlant = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get seed success!',
+      metadata: await SeedService.getSeedByPlantInFarm({
+        plantName: req.params.plantName,
+        farmId: admin_id
       })
     }).send(res)
   }

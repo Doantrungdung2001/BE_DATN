@@ -9,7 +9,7 @@ const router = express.Router()
 
 router.get('/search/:keySearch', asyncHandler(plantController.searchPlantByUser))
 router.get('/farm/:farmId', asyncHandler(plantController.getAllPlantsByFarm))
-router.get('/admin', asyncHandler(plantController.getAllPlantAdmin))
+router.get('/recommend', asyncHandler(plantController.getRecommendPlant))
 router.get('/:plantId', asyncHandler(plantController.getPlantByPlantId))
 
 // Authentication
