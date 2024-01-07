@@ -2,6 +2,7 @@
 const PlantFarmingService = require('../services/plantFarming.service')
 const { SuccessResponse } = require('../core/success.response')
 const { restart } = require('nodemon')
+const { admin_id } = require('../constant')
 class PlantFarmingController {
   // add PlantFarming
   addPlantFarming = async (req, res, next) => {
@@ -54,6 +55,34 @@ class PlantFarmingController {
       metadata: await PlantFarmingService.getAllPlantFarmingByPlant({
         plantId: req.params.plantId,
         ...req.query
+      })
+    }).send(res)
+  }
+
+  getPlantFarmingBySeedId = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get plantFarming success!',
+      metadata: await PlantFarmingService.getPlantFarmingBySeedId({ seedId: req.params.seedId })
+    }).send(res)
+  }
+
+  getPlantFarmingRecommend = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get recommend plantFarming success!',
+      metadata: await PlantFarmingService.getPlantFarmingRecommend({
+        plantName: req.params.plantName,
+        ...req.query,
+        farmId: admin_id
+      })
+    }).send(res)
+  }
+
+  getPlantFarmingBySeedNameAndFarmId = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get plantFarming success!',
+      metadata: await PlantFarmingService.getPlantFarmingBySeedNameAndFarmId({
+        seedName: req.params.seedName,
+        farmId: req.params.farmId
       })
     }).send(res)
   }

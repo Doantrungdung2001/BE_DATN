@@ -10,6 +10,7 @@ const router = express.Router()
 router.get('/search/:keySearch', asyncHandler(seedController.searchSeedByUser))
 router.get('/farm/:farmId', asyncHandler(seedController.getAllSeedsByFarm))
 router.get('/plant', asyncHandler(seedController.getSeedByPlantInFarm))
+router.get('/recommendFromPlant/:plantName', asyncHandler(seedController.getRecommendSeedByPlant))
 router.get('/:seedId', asyncHandler(seedController.getSeedBySeedId))
 
 // Authentication

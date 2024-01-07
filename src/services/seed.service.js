@@ -6,13 +6,14 @@ const {
   addSeed,
   updateSeed,
   deleteSeed,
-  getSeedByPlantInFarm
+  getSeedByPlantInFarm,
+  getSeedDefaultFromPlantId,
+  getSeedFromSeedNameAndPlantId
 } = require('../models/repositories/seed.repo')
 const { BadRequestError, NotFoundError, MethodFailureError } = require('../core/error.response')
 const { updateNestedObjectParser, removeUndefinedObject, isValidObjectId } = require('../utils')
-const { plant } = require('../models/plant.model')
 const { default: slugify } = require('slugify')
-const { getAllPlantsByFarm } = require('../models/repositories/plant.repo')
+const { getAllPlantsByFarm, getPlantByPlantNameAndFarmId } = require('../services/plant.service')
 
 class SeedService {
   static async searchSeedByUser({ keySearch }) {
@@ -55,10 +56,7 @@ class SeedService {
       if (!isValidObjectId(farmId)) {
         throw new BadRequestError('Invalid farm id')
       }
-      const plantItem = await plant
-        .findOne({ plant_name: plantName, farm: new Types.ObjectId(farmId) })
-        .lean()
-        .exec()
+      const plantItem = await getPlantByPlantNameAndFarmId({ plantName, farmId })
       if (!plantItem) {
         throw new BadRequestError('Plant not found')
       }
@@ -71,6 +69,56 @@ class SeedService {
       throw new BadRequestError('Invalid plant id')
     }
     return await getSeedByPlantInFarm({ plantId })
+  }
+
+  static async getSeedDefaultFromPlantId({ plantId }) {
+    if (!plantId) {
+      throw new BadRequestError('Plant id is required')
+    }
+    if (!isValidObjectId(plantId)) {
+      throw new BadRequestError('Invalid plant id')
+    }
+    const seedDefault = await getSeedDefaultFromPlantId({ plantId })
+    if (!seedDefault) {
+      throw new NotFoundError('Recommend not worked with this plant, cause Seed default not found')
+    }
+    return seedDefault
+  }
+
+  static async getSeedFromSeedNameAndPlantId({ seedName, plantId }) {
+    if (!seedName) {
+      throw new BadRequestError('Seed name is required')
+    }
+    if (!plantId) {
+      throw new BadRequestError('Plant id is required')
+    }
+    if (!isValidObjectId(plantId)) {
+      throw new BadRequestError('Invalid plant id')
+    }
+
+    const seedItem = await getSeedFromSeedNameAndPlantId({ seedName, plantId })
+    if (!seedItem) {
+      throw new NotFoundError('Seed not found')
+    }
+    return seedItem
+  }
+
+  static async checkSeedValidFromSeedNameAndPlant({ seedName, plantId }) {
+    if (!seedName) {
+      throw new BadRequestError('Seed name is required')
+    }
+    if (!plantId) {
+      throw new BadRequestError('Plant id is required')
+    }
+    if (!isValidObjectId(plantId)) {
+      throw new BadRequestError('Invalid plant id')
+    }
+
+    const seedItem = await getSeedFromSeedNameAndPlantId({ seedName, plantId })
+    if (seedItem) {
+      return true
+    }
+    return false
   }
 
   static async addSeed({ seedData, farmId, plantId }) {
@@ -134,6 +182,10 @@ class SeedService {
     const seedItem = await getSeedBySeedId({ seedId })
     if (!seedItem) {
       throw new BadRequestError('Seed not found')
+    }
+
+    if (!seedItem.plant || !seedItem.plant.farm) {
+      throw new BadRequestError('Seed does not in farm')
     }
     if (seedItem.plant.farm.toString() !== farmId) {
       throw new BadRequestError('Farm does not have permission to update seeds')
