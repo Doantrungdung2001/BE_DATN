@@ -21,7 +21,7 @@ const searchPlantByUser = async ({ keySearch }) => {
   return result
 }
 
-const findAllPlants = async ({ limit, sort, page, filter } = {}) => {
+const getAllPlantsByFarm = async ({ limit, sort, page, filter } = {}) => {
   let query = plant.find(filter || {})
 
   if (sort) {
@@ -38,7 +38,7 @@ const findAllPlants = async ({ limit, sort, page, filter } = {}) => {
   return plants
 }
 
-const findPlantByPlantId = async ({ plantId }, unSelect = ['__v']) => {
+const getPlantByPlantId = async ({ plantId }, unSelect = ['__v']) => {
   return await plant.findById(plantId).select(unGetSelectData(unSelect)).lean().exec()
 }
 
@@ -59,8 +59,8 @@ const deletePlant = async (plantId) => {
 
 module.exports = {
   searchPlantByUser,
-  findAllPlants,
-  findPlantByPlantId,
+  getAllPlantsByFarm,
+  getPlantByPlantId,
   updatePlant,
   addPlant,
   deletePlant

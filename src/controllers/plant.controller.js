@@ -40,17 +40,17 @@ class PlantController {
     }).send(res)
   }
 
-  findAllPlants = async (req, res, next) => {
+  getAllPlantsByFarm = async (req, res, next) => {
     return new SuccessResponse({
-      message: 'Get list findAllPlants success!',
-      metadata: await PlantService.findAllPlants({ farmId: req.params.farmId, ...req.query })
+      message: 'Get list getAllPlantsByFarm success!',
+      metadata: await PlantService.getAllPlantsByFarm({ farmId: req.params.farmId, ...req.query })
     }).send(res)
   }
 
-  findPlantByPlantId = async (req, res, next) => {
+  getPlantByPlantId = async (req, res, next) => {
     return new SuccessResponse({
       message: 'Get plant success!',
-      metadata: await PlantService.findPlantByPlantId({ plantId: req.params.plantId })
+      metadata: await PlantService.getPlantByPlantId({ plantId: req.params.plantId })
     }).send(res)
   }
   // END QUERY //

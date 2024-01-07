@@ -12,7 +12,8 @@ const seedSchema = new Schema(
     seed_name: { type: String, require: true },
     seed_thumb: { type: String, require: true },
     seed_description: { type: String, require: true },
-    seed_slug: String
+    seed_slug: String,
+    isSeedDefault: { type: Boolean, default: false }
   },
   {
     collection: COLLECTION_NAME,
