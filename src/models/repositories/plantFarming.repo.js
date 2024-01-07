@@ -47,6 +47,26 @@ const getPlantFarmingByPlantFarmingId = async ({ plantFarmingId }, unSelect = ['
     .exec()
 }
 
+const getPlantFarmingByPlantIdAndSeedId = async ({ plantId, seedId }, unSelect = ['__v']) => {
+  return await plantFarming
+    .findOne({ plant: new Types.ObjectId(plantId), seed: new Types.ObjectId(seedId) })
+    .populate('plant')
+    .populate('seed')
+    .select(unGetSelectData(unSelect))
+    .lean()
+    .exec()
+}
+
+const getPlantFarmingBySeedId = async ({ seedId }, unSelect = ['__v']) => {
+  return await plantFarming
+    .find({ seed: new Types.ObjectId(seedId) })
+    .populate('plant')
+    .populate('seed')
+    .select(unGetSelectData(unSelect))
+    .lean()
+    .exec()
+}
+
 const queryAllPlantFarming = async ({ limit, sort, page, filter } = {}) => {
   let query = plantFarming
     .find(filter || {})
@@ -74,5 +94,7 @@ module.exports = {
   getAllPlantFarmingByPlant,
   getAllPlantFarmingByFarm,
   getAllPlantFarmingBySeed,
-  getPlantFarmingByPlantFarmingId
+  getPlantFarmingByPlantFarmingId,
+  getPlantFarmingByPlantIdAndSeedId,
+  getPlantFarmingBySeedId
 }

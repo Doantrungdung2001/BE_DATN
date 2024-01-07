@@ -4,7 +4,6 @@ const { seed } = require('../../models/seed.model')
 const { Types } = require('mongoose')
 const { getSelectData, unGetSelectData } = require('../../utils/index')
 const { plant } = require('../plant.model')
-const { MethodFailureError, NotFoundError } = require('../../core/error.response')
 
 const searchSeedByUser = async ({ keySearch }) => {
   const regexSearch = new RegExp(keySearch)
@@ -52,6 +51,24 @@ const getSeedByPlantInFarm = async ({ plantId }) => {
   return seeds
 }
 
+const getSeedDefaultFromPlantId = async ({ plantId }) => {
+  return await seed
+    .findOne({ plant: new Types.ObjectId(plantId), isSeedDefault: true })
+    .populate('plant')
+    .lean()
+    .exec()
+}
+
+const getSeedFromSeedNameAndPlantId = async ({ seedName, plantId }) => {
+  return await seed
+    .findOne({ seed_name: seedName, plant: new Types.ObjectId(plantId) })
+    .populate({
+      path: 'plant'
+    })
+    .lean()
+    .exec()
+}
+
 const addSeed = async ({ seedData, plantId }) => {
   return await seed.create({
     plant: new Types.ObjectId(plantId),
@@ -72,6 +89,8 @@ module.exports = {
   getAllSeedsByFarm,
   getSeedBySeedId,
   getSeedByPlantInFarm,
+  getSeedDefaultFromPlantId,
+  getSeedFromSeedNameAndPlantId,
   updateSeed,
   addSeed,
   deleteSeed
