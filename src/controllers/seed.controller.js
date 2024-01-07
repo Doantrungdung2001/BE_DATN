@@ -40,17 +40,17 @@ class SeedController {
     }).send(res)
   }
 
-  findAllSeeds = async (req, res, next) => {
+  getAllSeedsByFarm = async (req, res, next) => {
     return new SuccessResponse({
-      message: 'Get list findAllSeeds success!',
-      metadata: await SeedService.findAllSeeds({ farmId: req.params.farmId, ...req.query })
+      message: 'Get list getAllSeedsByFarm success!',
+      metadata: await SeedService.getAllSeedsByFarm({ farmId: req.params.farmId, ...req.query })
     }).send(res)
   }
 
-  findSeedBySeedId = async (req, res, next) => {
+  getSeedBySeedId = async (req, res, next) => {
     return new SuccessResponse({
       message: 'Get seed success!',
-      metadata: await SeedService.findSeedBySeedId({ seedId: req.params.seedId })
+      metadata: await SeedService.getSeedBySeedId({ seedId: req.params.seedId })
     }).send(res)
   }
 

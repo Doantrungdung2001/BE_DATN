@@ -8,8 +8,8 @@ const { authenticationV2 } = require('../../auth/authUtils')
 const router = express.Router()
 
 router.get('/search/:keySearch', asyncHandler(plantController.searchPlantByUser))
-router.get('/farm/:farmId', asyncHandler(plantController.findAllPlants))
-router.get('/:plantId', asyncHandler(plantController.findPlantByPlantId))
+router.get('/farm/:farmId', asyncHandler(plantController.getAllPlantsByFarm))
+router.get('/:plantId', asyncHandler(plantController.getPlantByPlantId))
 
 // Authentication
 router.use(authenticationV2)

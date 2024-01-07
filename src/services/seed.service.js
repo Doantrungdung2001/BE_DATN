@@ -1,8 +1,8 @@
 const { Types } = require('mongoose')
 const {
   searchSeedByUser,
-  findAllSeeds,
-  findSeedBySeedId,
+  getAllSeedsByFarm,
+  getSeedBySeedId,
   addSeed,
   updateSeed,
   deleteSeed,
@@ -12,30 +12,30 @@ const { BadRequestError, NotFoundError, MethodFailureError } = require('../core/
 const { updateNestedObjectParser, removeUndefinedObject, isValidObjectId } = require('../utils')
 const { plant } = require('../models/plant.model')
 const { default: slugify } = require('slugify')
-const { findAllPlants } = require('../models/repositories/plant.repo')
+const { getAllPlantsByFarm } = require('../models/repositories/plant.repo')
 
 class SeedService {
   static async searchSeedByUser({ keySearch }) {
     return await searchSeedByUser({ keySearch })
   }
 
-  static async findAllSeeds({ farmId, limit, sort, page }) {
+  static async getAllSeedsByFarm({ farmId, limit, sort, page }) {
     if (!farmId) {
       throw new BadRequestError('Farm id is required')
     }
     if (!isValidObjectId(farmId)) {
       throw new BadRequestError('Invalid farm id')
     }
-    const plantItem = await findAllPlants({ farm: new Types.ObjectId(farmId) })
+    const plantItem = await getAllPlantsByFarm({ farm: new Types.ObjectId(farmId) })
     const plantIds = plantItem.map((item) => item._id)
 
     const filter = { plant: { $in: plantIds } }
-    const seeds = await findAllSeeds({ limit, sort, page, filter })
+    const seeds = await getAllSeedsByFarm({ limit, sort, page, filter })
 
     return seeds
   }
 
-  static async findSeedBySeedId({ seedId }) {
+  static async getSeedBySeedId({ seedId }) {
     if (!seedId) {
       throw new BadRequestError('Seed id is required')
     }
@@ -43,7 +43,7 @@ class SeedService {
       throw new BadRequestError('Invalid seed id')
     }
 
-    const seedItem = await findSeedBySeedId({ seedId })
+    const seedItem = await getSeedBySeedId({ seedId })
     if (!seedItem) {
       throw new NotFoundError('Seed not found')
     }
@@ -99,10 +99,11 @@ class SeedService {
       .lean()
       .exec()
     if (!plantItem) {
-      throw new BadRequestError('Plant not found in the farm')
+      throw new BadRequestError('Farm does not have permission to create seeds with this plant')
     }
 
-    delete seedData.plantId
+    delete seedData.plant
+    delete seedData._id
 
     const createdSeed = addSeed({ seedData, farmId, plantId })
     if (!createdSeed) {
@@ -130,7 +131,7 @@ class SeedService {
     if (!isValidObjectId(farmId)) {
       throw new BadRequestError('Invalid farm id')
     }
-    const seedItem = await findSeedBySeedId({ seedId })
+    const seedItem = await getSeedBySeedId({ seedId })
     if (!seedItem) {
       throw new BadRequestError('Seed not found')
     }
@@ -147,7 +148,7 @@ class SeedService {
       throw new BadRequestError('Seed data is empty')
     }
     delete bodyUpdate._id
-    delete bodyUpdate.plantId
+    delete bodyUpdate.plant
 
     if (bodyUpdate.seed_name) {
       bodyUpdate.seed_slug = slugify(bodyUpdate.seed_name)
@@ -173,7 +174,7 @@ class SeedService {
     if (!isValidObjectId(farmId)) {
       throw new BadRequestError('Invalid farm id')
     }
-    const seed = await findSeedBySeedId({ seedId })
+    const seed = await getSeedBySeedId({ seedId })
     if (!seed) {
       throw new BadRequestError('Seed not found')
     }
