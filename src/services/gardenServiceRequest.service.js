@@ -6,10 +6,14 @@ const {
   updateGardenServiceRequest,
   deleteGardenServiceRequest
 } = require('../models/repositories/gardenServiceRequest.repo')
+const { getSeedDefaultFromPlantId } = require('./seed.service')
+const { initProject, addPlantFarmingToProject } = require('./project.service')
 
 const { MethodFailureError, BadRequestError, NotFoundError } = require('../core/error.response')
 const { isValidObjectId } = require('../utils')
 const { getGardenServiceTemplateByGardenServiceTemplateId } = require('./gardenServiceTemplate.service')
+const { getPlantFarmingBySeedId } = require('./plantFarming.service')
+const { createGarden } = require('./garden.service')
 
 class GardenServiceRequestService {
   static async getAllGardenServiceRequestsByFarm({ farmId, limit, sort, page }) {
@@ -174,6 +178,62 @@ class GardenServiceRequestService {
     if (!acceptedGardenServiceRequest) {
       throw new MethodFailureError('Accept gardenServiceRequest failed')
     }
+
+    // init project for each plant with seed Default
+    const plantList =
+      gardenServiceRequestItem.herbList +
+      gardenServiceRequestItem.leafyList +
+      gardenServiceRequestItem.rootList +
+      gardenServiceRequestItem.fruitList
+    const initProjectsData = Promise.all(
+      plantList.map(async (plantId) => {
+        const seedDefault = await getSeedDefaultFromPlantId({ plantId: plantId.toString() })
+        if (!seedDefault) {
+          throw new NotFoundError('Seed default not found')
+        }
+        return {
+          plantId: plantId.toString(),
+          seedId: seedDefault._id.toString()
+        }
+      })
+    )
+
+    let projectIds = []
+    Promise.all(
+      initProjectsData.map(async (projectData) => {
+        const projectItem = await initProject({ farmId, project: projectData, isGarden: true, status: 'waiting' })
+        // add PlantFarming to each project with seed Default
+        const plantFarmingItem = await getPlantFarmingBySeedId({ seedId: projectData.seedId })
+        if (!plantFarmingItem) {
+          throw new NotFoundError('Plant farming not found')
+        }
+        const updatedProject = await addPlantFarmingToProject({
+          farmId,
+          projectId: projectItem._id.toString(),
+          plantFarming: plantFarmingItem
+        })
+        projectIds.push(updatedProject._id.toString())
+        if (!updatedProject) {
+          throw new MethodFailureError('Add plant farming to project failed')
+        }
+      })
+    )
+
+    // create Garden
+    const gardenItem = await createGarden({
+      farmId,
+      clientId: gardenServiceRequestItem.client.toString(),
+      projectIds,
+      gardenServiceTemplateId: gardenServiceRequestItem.gardenServiceTemplate.toString(),
+      gardenServiceRequestId: gardenServiceRequestId,
+      startDate: new Date(),
+      note: gardenServiceRequestItem.note
+    })
+
+    if (!gardenItem) {
+      throw new MethodFailureError('Create garden failed')
+    }
+
     return acceptedGardenServiceRequest
   }
 

@@ -147,7 +147,8 @@ const projectSchema = new Schema(
       type: String,
       enum: ['waiting', 'inProgress', 'harvesting', 'almostFinished', 'finished'],
       default: 'waiting'
-    }
+    },
+    isGarden: Boolean
   },
   {
     collection: COLLECTION_NAME,

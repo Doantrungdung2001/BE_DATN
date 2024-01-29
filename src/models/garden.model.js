@@ -5,12 +5,12 @@ const { Schema, model } = require('mongoose')
 const DOCUMENT_NAME = 'Garden'
 const COLLECTION_NAME = 'Gardens'
 
-const deliveryDetailSchema = new mongoose.Schema({
+const deliveryDetailSchema = new Schema({
   plant: { type: Schema.Types.ObjectId, ref: 'Plant' },
   amount: Number
 })
 
-const clientRequestSchema = new mongoose.Schema({
+const clientRequestSchema = new Schema({
   time: Date,
   type: {
     type: String,
@@ -22,7 +22,7 @@ const clientRequestSchema = new mongoose.Schema({
   note: String
 })
 
-const deliverySchema = new mongoose.Schema({
+const deliverySchema = new Schema({
   time: Date,
   deliveryDetails: [deliveryDetailSchema],
   note: String,
@@ -35,7 +35,7 @@ const deliverySchema = new mongoose.Schema({
   clientNote: String
 })
 
-const gardenSchema = new mongoose.Schema(
+const gardenSchema = new Schema(
   {
     farm: { type: Schema.Types.ObjectId, ref: 'Farm' },
     client: { type: Schema.Types.ObjectId, ref: 'Client' },
@@ -48,8 +48,8 @@ const gardenSchema = new mongoose.Schema(
     deliveries: [deliverySchema],
     status: {
       type: String,
-      enum: ['waiting', 'started', 'end'],
-      default: 'waiting'
+      enum: ['started', 'end'],
+      default: 'started'
     }
   },
   {

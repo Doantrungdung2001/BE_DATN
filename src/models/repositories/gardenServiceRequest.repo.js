@@ -1,6 +1,6 @@
 'use strict'
 
-const { gardenServiceRequest } = require('../models/gardenServiceRequest.model')
+const { gardenServiceRequest } = require('../../models/gardenServiceRequest.model')
 const { Types } = require('mongoose')
 const { getSelectData, unGetSelectData } = require('../../utils/index')
 

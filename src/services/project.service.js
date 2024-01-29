@@ -27,12 +27,12 @@ class ProjectService {
   static async getAllProjectsByFarm({ farmId, limit, sort, page }) {
     if (!farmId) throw new BadRequestError('Missing farm id')
     if (!isValidObjectId(farmId)) throw new BadRequestError('Invalid farm id')
-    const filter = { farm: new Types.ObjectId(farmId) }
+    const filter = { farm: new Types.ObjectId(farmId), isGarden: false }
     const projects = await getAllProjectsByFarm({ limit, sort, page, filter })
     return projects
   }
 
-  static async initProject({ farmId, project }) {
+  static async initProject({ farmId, project, isGarden, status }) {
     if (!farmId) throw new BadRequestError('Missing farm id')
     if (!isValidObjectId(farmId)) throw new BadRequestError('Invalid farm id')
     if (!project) throw new BadRequestError('Missing project')
@@ -42,7 +42,7 @@ class ProjectService {
     if (!plantId) throw new BadRequestError('Missing plant id')
     if (!seedId) throw new BadRequestError('Missing seed id')
 
-    const updatedProject = await initProject({ farmId, plantId, seedId, projectData: newProject })
+    const updatedProject = await initProject({ farmId, plantId, seedId, projectData: newProject, isGarden, status })
     if (!updatedProject) throw new MethodFailureError('Cannot init project')
     return updatedProject
   }

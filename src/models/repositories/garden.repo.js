@@ -1,6 +1,6 @@
 'use strict'
 
-const { garden } = require('../models/garden.model')
+const { garden } = require('../../models/garden.model')
 const { Types } = require('mongoose')
 const { getSelectData, unGetSelectData } = require('../../utils/index')
 
@@ -26,10 +26,10 @@ const getAllGardensByFarm = async ({ limit, sort, page, filter } = {}) => {
   return gardens
 }
 
-const getGardenById = async ({ garden_id }) => {
+const getGardenById = async ({ gardenId }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
     })
     .populate('farm')
     .populate('client')
@@ -40,10 +40,10 @@ const getGardenById = async ({ garden_id }) => {
   return foundGarden
 }
 
-const getProjectsInfoByGarden = async ({ garden_id }) => {
+const getProjectsInfoByGarden = async ({ gardenId }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
     })
     .populate({
       path: 'projects',
@@ -56,10 +56,10 @@ const getProjectsInfoByGarden = async ({ garden_id }) => {
   return foundGarden.projects
 }
 
-const getProjectPlantFarmingByGarden = async ({ garden_id }) => {
+const getProjectPlantFarmingByGarden = async ({ gardenId }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
     })
     .populate({
       path: 'projects',
@@ -72,10 +72,10 @@ const getProjectPlantFarmingByGarden = async ({ garden_id }) => {
   return foundGarden.projects
 }
 
-const getProjectProcessByGarden = async ({ garden_id }) => {
+const getProjectProcessByGarden = async ({ gardenId }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
     })
     .populate({
       path: 'projects',
@@ -86,10 +86,10 @@ const getProjectProcessByGarden = async ({ garden_id }) => {
   return foundGarden.projects
 }
 
-const getClientRequestsByGarden = async ({ garden_id }) => {
+const getClientRequestsByGarden = async ({ gardenId }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
     })
     .populate({
       path: 'clientRequests',
@@ -101,10 +101,10 @@ const getClientRequestsByGarden = async ({ garden_id }) => {
   return foundGarden.clientRequests
 }
 
-const getDeliveriesByGarden = async ({ garden_id }) => {
+const getDeliveriesByGarden = async ({ gardenId }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
     })
     .populate({
       path: 'deliveries',
@@ -140,10 +140,26 @@ const createGarden = async ({
   return createdGarden
 }
 
-const updateGardenStatus = async ({ garden_id, status }) => {
+const addNewProjectToGarden = async ({ gardenId, projectId }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
+    })
+    .exec()
+
+  if (!foundGarden) return null
+
+  foundGarden.projects.push(new Types.ObjectId(projectId))
+
+  await foundGarden.save()
+
+  return foundGarden
+}
+
+const updateGardenStatus = async ({ gardenId, status }) => {
+  const foundGarden = await garden
+    .findOne({
+      _id: new Types.ObjectId(gardenId)
     })
     .exec()
 
@@ -155,10 +171,10 @@ const updateGardenStatus = async ({ garden_id, status }) => {
   return foundGarden
 }
 
-const addDelivery = async ({ garden_id, deliveryDetails, note, status }) => {
+const addDelivery = async ({ gardenId, deliveryDetails, note, status }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
     })
     .exec()
   if (!foundGarden) return null
@@ -180,15 +196,15 @@ const addDelivery = async ({ garden_id, deliveryDetails, note, status }) => {
   return foundGarden.deliveries
 }
 
-const updateDelivery = async ({ garden_id, delivery_id, deliveryDetails, note, status }) => {
+const updateDelivery = async ({ gardenId, deliveryId, deliveryDetails, note, status }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
     })
     .exec()
   if (!foundGarden) return null
 
-  const foundDelivery = foundGarden.deliveries.find((delivery) => delivery._id.toString() === delivery_id)
+  const foundDelivery = foundGarden.deliveries.find((delivery) => delivery._id.toString() === deliveryId)
   if (!foundDelivery) return null
 
   if (deliveryDetails) {
@@ -212,15 +228,15 @@ const updateDelivery = async ({ garden_id, delivery_id, deliveryDetails, note, s
   return foundDelivery
 }
 
-const deleteDelivery = async ({ garden_id, delivery_id }) => {
+const deleteDelivery = async ({ gardenId, deliveryId }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
     })
     .exec()
   if (!foundGarden) return null
 
-  const foundDeliveryIndex = foundGarden.deliveries.findIndex((delivery) => delivery._id.toString() === delivery_id)
+  const foundDeliveryIndex = foundGarden.deliveries.findIndex((delivery) => delivery._id.toString() === deliveryId)
   if (foundDeliveryIndex === -1) return null
 
   foundGarden.deliveries.splice(foundDeliveryIndex, 1)
@@ -230,10 +246,10 @@ const deleteDelivery = async ({ garden_id, delivery_id }) => {
   return modifiedCount
 }
 
-const addClientRequest = async ({ garden_id, type, newPlant, deliveryDetails, note }) => {
+const addClientRequest = async ({ gardenId, type, newPlant, deliveryDetails, note }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
     })
     .exec()
   if (!foundGarden) return null
@@ -256,16 +272,16 @@ const addClientRequest = async ({ garden_id, type, newPlant, deliveryDetails, no
   return foundGarden.clientRequests
 }
 
-const updateClientRequest = async ({ garden_id, clientRequest_id, type, newPlant, deliveryDetails, note }) => {
+const updateClientRequest = async ({ gardenId, clientRequestId, type, newPlant, deliveryDetails, note }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
     })
     .exec()
   if (!foundGarden) return null
 
   const foundClientRequest = foundGarden.clientRequests.find(
-    (clientRequest) => clientRequest._id.toString() === clientRequest_id
+    (clientRequest) => clientRequest._id.toString() === clientRequestId
   )
   if (!foundClientRequest) return null
 
@@ -294,16 +310,16 @@ const updateClientRequest = async ({ garden_id, clientRequest_id, type, newPlant
   return foundClientRequest
 }
 
-const deleteClientRequest = async ({ garden_id, clientRequest_id }) => {
+const deleteClientRequest = async ({ gardenId, clientRequestId }) => {
   const foundGarden = await garden
     .findOne({
-      _id: new Types.ObjectId(garden_id)
+      _id: new Types.ObjectId(gardenId)
     })
     .exec()
   if (!foundGarden) return null
 
   const foundClientRequestIndex = foundGarden.clientRequests.findIndex(
-    (clientRequest) => clientRequest._id.toString() === clientRequest_id
+    (clientRequest) => clientRequest._id.toString() === clientRequestId
   )
   if (foundClientRequestIndex === -1) return null
 
@@ -323,6 +339,7 @@ module.exports = {
   getClientRequestsByGarden,
   getDeliveriesByGarden,
   createGarden,
+  addNewProjectToGarden,
   updateGardenStatus,
   addDelivery,
   updateDelivery,
