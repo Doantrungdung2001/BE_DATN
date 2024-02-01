@@ -1,5 +1,5 @@
-const farm = require('../models/farm.model');
-const { Types } = require('mongoose');
+const farm = require('../models/farm.model')
+const { Types } = require('mongoose')
 
 const getFarm = async ({ farmId }) => {
   const foundFarm = await farm
@@ -12,5 +12,5 @@ const getFarm = async ({ farmId }) => {
 }
 
 module.exports = {
-    getFarm
-    }
+  getFarm
+}

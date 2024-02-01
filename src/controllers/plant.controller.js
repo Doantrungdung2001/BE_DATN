@@ -12,6 +12,17 @@ class PlantController {
     }).send(res)
   }
 
+  // add Plant by recomment plantId
+  addPlantByRecommentPlantId = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Create new Plant by recomment plantId success!',
+      metadata: await PlantService.addPlantByRecommentPlantId({
+        recommentPlantId: req.params.recommentPlantId,
+        farmId: req.user.userId
+      })
+    }).send(res)
+  }
+
   // update Plant
   updatePlant = async (req, res, next) => {
     new SuccessResponse({
