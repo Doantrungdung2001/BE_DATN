@@ -47,7 +47,7 @@ class ProjectService {
     return updatedProject
   }
 
-  static async getProjectInfo(projectId) {
+  static async getProjectInfo({projectId}) {
     if (!projectId) throw new BadRequestError('Missing project id')
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     const project = await getProjectInfo({
@@ -67,7 +67,7 @@ class ProjectService {
     if (seed && !isValidObjectId(seed)) throw new BadRequestError('Invalid seed id')
     const projectUpdate = removeUndefinedObject({ seed, startDate, square, status })
 
-    const updatedProject = await updateProjectInfo({ projectId, project: projectUpdate })
+    const updatedProject = await updateProjectInfo({ projectId, projectData: projectUpdate })
     if (!updatedProject) throw new MethodFailureError('Cannot update project')
     return updatedProject
   }
@@ -156,7 +156,7 @@ class ProjectService {
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     if (!expect) throw new BadRequestError('Missing expect')
 
-    const updatedProject = await addExpect({ projectId, expect: expect })
+    const updatedProject = await addExpect({ projectId, expect: {...expect, isEdited: false} })
     if (!updatedProject) throw new MethodFailureError('Cannot add expect')
     return updatedProject
   }
