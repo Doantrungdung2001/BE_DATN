@@ -187,21 +187,23 @@ class GardenServiceRequestService {
       ...gardenServiceRequestItem.fruitList
       ]
 
-    const initProjectsData = Promise.all(
+    const initProjectsData = await Promise.all(
       plantList.map(async (plant) => {
         const seedDefault = await getSeedDefaultFromPlantId({ plantId: plant._id.toString() })
         if (!seedDefault) {
           throw new NotFoundError('Seed default not found')
         }
         return {
-          plantId: plantId.toString(),
+          plantId: plant._id.toString(),
           seedId: seedDefault._id.toString()
         }
       })
     )
 
+    console.log('initProjectsData: ', initProjectsData)
+
     let projectIds = []
-    Promise.all(
+    await Promise.all(
       initProjectsData.map(async (projectData) => {
         const projectItem = await initProject({ farmId, project: projectData, isGarden: true, status: 'waiting' })
         // add PlantFarming to each project with seed Default
@@ -214,7 +216,7 @@ class GardenServiceRequestService {
           projectId: projectItem._id.toString(),
           plantFarming: plantFarmingItem
         })
-        projectIds.push(updatedProject._id.toString())
+        projectIds.push(projectItem._id.toString())
         if (!updatedProject) {
           throw new MethodFailureError('Add plant farming to project failed')
         }
@@ -224,12 +226,14 @@ class GardenServiceRequestService {
     // create Garden
     const gardenItem = await createGarden({
       farmId,
-      clientId: gardenServiceRequestItem.client.toString(),
-      projectIds,
-      gardenServiceTemplateId: gardenServiceRequestItem.gardenServiceTemplate.toString(),
-      gardenServiceRequestId: gardenServiceRequestId,
-      startDate: new Date(),
-      note: gardenServiceRequestItem.note
+      clientId: gardenServiceRequestItem.client._id.toString(),
+      gardenData: {
+        projectIds,
+        gardenServiceTemplateId: gardenServiceRequestItem.gardenServiceTemplate._id.toString(),
+        gardenServiceRequestId: gardenServiceRequestId,
+        startDate: new Date(),
+        note: gardenServiceRequestItem.note
+      }
     })
 
     if (!gardenItem) {
@@ -250,7 +254,7 @@ class GardenServiceRequestService {
       throw new NotFoundError('GardenServiceRequest not found')
     }
 
-    if (gardenServiceRequestItem.farm.toString() !== farmId) {
+    if (gardenServiceRequestItem.farm._id.toString() !== farmId) {
       throw new MethodFailureError('Not authorized to reject this GardenServiceRequest')
     }
 

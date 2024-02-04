@@ -104,6 +104,8 @@ class GardenService {
   }) {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
+    if (!clientId) throw new BadRequestError('ClientId is required')
+    if (!isValidObjectId(clientId)) throw new BadRequestError('ClientId is not valid')
     if (!gardenServiceTemplateId) throw new BadRequestError('GardenServiceTemplateId is required')
     if (!isValidObjectId(gardenServiceTemplateId)) throw new BadRequestError('GardenServiceTemplateId is not valid')
     if (!startDate) throw new BadRequestError('StartDate is required')
