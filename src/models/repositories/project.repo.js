@@ -1,11 +1,12 @@
 'use strict'
 
 const { project } = require('../../models/project.model')
+const {distributer} = require('../../models/distributer.model')
 const { Types } = require('mongoose')
 const { getSelectData, unGetSelectData } = require('../../utils/index')
 
 const getAllProjectsByFarm = async ({ limit, sort, page, filter } = {}) => {
-  let query = project.find(filter || {})
+  let query = project.find(filter || {}).populate('farm').populate('plant').populate('seed')
 
   if (sort) {
     const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
@@ -21,13 +22,14 @@ const getAllProjectsByFarm = async ({ limit, sort, page, filter } = {}) => {
   return projects
 }
 
-const initProject = async ({ projectData, farmId, plantId, seedId }) => {
+const initProject = async ({ projectData, farmId, plantId, seedId, isGarden, status }) => {
   return await project.create({
     ...projectData,
     farm: new Types.ObjectId(farmId),
     plant: new Types.ObjectId(plantId),
     seed: new Types.ObjectId(seedId),
-    status: 'inProgress'
+    status,
+    isGarden
   })
 }
 

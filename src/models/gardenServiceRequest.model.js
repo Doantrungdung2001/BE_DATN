@@ -5,7 +5,7 @@ const { Schema, model } = require('mongoose')
 const DOCUMENT_NAME = 'GardenServiceRequest'
 const COLLECTION_NAME = 'GardenServiceRequests'
 
-const gardenServiceRequesSchema = new Schema(
+const gardenServiceRequestSchema = new Schema(
   {
     time: Date,
     client: { type: Schema.Types.ObjectId, ref: 'Client' },
@@ -29,5 +29,5 @@ const gardenServiceRequesSchema = new Schema(
 )
 
 module.exports = {
-  gardenServiceRequest: model(DOCUMENT_NAME, gardenServiceRequesSchema)
+  gardenServiceRequest: model(DOCUMENT_NAME, gardenServiceRequestSchema)
 }

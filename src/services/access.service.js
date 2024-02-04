@@ -7,7 +7,7 @@ const KeyTokenService = require('../services/keyToken.service')
 const { createTokenPair, verifyJWT } = require('../auth/authUtils')
 const { getInfoData } = require('../utils')
 const { BadRequestError, AuthFailureError, ForbiddenError } = require('../core/error.response')
-const { findByEmail } = require('./farm.service')
+const { findByEmail, getFarm } = require('./farm.service')
 
 const RoleFarm = {
   FARM: 'FARM',
@@ -29,7 +29,7 @@ class AccessService {
       name,
       email,
       password: passwordHash,
-      roles: [RoleFarm.SHOP]
+      roles: [RoleFarm.FARM]
     })
 
     if (newFarm) {
@@ -125,6 +125,13 @@ class AccessService {
     const delKey = await KeyTokenService.removeKeyById(keyStore._id)
     console.log({ delKey })
     return delKey
+  }
+
+  static getFarm = async ({ farmId }) => {
+    const foundFarm = await getFarm({ farmId })
+    if (!foundFarm) throw new BadRequestError('Farm not registered')
+
+    return foundFarm
   }
 
   /**

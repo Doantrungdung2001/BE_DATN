@@ -27,12 +27,12 @@ class ProjectService {
   static async getAllProjectsByFarm({ farmId, limit, sort, page }) {
     if (!farmId) throw new BadRequestError('Missing farm id')
     if (!isValidObjectId(farmId)) throw new BadRequestError('Invalid farm id')
-    const filter = { farm: new Types.ObjectId(farmId) }
+    const filter = { farm: new Types.ObjectId(farmId), isGarden: false }
     const projects = await getAllProjectsByFarm({ limit, sort, page, filter })
     return projects
   }
 
-  static async initProject({ farmId, project }) {
+  static async initProject({ farmId, project, isGarden, status }) {
     if (!farmId) throw new BadRequestError('Missing farm id')
     if (!isValidObjectId(farmId)) throw new BadRequestError('Invalid farm id')
     if (!project) throw new BadRequestError('Missing project')
@@ -42,12 +42,12 @@ class ProjectService {
     if (!plantId) throw new BadRequestError('Missing plant id')
     if (!seedId) throw new BadRequestError('Missing seed id')
 
-    const updatedProject = await initProject({ farmId, plantId, seedId, projectData: newProject })
+    const updatedProject = await initProject({ farmId, plantId, seedId, projectData: newProject, isGarden, status })
     if (!updatedProject) throw new MethodFailureError('Cannot init project')
     return updatedProject
   }
 
-  static async getProjectInfo(projectId) {
+  static async getProjectInfo({projectId}) {
     if (!projectId) throw new BadRequestError('Missing project id')
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     const project = await getProjectInfo({
@@ -67,7 +67,7 @@ class ProjectService {
     if (seed && !isValidObjectId(seed)) throw new BadRequestError('Invalid seed id')
     const projectUpdate = removeUndefinedObject({ seed, startDate, square, status })
 
-    const updatedProject = await updateProjectInfo({ projectId, project: projectUpdate })
+    const updatedProject = await updateProjectInfo({ projectId, projectData: projectUpdate })
     if (!updatedProject) throw new MethodFailureError('Cannot update project')
     return updatedProject
   }
@@ -156,7 +156,7 @@ class ProjectService {
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     if (!expect) throw new BadRequestError('Missing expect')
 
-    const updatedProject = await addExpect({ projectId, expect: expect })
+    const updatedProject = await addExpect({ projectId, expect: {...expect, isEdited: false} })
     if (!updatedProject) throw new MethodFailureError('Cannot add expect')
     return updatedProject
   }

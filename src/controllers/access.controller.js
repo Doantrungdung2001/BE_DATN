@@ -37,6 +37,15 @@ class AccessController {
     }).send(res)
   }
 
+  getFarm = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Get farm success',
+      metadata: await AccessService.getFarm({
+        farmId: req.user.userId
+      })
+    }).send(res)
+  }
+
   test = async (req, res, next) => {
     new SuccessResponse({
       message: 'Passes authentication',

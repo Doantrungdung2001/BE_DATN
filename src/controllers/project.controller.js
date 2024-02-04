@@ -8,7 +8,12 @@ class ProjectController {
   initProject = async (req, res, next) => {
     new SuccessResponse({
       message: 'Create new Project success!',
-      metadata: await ProjectService.initProject({ project: req.body, farmId: req.user.userId })
+      metadata: await ProjectService.initProject({
+        project: req.body,
+        farmId: req.user.userId,
+        isGarden: false,
+        status: 'inProgress'
+      })
     }).send(res)
   }
 
