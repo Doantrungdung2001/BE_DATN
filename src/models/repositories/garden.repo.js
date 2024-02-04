@@ -34,7 +34,10 @@ const getGardenById = async ({ gardenId }) => {
     .populate('farm')
     .populate('client')
     .populate('gardenServiceTemplate')
-    .populate('gardenServiceRequest')
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: [{ path: 'herbList' }, { path: 'leafyList' }, { path: 'rootList' }, { path: 'fruitList' }]
+    })
     .exec()
 
   return foundGarden

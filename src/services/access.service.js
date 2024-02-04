@@ -8,7 +8,7 @@ const { createTokenPair, verifyJWT } = require('../auth/authUtils')
 const { getInfoData } = require('../utils')
 const { BadRequestError, AuthFailureError, ForbiddenError, MethodFailureError } = require('../core/error.response')
 const { findUserByEmail, getUser, addUser } = require('./user.service')
-const {client} = require('../models/client.model')
+const { client } = require('../models/client.model')
 
 const Role = {
   FARM: 'FARM',
@@ -37,7 +37,7 @@ class AccessService {
         name: name
       })
 
-      if(!newFarm) throw new MethodFailureError('Farm registration failed')
+      if (!newFarm) throw new MethodFailureError('Farm registration failed')
     }
 
     if (role === Role.CLIENT) {
@@ -45,45 +45,44 @@ class AccessService {
         _id: newUser._id,
         name: name
       })
-      if(!newClient) throw new MethodFailureError('User registration failed')
+      if (!newClient) throw new MethodFailureError('User registration failed')
     }
 
-      // created privateKey, publicKey
-      const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-        modulusLength: 4096,
-        publicKeyEncoding: {
-          type: 'pkcs1', //Public key CryptoGraphy Standards
-          format: 'pem'
-        },
-        privateKeyEncoding: {
-          type: 'pkcs1', //Public key CryptoGraphy Standards
-          format: 'pem'
-        }
-      })
-
-
-      const keyStore = await KeyTokenService.createKeyToken({
-        userId: newUser._id,
-        publicKey
-      })
-
-      if (!keyStore) {
-        return {
-          code: 'xxxx',
-          message: 'keyStore error'
-        }
+    // created privateKey, publicKey
+    const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 4096,
+      publicKeyEncoding: {
+        type: 'pkcs1', //Public key CryptoGraphy Standards
+        format: 'pem'
+      },
+      privateKeyEncoding: {
+        type: 'pkcs1', //Public key CryptoGraphy Standards
+        format: 'pem'
       }
+    })
 
-      // created token pair
-      const tokens = await createTokenPair({ userId: newUser._id, email, roles: newUser.roles }, publicKey, privateKey)
-      console.log(`Created Token Success::`, tokens)
+    const keyStore = await KeyTokenService.createKeyToken({
+      userId: newUser._id,
+      publicKey
+    })
+
+    if (!keyStore) {
       return {
-        code: 201,
-        metadata: {
-          user: getInfoData({ fields: ['_id', 'email'], object: newUser }),
-          tokens
-        }
+        code: 'xxxx',
+        message: 'keyStore error'
       }
+    }
+
+    // created token pair
+    const tokens = await createTokenPair({ userId: newUser._id, email, roles: newUser.roles }, publicKey, privateKey)
+    console.log(`Created Token Success::`, tokens)
+    return {
+      code: 201,
+      metadata: {
+        user: getInfoData({ fields: ['_id', 'email'], object: newUser }),
+        tokens
+      }
+    }
   }
 
   /**

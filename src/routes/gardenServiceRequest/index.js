@@ -29,11 +29,17 @@ router.get(
 router.use(authenticationV2)
 ////////////
 router.post('/', isClient, asyncHandler(gardenServiceRequestController.addGardenServiceRequest))
-router.patch('/:gardenServiceRequestId', isClient, asyncHandler(gardenServiceRequestController.updateGardenServiceRequest))
-router.delete('/:gardenServiceRequestId', isClient, asyncHandler(gardenServiceRequestController.deleteGardenServiceRequest))
+router.patch(
+  '/:gardenServiceRequestId',
+  isClient,
+  asyncHandler(gardenServiceRequestController.updateGardenServiceRequest)
+)
+router.delete(
+  '/:gardenServiceRequestId',
+  isClient,
+  asyncHandler(gardenServiceRequestController.deleteGardenServiceRequest)
+)
 router.patch('/:gardenServiceRequestId/accept', asyncHandler(gardenServiceRequestController.acceptGardenServiceRequest))
 router.patch('/:gardenServiceRequestId/reject', asyncHandler(gardenServiceRequestController.rejectGardenServiceRequest))
-
-
 
 module.exports = router

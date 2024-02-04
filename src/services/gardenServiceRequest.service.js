@@ -180,12 +180,12 @@ class GardenServiceRequestService {
     }
 
     // init project for each plant with seed Default
-    const plantList =
-      [...gardenServiceRequestItem.herbList,
+    const plantList = [
+      ...gardenServiceRequestItem.herbList,
       ...gardenServiceRequestItem.leafyList,
       ...gardenServiceRequestItem.rootList,
       ...gardenServiceRequestItem.fruitList
-      ]
+    ]
 
     const initProjectsData = await Promise.all(
       plantList.map(async (plant) => {
