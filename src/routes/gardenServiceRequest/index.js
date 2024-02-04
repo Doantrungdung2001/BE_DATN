@@ -3,7 +3,7 @@
 const express = require('express')
 const gardenServiceRequestController = require('../../controllers/gardenServiceRequest.controller')
 const asyncHandler = require('../../helpers/asyncHandler')
-const { authenticationV2 } = require('../../auth/authUtils')
+const { authenticationV2, isClient } = require('../../auth/authUtils')
 
 const router = express.Router()
 
@@ -28,10 +28,12 @@ router.get(
 // Authentication
 router.use(authenticationV2)
 ////////////
-router.post('/', asyncHandler(gardenServiceRequestController.addGardenServiceRequest))
-router.patch('/:gardenServiceRequestId', asyncHandler(gardenServiceRequestController.updateGardenServiceRequest))
-router.delete('/:gardenServiceRequestId', asyncHandler(gardenServiceRequestController.deleteGardenServiceRequest))
+router.post('/', isClient, asyncHandler(gardenServiceRequestController.addGardenServiceRequest))
+router.patch('/:gardenServiceRequestId', isClient, asyncHandler(gardenServiceRequestController.updateGardenServiceRequest))
+router.delete('/:gardenServiceRequestId', isClient, asyncHandler(gardenServiceRequestController.deleteGardenServiceRequest))
 router.patch('/:gardenServiceRequestId/accept', asyncHandler(gardenServiceRequestController.acceptGardenServiceRequest))
 router.patch('/:gardenServiceRequestId/reject', asyncHandler(gardenServiceRequestController.rejectGardenServiceRequest))
+
+
 
 module.exports = router

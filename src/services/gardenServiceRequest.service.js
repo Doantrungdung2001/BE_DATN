@@ -1,6 +1,6 @@
 const { Types } = require('mongoose')
 const {
-  gerAllGardenServiceRequestsByFarm,
+  getAllGardenServiceRequestsByFarm,
   getGardenServiceRequestByGardenServiceRequestId,
   addGardenServiceRequest,
   updateGardenServiceRequest,
@@ -20,7 +20,7 @@ class GardenServiceRequestService {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
     const filter = { farm: new Types.ObjectId(farmId) }
-    const gardenServiceRequests = await gerAllGardenServiceRequestsByFarm({ limit, sort, page, filter })
+    const gardenServiceRequests = await getAllGardenServiceRequestsByFarm({ limit, sort, page, filter })
 
     return gardenServiceRequests
   }
@@ -29,7 +29,7 @@ class GardenServiceRequestService {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
     const filter = { farm: new Types.ObjectId(farmId), status: 'waiting' }
-    const gardenServiceRequests = await gerAllGardenServiceRequestsByFarm({ limit, sort, page, filter })
+    const gardenServiceRequests = await getAllGardenServiceRequestsByFarm({ limit, sort, page, filter })
 
     return gardenServiceRequests
   }
@@ -38,7 +38,7 @@ class GardenServiceRequestService {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
     const filter = { farm: new Types.ObjectId(farmId), status: 'accepted' }
-    const gardenServiceRequests = await gerAllGardenServiceRequestsByFarm({ limit, sort, page, filter })
+    const gardenServiceRequests = await getAllGardenServiceRequestsByFarm({ limit, sort, page, filter })
 
     return gardenServiceRequests
   }
@@ -47,7 +47,7 @@ class GardenServiceRequestService {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
     const filter = { farm: new Types.ObjectId(farmId), status: 'rejected' }
-    const gardenServiceRequests = await gerAllGardenServiceRequestsByFarm({ limit, sort, page, filter })
+    const gardenServiceRequests = await getAllGardenServiceRequestsByFarm({ limit, sort, page, filter })
 
     return gardenServiceRequests
   }
@@ -63,8 +63,8 @@ class GardenServiceRequestService {
   }
 
   static async addGardenServiceRequest({ gardenServiceRequestData, clientId }) {
-    if (!farmId) throw new BadRequestError('FarmId is required')
-    if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
+    if (!clientId) throw new BadRequestError('FarmId is required')
+    if (!isValidObjectId(clientId)) throw new BadRequestError('clientId is not valid')
     if (!gardenServiceRequestData) throw new BadRequestError('GardenServiceRequest data is required')
     const { time, gardenServiceTemplateId, herbListId, leafyListId, rootListId, fruitListId, note } =
       gardenServiceRequestData
@@ -167,7 +167,7 @@ class GardenServiceRequestService {
       throw new NotFoundError('GardenServiceRequest not found')
     }
 
-    if (gardenServiceRequestItem.farm.toString() !== farmId) {
+    if (gardenServiceRequestItem.farm._id.toString() !== farmId) {
       throw new MethodFailureError('Not authorized to accept this GardenServiceRequest')
     }
 
@@ -181,13 +181,15 @@ class GardenServiceRequestService {
 
     // init project for each plant with seed Default
     const plantList =
-      gardenServiceRequestItem.herbList +
-      gardenServiceRequestItem.leafyList +
-      gardenServiceRequestItem.rootList +
-      gardenServiceRequestItem.fruitList
+      [...gardenServiceRequestItem.herbList,
+      ...gardenServiceRequestItem.leafyList,
+      ...gardenServiceRequestItem.rootList,
+      ...gardenServiceRequestItem.fruitList
+      ]
+
     const initProjectsData = Promise.all(
-      plantList.map(async (plantId) => {
-        const seedDefault = await getSeedDefaultFromPlantId({ plantId: plantId.toString() })
+      plantList.map(async (plant) => {
+        const seedDefault = await getSeedDefaultFromPlantId({ plantId: plant._id.toString() })
         if (!seedDefault) {
           throw new NotFoundError('Seed default not found')
         }

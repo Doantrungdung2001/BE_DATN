@@ -80,6 +80,7 @@ class SeedService {
     }
     const seedDefault = await getSeedDefaultFromPlantId({ plantId })
     if (!seedDefault) {
+      console.log('plantId: ', plantId)
       throw new NotFoundError('Recommend not worked with this plant, cause Seed default not found')
     }
     return seedDefault
