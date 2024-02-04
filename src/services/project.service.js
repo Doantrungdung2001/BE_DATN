@@ -47,7 +47,7 @@ class ProjectService {
     return updatedProject
   }
 
-  static async getProjectInfo({projectId}) {
+  static async getProjectInfo({ projectId }) {
     if (!projectId) throw new BadRequestError('Missing project id')
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     const project = await getProjectInfo({
@@ -156,7 +156,7 @@ class ProjectService {
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     if (!expect) throw new BadRequestError('Missing expect')
 
-    const updatedProject = await addExpect({ projectId, expect: {...expect, isEdited: false} })
+    const updatedProject = await addExpect({ projectId, expect: { ...expect, isEdited: false } })
     if (!updatedProject) throw new MethodFailureError('Cannot add expect')
     return updatedProject
   }
