@@ -40,6 +40,8 @@ class PlantFarmingService {
       throw new BadRequestError('Farm does not have permission to create plantFarming with this plant id')
     }
 
+    console.log('plantFarmingData in plantFarmingService', plantFarmingData)
+
     const addedPlantFarming = await addPlantFarming({ plantFarmingData, plantId, seedId })
     if (!addedPlantFarming) {
       throw new MethodFailureError('Create plant farming failed')

@@ -11,7 +11,8 @@ class GardenController {
       metadata: await GardenService.addNewProjectToGarden({
         farmId: req.user.userId,
         gardenId: req.params.gardenId,
-        plantId: req.body.plantId
+        plantId: req.body.plantId,
+        seedId: req.body.seedId
       })
     }).send(res)
   }

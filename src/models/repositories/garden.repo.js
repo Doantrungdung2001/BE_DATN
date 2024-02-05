@@ -51,6 +51,10 @@ const getProjectsInfoByGarden = async ({ gardenId }) => {
     .populate({
       path: 'projects',
       populate: { path: 'plant' },
+      select: '_id plant seed startDate status'
+    })
+    .populate({
+      path: 'projects',
       populate: { path: 'seed' },
       select: '_id plant seed startDate status'
     })

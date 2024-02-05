@@ -85,10 +85,10 @@ class ProjectService {
     if (!plantFarming) throw new BadRequestError('Missing plant farming')
 
     const projectInfo = await getProjectInfo({ projectId })
-    console.log(projectInfo)
 
     const plantId = projectInfo.plant._id.toString()
     const seedId = projectInfo.seed._id.toString()
+    console.log('plantFarming in project service: ', plantFarming)
     const addedPlantFarming = await addPlantFarming({ plantFarmingData: plantFarming, farmId: farmId, plantId, seedId })
     if (!addedPlantFarming) throw new MethodFailureError('Cannot add plant farming')
     const updatedProject = await addPlantFarmingToProject({

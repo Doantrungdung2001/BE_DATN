@@ -126,17 +126,17 @@ class GardenService {
     return garden
   }
 
-  static async addNewProjectToGarden({ farmId, gardenId, plantId }) {
+  static async addNewProjectToGarden({ farmId, gardenId, plantId, seedId }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
     if (!plantId) throw new BadRequestError('Project is required')
-    const seedDefault = await getSeedDefaultFromPlantId({ plantId })
-    if (!seedDefault) {
-      throw new NotFoundError('Recommend not worked with this plant, cause Seed default not found')
-    }
+    if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
+    if (!seedId) throw new BadRequestError('SeedId is required')
+    if (!isValidObjectId(seedId)) throw new BadRequestError('SeedId is not valid')
 
     const project = {
       plantId,
-      seedId: seedDefault._id
+      seedId
     }
 
     const projectItem = await initProject({ farmId, project, isGarden: true, status: 'waiting' })
@@ -144,9 +144,14 @@ class GardenService {
       throw new MethodFailureError('Create project failed')
     }
 
-    const plantFarming = await getPlantFarmingBySeedId({ seedId: seedDefault._id })
-    if (!plantFarming) {
+    const plantFarmingList = await getPlantFarmingBySeedId({ seedId })
+    if (!plantFarmingList) {
       throw new NotFoundError('Plant farming not found')
+    }
+
+    let plantFarming = plantFarmingList.find((item) => item.isPlantFarmingDefault === true)
+    if (!plantFarming) {
+      plantFarming = plantFarmingList[0]
     }
 
     const addPlantFarming = await addPlantFarmingToProject({

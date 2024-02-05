@@ -207,10 +207,15 @@ class GardenServiceRequestService {
       initProjectsData.map(async (projectData) => {
         const projectItem = await initProject({ farmId, project: projectData, isGarden: true, status: 'waiting' })
         // add PlantFarming to each project with seed Default
-        const plantFarmingItem = await getPlantFarmingBySeedId({ seedId: projectData.seedId })
-        if (!plantFarmingItem) {
+        const plantFarmingList = await getPlantFarmingBySeedId({ seedId: projectData.seedId })
+        if (!plantFarmingList) {
           throw new NotFoundError('Plant farming not found')
         }
+        let plantFarmingItem = plantFarmingList.find((item) => item.isPlantFarmingDefault === true)
+        if (!plantFarmingItem) {
+          plantFarmingItem = plantFarmingList[0]
+        }
+        console.log('plantFarmingItem: ', plantFarmingItem)
         const updatedProject = await addPlantFarmingToProject({
           farmId,
           projectId: projectItem._id.toString(),
