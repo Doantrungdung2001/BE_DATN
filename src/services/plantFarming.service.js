@@ -120,7 +120,7 @@ class PlantFarmingService {
   static async getAllPlantFarmingByPlant({ plantId, limit, sort, page }) {
     if (!plantId) throw new BadRequestError('Plant id is required')
     if (!isValidObjectId(plantId)) throw new BadRequestError('Plant id is not valid')
-    const filter = { plant: new Types.ObjectId(plantId) }
+    const filter = { plant: new Types.ObjectId(plantId), isPlantFarmingDefault: true }
     return getAllPlantFarmingByPlant({ limit, sort, page, filter })
   }
 
