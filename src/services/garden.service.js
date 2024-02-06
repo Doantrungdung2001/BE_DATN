@@ -126,20 +126,22 @@ class GardenService {
     return garden
   }
 
-  static async addNewProjectToGarden({ farmId, gardenId, plantId, seedId }) {
+  static async addNewProjectToGarden({ farmId, gardenId, plantId, seedId, startDate }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
     if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
     if (!plantId) throw new BadRequestError('Project is required')
     if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
     if (!seedId) throw new BadRequestError('SeedId is required')
     if (!isValidObjectId(seedId)) throw new BadRequestError('SeedId is not valid')
+    if (!startDate) throw new BadRequestError('StartDate is required')
 
     const project = {
       plantId,
-      seedId
+      seedId,
+      startDate
     }
 
-    const projectItem = await initProject({ farmId, project, isGarden: true, status: 'waiting' })
+    const projectItem = await initProject({ farmId, project, isGarden: true, status: 'inProgress', startDate })
     if (!projectItem) {
       throw new MethodFailureError('Create project failed')
     }

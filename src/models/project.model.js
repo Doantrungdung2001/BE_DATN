@@ -145,8 +145,8 @@ const projectSchema = new Schema(
     cameraId: [String],
     status: {
       type: String,
-      enum: ['waiting', 'inProgress', 'harvesting', 'almostFinished', 'finished'],
-      default: 'waiting'
+      enum: ['inProgress', 'harvesting', 'almostFinished', 'finished'],
+      default: 'inProgress'
     },
     isGarden: Boolean
   },

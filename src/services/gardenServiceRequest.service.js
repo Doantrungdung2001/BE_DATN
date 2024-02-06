@@ -205,7 +205,13 @@ class GardenServiceRequestService {
     let projectIds = []
     await Promise.all(
       initProjectsData.map(async (projectData) => {
-        const projectItem = await initProject({ farmId, project: projectData, isGarden: true, status: 'waiting' })
+        const projectItem = await initProject({
+          farmId,
+          project: projectData,
+          isGarden: true,
+          status: 'inProgress',
+          startDate: new Date()
+        })
         // add PlantFarming to each project with seed Default
         const plantFarmingList = await getPlantFarmingBySeedId({ seedId: projectData.seedId })
         if (!plantFarmingList) {

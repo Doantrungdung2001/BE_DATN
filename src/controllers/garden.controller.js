@@ -12,7 +12,8 @@ class GardenController {
         farmId: req.user.userId,
         gardenId: req.params.gardenId,
         plantId: req.body.plantId,
-        seedId: req.body.seedId
+        seedId: req.body.seedId,
+        startDate: req.body.startDate
       })
     }).send(res)
   }
