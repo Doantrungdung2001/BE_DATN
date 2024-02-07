@@ -16,6 +16,7 @@ router.get('/:plantFarmingId', asyncHandler(plantFarmingController.getPlantFarmi
 // Authentication
 router.use(authenticationV2)
 ////////////
+router.post('/add/:plantId/:seedId', asyncHandler(plantFarmingController.addPlantFarmingWithRecommendPlantIdAndSeedId))
 router.post('/', asyncHandler(plantFarmingController.addPlantFarming))
 router.patch('/:plantFarmingId', asyncHandler(plantFarmingController.updatePlantFarming))
 router.delete('/:plantFarmingId', asyncHandler(plantFarmingController.deletePlantFarming))

@@ -17,7 +17,8 @@ const { isValidObjectId, removeUndefinedObject, updateNestedObjectParser } = req
 const {
   getSeedDefaultFromPlantId,
   getSeedFromSeedNameAndPlantId,
-  checkSeedValidFromSeedNameAndPlant
+  checkSeedValidFromSeedNameAndPlant,
+  getSeedBySeedId
 } = require('./seed.service')
 class PlantFarmingService {
   static async addPlantFarming({ plantFarmingData, farmId, plantId, seedId }) {
@@ -43,6 +44,48 @@ class PlantFarmingService {
     console.log('plantFarmingData in plantFarmingService', plantFarmingData)
 
     const addedPlantFarming = await addPlantFarming({ plantFarmingData, plantId, seedId })
+    if (!addedPlantFarming) {
+      throw new MethodFailureError('Create plant farming failed')
+    }
+    return addedPlantFarming
+  }
+
+  static async addPlantFarmingWithRecommendPlantIdAndSeedId({ plantFarmingData, farmId, plantId, seedId }) {
+    if (!farmId) throw new BadRequestError('FarmId is required')
+    if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
+    if (!plantId) throw new BadRequestError('PlantId is required')
+    if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
+    if (!seedId) throw new BadRequestError('SeedId is required')
+    if (!isValidObjectId(seedId)) throw new BadRequestError('SeedId is not valid')
+    if (plantFarmingData._id) delete plantFarmingData._id
+    if (plantFarmingData.plant) delete plantFarmingData.plant
+    if (plantFarmingData.seed) delete plantFarmingData.seed
+
+    const plantItem = await getPlantByPlantId({ plantId })
+    if (!plantItem) {
+      throw new BadRequestError('Plant does not exist with this plant id')
+    }
+
+    const seedItem = await getSeedBySeedId({ seedId })
+
+    const plantInFarm = await getPlantByPlantNameAndFarmId({ plantName: plantItem.plant_name, farmId })
+    if (!plantInFarm) {
+      throw new BadRequestError('Plant does not exist in farm')
+    }
+
+    const seedInFarm = await getSeedFromSeedNameAndPlantId({
+      seedName: seedItem.seed_name,
+      plantId: plantInFarm._id.toString()
+    })
+    if (!seedInFarm) {
+      throw new BadRequestError('Seed does not exist in farm')
+    }
+
+    const addedPlantFarming = await addPlantFarming({
+      plantFarmingData,
+      plantId: plantInFarm._id.toString(),
+      seedId: seedInFarm._id.toString()
+    })
     if (!addedPlantFarming) {
       throw new MethodFailureError('Create plant farming failed')
     }
