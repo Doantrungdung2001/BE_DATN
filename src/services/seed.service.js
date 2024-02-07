@@ -161,7 +161,7 @@ class SeedService {
     return createdSeed
   }
 
-  static async addSeedByRecommentSeedId({ recommentSeedId, farmId }) {
+  static async addSeedByRecommentSeedId({ recommentSeedId, farmId, isSeedDefault }) {
     if (!recommentSeedId) {
       throw new BadRequestError('Recomment seed id is required')
     }
@@ -192,7 +192,7 @@ class SeedService {
       throw new MethodFailureError('Seed already exists')
     }
 
-    const createdSeed = addSeed({ seedData, plantId: plantInFarm._id.toString() })
+    const createdSeed = addSeed({ seedData: { ...seedData, isSeedDefault }, plantId: plantInFarm._id.toString() })
     if (!createdSeed) {
       throw new MethodFailureError('Create seed failed')
     }

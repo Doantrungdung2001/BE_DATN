@@ -17,7 +17,8 @@ class SeedController {
       message: 'Create new Seed by recomment seedId success!',
       metadata: await SeedService.addSeedByRecommentSeedId({
         recommentSeedId: req.params.recommentSeedId,
-        farmId: req.user.userId
+        farmId: req.user.userId,
+        isSeedDefault: req.body.isSeedDefault
       })
     }).send(res)
   }

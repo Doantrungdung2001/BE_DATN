@@ -46,6 +46,20 @@ class PlantService {
     return plantItem
   }
 
+  static async getDefaultPlantByPlantId({ plantId, farmId }) {
+    if (!plantId) throw new BadRequestError('PlantId is required')
+    if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
+    const plantItem = await getPlantByPlantId({ plantId })
+    if (!plantItem) {
+      throw new NotFoundError('Plant not found')
+    }
+    const plantDefaultItem = await getPlantByPlantNameAndFarmId({ plantName: plantItem.plant_name, farmId })
+    if (!plantDefaultItem) {
+      throw new NotFoundError('Default Plant not found')
+    }
+
+    return plantDefaultItem
+  }
   static async addPlant({ plantData, farmId }) {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
