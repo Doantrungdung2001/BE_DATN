@@ -186,6 +186,13 @@ class ProjectController {
       metadata: await ProjectService.getOutput({ projectId: req.params.projectId })
     }).send(res)
   }
+
+  getPlantFarming = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get PlantFarming success!',
+      metadata: await ProjectService.getPlantFarming({ projectId: req.params.projectId })
+    }).send(res)
+  }
   // END QUERY //
 }
 

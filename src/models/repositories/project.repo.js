@@ -272,6 +272,12 @@ const deleteOutput = async ({ projectId, outputId }) => {
   return result
 }
 
+const getPlantFarmingId = async ({ projectId }) => {
+  const projectInfo = await project.findOne({ _id: new Types.ObjectId(projectId) }).select('plantFarming').lean().exec()
+
+  return projectInfo.plantFarming
+}
+
 module.exports = {
   getAllProjectsByFarm,
   initProject,
@@ -290,5 +296,6 @@ module.exports = {
   getOutput,
   addOutput,
   updateOutput,
-  deleteOutput
+  deleteOutput,
+  getPlantFarmingId
 }
