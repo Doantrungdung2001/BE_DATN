@@ -227,10 +227,31 @@ class GardenService {
       throw new NotFoundError('Garden not found')
     }
 
-    if (gardenItem.farm.toString() !== farmId) {
+    if (gardenItem.farm._id.toString() !== farmId) {
       throw new BadRequestError('Not permission to add delivery')
     }
-    const garden = await addDelivery({ gardenId, deliveryData })
+
+    const { deliveryDetails, note } = deliveryData
+    if (!deliveryDetails) throw new BadRequestError('DeliveryDetails is required')
+    if (!Array.isArray(deliveryDetails)) throw new BadRequestError('DeliveryDetails must be an array')
+    let formattedDeliveryDetails = []
+    for (const detail of deliveryDetails) {
+      if (!detail.plant) throw new BadRequestError('Plant is required')
+      if (!isValidObjectId(detail.plant)) throw new BadRequestError('Plant is not valid')
+      if (!detail.amount) throw new BadRequestError('Amount is required')
+      formattedDeliveryDetails.push({
+        plant: new Types.ObjectId(detail.plant),
+        amount: detail.amount
+      })
+    }
+    const formatDeliveryData = {
+      time: new Date(),
+      deliveryDetails: formattedDeliveryDetails,
+      note,
+      status: 'coming',
+      clientAccept: false
+    }
+    const garden = await addDelivery({ gardenId, formatDeliveryData })
     if (!garden) {
       throw new MethodFailureError('Add delivery failed')
     }

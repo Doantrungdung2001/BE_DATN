@@ -186,7 +186,7 @@ const updateGardenStatus = async ({ gardenId, status }) => {
   return foundGarden
 }
 
-const addDelivery = async ({ gardenId, deliveryDetails, note, status }) => {
+const addDelivery = async ({ gardenId, formatDeliveryData }) => {
   const foundGarden = await garden
     .findOne({
       _id: new Types.ObjectId(gardenId)
@@ -194,17 +194,7 @@ const addDelivery = async ({ gardenId, deliveryDetails, note, status }) => {
     .exec()
   if (!foundGarden) return null
 
-  const formattedDeliveryDetails = deliveryDetails.map((detail) => ({
-    ...detail,
-    plant: new Types.ObjectId(detail.plant)
-  }))
-
-  foundGarden.deliveries.push({
-    time: new Date(),
-    deliveryDetails: formattedDeliveryDetails,
-    note,
-    status
-  })
+  foundGarden.deliveries.push(formatDeliveryData)
 
   await foundGarden.save()
 
