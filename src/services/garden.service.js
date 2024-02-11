@@ -260,17 +260,38 @@ class GardenService {
 
   static async updateDelivery({ farmId, gardenId, deliveryId, deliveryData }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
-    if (!deliveryId) throw new BadRequestError('DeliveryId is required')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
     if (!deliveryData) throw new BadRequestError('Delivery data is required')
+    if (!deliveryId) throw new BadRequestError('DeliveryId is required')
+    if (!isValidObjectId(deliveryId)) throw new BadRequestError('DeliveryId is not valid')
     const gardenItem = await getGardenById({ gardenId })
     if (!gardenItem) {
       throw new NotFoundError('Garden not found')
     }
 
-    if (gardenItem.farm.toString() !== farmId) {
+    if (gardenItem.farm._id.toString() !== farmId) {
       throw new BadRequestError('Not permission to add delivery')
     }
-    const garden = await updateDelivery({ gardenId, deliveryId, deliveryData })
+
+    const { deliveryDetails, note, status } = deliveryData
+    let formattedDeliveryDetails = []
+    if (deliveryDetails) {
+      if (!Array.isArray(deliveryDetails)) throw new BadRequestError('DeliveryDetails must be an array')
+      for (const detail of deliveryDetails) {
+        if (!detail.plant) throw new BadRequestError('Plant is required')
+        if (!isValidObjectId(detail.plant)) throw new BadRequestError('Plant is not valid')
+        if (!detail.amount) throw new BadRequestError('Amount is required')
+        formattedDeliveryDetails.push({
+          plant: new Types.ObjectId(detail.plant),
+          amount: detail.amount
+        })
+      }
+    }
+
+    if(status) {
+      if (status !== 'coming' && status !== 'done' && status !== 'cancel') throw new BadRequestError('Status is not valid')
+    }
+    const garden = await updateDelivery({ gardenId, deliveryId, deliveryDetails: formattedDeliveryDetails, note, status})
     if (!garden) {
       throw new MethodFailureError('Update delivery failed')
     }
@@ -284,8 +305,8 @@ class GardenService {
     if (!gardenItem) {
       throw new NotFoundError('Garden not found')
     }
-    if (gardenItem.farm.toString() !== farmId) {
-      throw new BadRequestError('Not permission to add delivery')
+    if (gardenItem.farm._id.toString() !== farmId) {
+      throw new BadRequestError('Not permission to delete delivery')
     }
     const modifiedCount = await deleteDelivery({ gardenId, deliveryId })
     if (!modifiedCount) {
