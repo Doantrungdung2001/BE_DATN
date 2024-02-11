@@ -15,11 +15,12 @@ const {
   deleteDelivery,
   addClientRequest,
   updateClientRequest,
-  deleteClientRequest
+  deleteClientRequest,
+  deleteGarden
 } = require('../models/repositories/garden.repo')
 const { MethodFailureError, BadRequestError, NotFoundError } = require('../core/error.response')
 const { isValidObjectId } = require('../utils')
-const { initProject, addPlantFarmingToProject } = require('./project.service')
+const { initProject, addPlantFarmingToProject, deleteProject } = require('./project.service')
 const { getSeedDefaultFromPlantId } = require('./seed.service')
 const { getPlantFarmingBySeedId } = require('./plantFarming.service')
 
@@ -104,6 +105,8 @@ class GardenService {
   }) {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
+    if (!clientId) throw new BadRequestError('ClientId is required')
+    if (!isValidObjectId(clientId)) throw new BadRequestError('ClientId is not valid')
     if (!gardenServiceTemplateId) throw new BadRequestError('GardenServiceTemplateId is required')
     if (!isValidObjectId(gardenServiceTemplateId)) throw new BadRequestError('GardenServiceTemplateId is not valid')
     if (!startDate) throw new BadRequestError('StartDate is required')
@@ -124,27 +127,59 @@ class GardenService {
     return garden
   }
 
-  static async addNewProjectToGarden({ farmId, gardenId, plantId }) {
+  static async deleteGarden({ farmId, gardenId }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
-    if (!plantId) throw new BadRequestError('Project is required')
-    const seedDefault = await getSeedDefaultFromPlantId({ plantId })
-    if (!seedDefault) {
-      throw new NotFoundError('Recommend not worked with this plant, cause Seed default not found')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
+    const gardenItem = await getGardenById({ gardenId })
+    if (!gardenItem) {
+      throw new NotFoundError('Garden not found')
     }
+    if (gardenItem.farm._id.toString() !== farmId) {
+      throw new BadRequestError('Not permission to delete garden')
+    }
+    // delete all project in garden
+    const projectIdList = gardenItem.projects
+    for (const projectId of projectIdList) {
+      const project = await deleteProject({ projectId, farmId })
+      if (!project) {
+        throw new MethodFailureError('Delete project failed')
+      }
+    }
+    const modifiedCount = await deleteGarden({ gardenId })
+    if (!modifiedCount) {
+      throw new MethodFailureError('Delete garden failed')
+    }
+    return modifiedCount
+  }
+
+  static async addNewProjectToGarden({ farmId, gardenId, plantId, seedId, startDate }) {
+    if (!gardenId) throw new BadRequestError('GardenId is required')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
+    if (!plantId) throw new BadRequestError('Project is required')
+    if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
+    if (!seedId) throw new BadRequestError('SeedId is required')
+    if (!isValidObjectId(seedId)) throw new BadRequestError('SeedId is not valid')
+    if (!startDate) throw new BadRequestError('StartDate is required')
 
     const project = {
       plantId,
-      seedId: seedDefault._id
+      seedId,
+      startDate
     }
 
-    const projectItem = await initProject({ farmId, project, isGarden: true, status: 'waiting' })
+    const projectItem = await initProject({ farmId, project, isGarden: true, status: 'inProgress', startDate })
     if (!projectItem) {
       throw new MethodFailureError('Create project failed')
     }
 
-    const plantFarming = await getPlantFarmingBySeedId({ seedId: seedDefault._id })
-    if (!plantFarming) {
+    const plantFarmingList = await getPlantFarmingBySeedId({ seedId })
+    if (!plantFarmingList) {
       throw new NotFoundError('Plant farming not found')
+    }
+
+    let plantFarming = plantFarmingList.find((item) => item.isPlantFarmingDefault === true)
+    if (!plantFarming) {
+      plantFarming = plantFarmingList[0]
     }
 
     const addPlantFarming = await addPlantFarmingToProject({
@@ -192,10 +227,31 @@ class GardenService {
       throw new NotFoundError('Garden not found')
     }
 
-    if (gardenItem.farm.toString() !== farmId) {
+    if (gardenItem.farm._id.toString() !== farmId) {
       throw new BadRequestError('Not permission to add delivery')
     }
-    const garden = await addDelivery({ gardenId, deliveryData })
+
+    const { deliveryDetails, note } = deliveryData
+    if (!deliveryDetails) throw new BadRequestError('DeliveryDetails is required')
+    if (!Array.isArray(deliveryDetails)) throw new BadRequestError('DeliveryDetails must be an array')
+    let formattedDeliveryDetails = []
+    for (const detail of deliveryDetails) {
+      if (!detail.plant) throw new BadRequestError('Plant is required')
+      if (!isValidObjectId(detail.plant)) throw new BadRequestError('Plant is not valid')
+      if (!detail.amount) throw new BadRequestError('Amount is required')
+      formattedDeliveryDetails.push({
+        plant: new Types.ObjectId(detail.plant),
+        amount: detail.amount
+      })
+    }
+    const formatDeliveryData = {
+      time: new Date(),
+      deliveryDetails: formattedDeliveryDetails,
+      note,
+      status: 'coming',
+      clientAccept: false
+    }
+    const garden = await addDelivery({ gardenId, formatDeliveryData })
     if (!garden) {
       throw new MethodFailureError('Add delivery failed')
     }
@@ -204,17 +260,38 @@ class GardenService {
 
   static async updateDelivery({ farmId, gardenId, deliveryId, deliveryData }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
-    if (!deliveryId) throw new BadRequestError('DeliveryId is required')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
     if (!deliveryData) throw new BadRequestError('Delivery data is required')
+    if (!deliveryId) throw new BadRequestError('DeliveryId is required')
+    if (!isValidObjectId(deliveryId)) throw new BadRequestError('DeliveryId is not valid')
     const gardenItem = await getGardenById({ gardenId })
     if (!gardenItem) {
       throw new NotFoundError('Garden not found')
     }
 
-    if (gardenItem.farm.toString() !== farmId) {
+    if (gardenItem.farm._id.toString() !== farmId) {
       throw new BadRequestError('Not permission to add delivery')
     }
-    const garden = await updateDelivery({ gardenId, deliveryId, deliveryData })
+
+    const { deliveryDetails, note, status } = deliveryData
+    let formattedDeliveryDetails = []
+    if (deliveryDetails) {
+      if (!Array.isArray(deliveryDetails)) throw new BadRequestError('DeliveryDetails must be an array')
+      for (const detail of deliveryDetails) {
+        if (!detail.plant) throw new BadRequestError('Plant is required')
+        if (!isValidObjectId(detail.plant)) throw new BadRequestError('Plant is not valid')
+        if (!detail.amount) throw new BadRequestError('Amount is required')
+        formattedDeliveryDetails.push({
+          plant: new Types.ObjectId(detail.plant),
+          amount: detail.amount
+        })
+      }
+    }
+
+    if(status) {
+      if (status !== 'coming' && status !== 'done' && status !== 'cancel') throw new BadRequestError('Status is not valid')
+    }
+    const garden = await updateDelivery({ gardenId, deliveryId, deliveryDetails: formattedDeliveryDetails, note, status})
     if (!garden) {
       throw new MethodFailureError('Update delivery failed')
     }
@@ -228,8 +305,8 @@ class GardenService {
     if (!gardenItem) {
       throw new NotFoundError('Garden not found')
     }
-    if (gardenItem.farm.toString() !== farmId) {
-      throw new BadRequestError('Not permission to add delivery')
+    if (gardenItem.farm._id.toString() !== farmId) {
+      throw new BadRequestError('Not permission to delete delivery')
     }
     const modifiedCount = await deleteDelivery({ gardenId, deliveryId })
     if (!modifiedCount) {
@@ -238,7 +315,7 @@ class GardenService {
     return modifiedCount
   }
 
-  static async addClientRequest({ farmId, gardenId, clientRequestData }) {
+  static async addClientRequest({ clientId, gardenId, clientRequestData }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
     if (!clientRequestData) throw new BadRequestError('ClientRequest data is required')
     const gardenItem = await getGardenById({ gardenId })
@@ -246,14 +323,59 @@ class GardenService {
       throw new NotFoundError('Garden not found')
     }
 
-    if (gardenItem.farm.toString() !== farmId) {
+    if (gardenItem.client._id.toString() !== clientId) {
       throw new BadRequestError('Not permission to add delivery')
     }
-    const garden = await addClientRequest({ gardenId, clientRequestData })
-    if (!garden) {
+
+    const { type, newPlant, deliveryDetails, note } = clientRequestData
+    // switch case with type must in ['newPlant', 'deliveryRequest', 'other']
+    let formatClientRequestData = {}
+    switch (type) {
+      case 'newPlant':
+        if (!newPlant) throw new BadRequestError('NewPlant is required')
+        if (!isValidObjectId(newPlant)) throw new BadRequestError('NewPlant is not valid')
+        formatClientRequestData = {
+          time: new Date(),
+          type,
+          newPlant: new Types.ObjectId(newPlant),
+          note
+        }
+        break
+      case 'deliveryRequest':
+        if (!deliveryDetails) throw new BadRequestError('DeliveryDetails is required')
+        if (!Array.isArray(deliveryDetails)) throw new BadRequestError('DeliveryDetails must be an array')
+        let formattedDeliveryDetails = []
+        for (const detail of deliveryDetails) {
+          if (!detail.plant) throw new BadRequestError('Plant is required')
+          if (!isValidObjectId(detail.plant)) throw new BadRequestError('Plant is not valid')
+          if (!detail.amount) throw new BadRequestError('Amount is required')
+          formattedDeliveryDetails.push({
+            plant: new Types.ObjectId(detail.plant),
+            amount: detail.amount
+          })
+        }
+        formatClientRequestData = {
+          time: new Date(),
+          type,
+          deliveryDetails: formattedDeliveryDetails,
+          note
+        }
+        break
+      case 'other':
+        formatClientRequestData = {
+          time: new Date(),
+          type,
+          note
+        }
+        break
+      default:
+        throw new BadRequestError('Type is not valid')
+    }
+    const clientRequests = await addClientRequest({ gardenId, formatClientRequestData })
+    if (!clientRequests) {
       throw new MethodFailureError('Add clientRequest failed')
     }
-    return garden
+    return clientRequests
   }
 
   static async updateClientRequest({ farmId, gardenId, clientRequestId, clientRequestData }) {

@@ -72,6 +72,13 @@ class PlantController {
       metadata: await PlantService.getAllPlantsByFarm({ farmId: admin_id, ...req.query })
     }).send(res)
   }
+
+  getDefaultPlantByPlantId = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get default plant success!',
+      metadata: await PlantService.getDefaultPlantByPlantId({ plantId: req.params.plantId, farmId: admin_id })
+    }).send(res)
+  }
   // END QUERY //
 }
 

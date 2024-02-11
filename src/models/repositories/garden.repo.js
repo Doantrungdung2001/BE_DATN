@@ -34,7 +34,10 @@ const getGardenById = async ({ gardenId }) => {
     .populate('farm')
     .populate('client')
     .populate('gardenServiceTemplate')
-    .populate('gardenServiceRequest')
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: [{ path: 'herbList' }, { path: 'leafyList' }, { path: 'rootList' }, { path: 'fruitList' }]
+    })
     .exec()
 
   return foundGarden
@@ -48,6 +51,10 @@ const getProjectsInfoByGarden = async ({ gardenId }) => {
     .populate({
       path: 'projects',
       populate: { path: 'plant' },
+      select: '_id plant seed startDate status'
+    })
+    .populate({
+      path: 'projects',
       populate: { path: 'seed' },
       select: '_id plant seed startDate status'
     })
@@ -93,8 +100,11 @@ const getClientRequestsByGarden = async ({ gardenId }) => {
     })
     .populate({
       path: 'clientRequests',
-      populate: { path: 'newPlant' },
       populate: { path: 'deliveryDetails.plant' }
+    })
+    .populate({
+      path: 'clientRequests',
+      populate: { path: 'newPlant' }
     })
     .exec()
 
@@ -140,6 +150,11 @@ const createGarden = async ({
   return createdGarden
 }
 
+const deleteGarden = async ({ gardenId }) => {
+  const result = await garden.deleteOne({ _id: new Types.ObjectId(gardenId) }).exec()
+  return result
+}
+
 const addNewProjectToGarden = async ({ gardenId, projectId }) => {
   const foundGarden = await garden
     .findOne({
@@ -171,7 +186,7 @@ const updateGardenStatus = async ({ gardenId, status }) => {
   return foundGarden
 }
 
-const addDelivery = async ({ gardenId, deliveryDetails, note, status }) => {
+const addDelivery = async ({ gardenId, formatDeliveryData }) => {
   const foundGarden = await garden
     .findOne({
       _id: new Types.ObjectId(gardenId)
@@ -179,17 +194,7 @@ const addDelivery = async ({ gardenId, deliveryDetails, note, status }) => {
     .exec()
   if (!foundGarden) return null
 
-  const formattedDeliveryDetails = deliveryDetails.map((detail) => ({
-    ...detail,
-    plant: new Types.ObjectId(detail.plant)
-  }))
-
-  foundGarden.deliveries.push({
-    time: new Date(),
-    deliveryDetails: formattedDeliveryDetails,
-    note,
-    status
-  })
+  foundGarden.deliveries.push(formatDeliveryData)
 
   await foundGarden.save()
 
@@ -207,12 +212,8 @@ const updateDelivery = async ({ gardenId, deliveryId, deliveryDetails, note, sta
   const foundDelivery = foundGarden.deliveries.find((delivery) => delivery._id.toString() === deliveryId)
   if (!foundDelivery) return null
 
-  if (deliveryDetails) {
-    const formattedDeliveryDetails = deliveryDetails.map((detail) => ({
-      ...detail,
-      plant: new Types.ObjectId(detail.plant)
-    }))
-    foundDelivery.deliveryDetails = formattedDeliveryDetails
+  if (deliveryDetails & deliveryDetails.length > 0) {
+    foundDelivery.deliveryDetails = deliveryDetails
   }
 
   if (note) {
@@ -246,7 +247,7 @@ const deleteDelivery = async ({ gardenId, deliveryId }) => {
   return modifiedCount
 }
 
-const addClientRequest = async ({ gardenId, type, newPlant, deliveryDetails, note }) => {
+const addClientRequest = async ({ gardenId, formatClientRequestData }) => {
   const foundGarden = await garden
     .findOne({
       _id: new Types.ObjectId(gardenId)
@@ -254,18 +255,7 @@ const addClientRequest = async ({ gardenId, type, newPlant, deliveryDetails, not
     .exec()
   if (!foundGarden) return null
 
-  const formattedDeliveryDetails = deliveryDetails.map((detail) => ({
-    ...detail,
-    plant: new Types.ObjectId(detail.plant)
-  }))
-
-  foundGarden.clientRequests.push({
-    time: new Date(),
-    type,
-    newPlant: new Types.ObjectId(newPlant),
-    deliveryDetails: formattedDeliveryDetails,
-    note
-  })
+  foundGarden.clientRequests.push(formatClientRequestData)
 
   await foundGarden.save()
 
@@ -339,6 +329,7 @@ module.exports = {
   getClientRequestsByGarden,
   getDeliveriesByGarden,
   createGarden,
+  deleteGarden,
   addNewProjectToGarden,
   updateGardenStatus,
   addDelivery,

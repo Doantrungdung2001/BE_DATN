@@ -80,6 +80,7 @@ class SeedService {
     }
     const seedDefault = await getSeedDefaultFromPlantId({ plantId })
     if (!seedDefault) {
+      console.log('plantId: ', plantId)
       throw new NotFoundError('Recommend not worked with this plant, cause Seed default not found')
     }
     return seedDefault
@@ -154,6 +155,44 @@ class SeedService {
     delete seedData._id
 
     const createdSeed = addSeed({ seedData, farmId, plantId })
+    if (!createdSeed) {
+      throw new MethodFailureError('Create seed failed')
+    }
+    return createdSeed
+  }
+
+  static async addSeedByRecommentSeedId({ recommentSeedId, farmId, isSeedDefault }) {
+    if (!recommentSeedId) {
+      throw new BadRequestError('Recomment seed id is required')
+    }
+    if (!isValidObjectId(recommentSeedId)) {
+      throw new BadRequestError('Invalid recomment seed id')
+    }
+    if (!farmId) {
+      throw new BadRequestError('Farm id is required')
+    }
+    if (!isValidObjectId(farmId)) {
+      throw new BadRequestError('Invalid farm id')
+    }
+    const recommentSeed = await getSeedBySeedId({ seedId: recommentSeedId })
+    if (!recommentSeed) {
+      throw new NotFoundError('Recomment seed not found')
+    }
+
+    const { _id, farm, plant, ...seedData } = recommentSeed
+    const plantInFarm = await getPlantByPlantNameAndFarmId({ plantName: plant.plant_name, farmId })
+    if (!plantInFarm) {
+      throw new NotFoundError('Plant of this seed not found in farm')
+    }
+    const existingSeed = await getSeedFromSeedNameAndPlantId({
+      seedName: seedData.seed_name,
+      plantId: plantInFarm._id.toString()
+    })
+    if (existingSeed) {
+      throw new MethodFailureError('Seed already exists')
+    }
+
+    const createdSeed = addSeed({ seedData: { ...seedData, isSeedDefault }, plantId: plantInFarm._id.toString() })
     if (!createdSeed) {
       throw new MethodFailureError('Create seed failed')
     }

@@ -44,7 +44,7 @@ class GardenServiceRequestController {
       message: 'Accept GardenServiceRequest success!',
       metadata: await GardenServiceRequestService.acceptGardenServiceRequest({
         gardenServiceRequestId: req.params.gardenServiceRequestId,
-        farmid: req.user.userId
+        farmId: req.user.userId
       })
     }).send(res)
   }
@@ -55,7 +55,7 @@ class GardenServiceRequestController {
       message: 'Reject GardenServiceRequest success!',
       metadata: await GardenServiceRequestService.rejectGardenServiceRequest({
         gardenServiceRequestId: req.params.gardenServiceRequestId,
-        farmid: req.user.userId
+        farmId: req.user.userId
       })
     }).send(res)
   }

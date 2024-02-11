@@ -16,6 +16,7 @@ router.get('/:seedId', asyncHandler(seedController.getSeedBySeedId))
 // Authentication
 router.use(authenticationV2)
 ////////////
+router.post('/add/:recommentSeedId', asyncHandler(seedController.addSeedByRecommentSeedId))
 router.post('/', asyncHandler(seedController.addSeed))
 router.patch('/:seedId', asyncHandler(seedController.updateSeed))
 router.delete('/:seedId', asyncHandler(seedController.deleteSeed))

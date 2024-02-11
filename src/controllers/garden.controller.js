@@ -11,10 +11,24 @@ class GardenController {
       metadata: await GardenService.addNewProjectToGarden({
         farmId: req.user.userId,
         gardenId: req.params.gardenId,
-        plantId: req.body.plantId
+        plantId: req.body.plantId,
+        seedId: req.body.seedId,
+        startDate: req.body.startDate
       })
     }).send(res)
   }
+
+  // delete farden
+  deleteGarden = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Delete Garden success!',
+      metadata: await GardenService.deleteGarden({
+        farmId: req.user.userId,
+        gardenId: req.params.gardenId
+      })
+    }).send(res)
+  }
+
   // update Garden status
   updateGardenStatus = async (req, res, next) => {
     new SuccessResponse({
@@ -69,7 +83,7 @@ class GardenController {
     new SuccessResponse({
       message: 'Add ClientRequest success!',
       metadata: await GardenService.addClientRequest({
-        farmId: req.user.userId,
+        clientId: req.user.userId,
         gardenId: req.params.gardenId,
         clientRequestData: req.body
       })

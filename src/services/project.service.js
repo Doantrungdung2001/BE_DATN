@@ -17,9 +17,15 @@ const {
   getOutput,
   addOutput,
   updateOutput,
-  deleteOutput
+  deleteOutput,
+  getPlantFarmingId
 } = require('../models/repositories/project.repo')
-const { addPlantFarming } = require('../services/plantFarming.service')
+const {
+  addPlantFarming,
+  getPlantFarmingByPlantFarmingId,
+  deletePlantFarming,
+  checkPlantFarmingExist
+} = require('../services/plantFarming.service')
 const { updateNestedObjectParser, removeUndefinedObject, isValidObjectId } = require('../utils')
 const { BadRequestError, MethodFailureError, NotFoundError } = require('../core/error.response')
 
@@ -32,7 +38,7 @@ class ProjectService {
     return projects
   }
 
-  static async initProject({ farmId, project, isGarden, status }) {
+  static async initProject({ farmId, project, isGarden, status, startDate }) {
     if (!farmId) throw new BadRequestError('Missing farm id')
     if (!isValidObjectId(farmId)) throw new BadRequestError('Invalid farm id')
     if (!project) throw new BadRequestError('Missing project')
@@ -42,7 +48,15 @@ class ProjectService {
     if (!plantId) throw new BadRequestError('Missing plant id')
     if (!seedId) throw new BadRequestError('Missing seed id')
 
-    const updatedProject = await initProject({ farmId, plantId, seedId, projectData: newProject, isGarden, status })
+    const updatedProject = await initProject({
+      farmId,
+      plantId,
+      seedId,
+      projectData: newProject,
+      isGarden,
+      status,
+      startDate
+    })
     if (!updatedProject) throw new MethodFailureError('Cannot init project')
     return updatedProject
   }
@@ -72,9 +86,24 @@ class ProjectService {
     return updatedProject
   }
 
-  static async deleteProject({ projectId }) {
+  static async deleteProject({ projectId, farmId }) {
     if (!projectId) throw new BadRequestError('Missing project id')
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
+    // find farm of project and check if it is the same farm
+    const projectInfo = await getProjectInfo({ projectId })
+    if (!projectInfo)
+      return {
+        message: 'Project not found'
+      }
+    if (projectInfo.farm._id.toString() !== farmId)
+      throw new BadRequestError('Do not have permission to delete this project')
+    const plantFarmingId = await getPlantFarmingId({ projectId })
+    const isPlantFarmingExist = await checkPlantFarmingExist({ plantFarmingId })
+
+    if (plantFarmingId && isPlantFarmingExist) {
+      const deletedPlantFarming = await deletePlantFarming({ plantFarmingId, farmId })
+      if (!deletedPlantFarming) throw new MethodFailureError('Cannot delete plant farming of this project')
+    }
     const updatedProject = await deleteProject({ projectId })
     if (!updatedProject) throw new MethodFailureError('Cannot delete project')
     return updatedProject
@@ -85,7 +114,6 @@ class ProjectService {
     if (!plantFarming) throw new BadRequestError('Missing plant farming')
 
     const projectInfo = await getProjectInfo({ projectId })
-    console.log(projectInfo)
 
     const plantId = projectInfo.plant._id.toString()
     const seedId = projectInfo.seed._id.toString()
@@ -111,7 +139,37 @@ class ProjectService {
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     if (!process) throw new BadRequestError('Missing process')
 
-    const updatedProject = await addProcess({ projectId, process: process })
+    const { tx, time, type, ...activity } = process
+
+    if (!tx || !time || !type) throw new BadRequestError('Missing required fields')
+
+    let activityField
+    switch (type) {
+      case 'cultivation':
+        activityField = 'cultivationActivity'
+        break
+      case 'planting':
+        activityField = 'plantingActivity'
+        break
+      case 'fertilize':
+        activityField = 'fertilizationActivity'
+        break
+      case 'pesticide':
+        activityField = 'pestAndDiseaseControlActivity'
+        break
+      case 'other':
+        activityField = 'other'
+        break
+      default:
+        throw new BadRequestError('Invalid process type')
+    }
+
+    if (!activity[activityField]) throw new BadRequestError(`Missing ${activityField} field for process type ${type}`)
+
+    const updatedProject = await addProcess({
+      projectId,
+      process: { tx, time, type, [activityField]: activity[activityField] }
+    })
     if (!updatedProject) throw new MethodFailureError('Cannot add process')
     return updatedProject
   }
@@ -251,6 +309,16 @@ class ProjectService {
     const updatedProject = await deleteOutput({ projectId, outputId })
     if (!updatedProject) throw new MethodFailureError('Cannot delete output')
     return updatedProject
+  }
+
+  static async getPlantFarming({ projectId }) {
+    if (!projectId) throw new BadRequestError('Missing project id')
+    if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
+    const plantFarmingId = await getPlantFarmingId({ projectId })
+    if (!plantFarmingId) return null
+    const plantFarming = await getPlantFarmingByPlantFarmingId({ plantFarmingId })
+    if (!plantFarming) return null
+    return plantFarming
   }
 }
 

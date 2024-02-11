@@ -1,3 +1,3 @@
-const admin_id = '6597b90a0730b4164d7f9c7a'
+const admin_id = '65bf53967517b61da58eaaba'
 
 module.exports = { admin_id }

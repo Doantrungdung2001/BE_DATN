@@ -8,6 +8,7 @@ const { authenticationV2 } = require('../../auth/authUtils')
 const router = express.Router()
 
 router.get('/farm/:farmId', asyncHandler(projectController.getAllProjectsByFarm))
+router.get('/:projectId/plantFarming', asyncHandler(projectController.getPlantFarming))
 router.get('/:projectId/process', asyncHandler(projectController.getAllProcess))
 router.get('/:projectId/expect', asyncHandler(projectController.getExpect))
 router.get('/:projectId/output', asyncHandler(projectController.getOutput))

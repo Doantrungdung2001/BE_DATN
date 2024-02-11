@@ -37,11 +37,11 @@ class AccessController {
     }).send(res)
   }
 
-  getFarm = async (req, res, next) => {
+  getUser = async (req, res, next) => {
     new SuccessResponse({
       message: 'Get farm success',
-      metadata: await AccessService.getFarm({
-        farmId: req.user.userId
+      metadata: await AccessService.getUser({
+        userId: req.user.userId
       })
     }).send(res)
   }

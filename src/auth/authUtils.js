@@ -136,6 +136,13 @@ const isFarm = asyncHandler(async (req, res, next) => {
   throw new AuthFailureError('Permison denied!')
 })
 
+const isClient = asyncHandler(async (req, res, next) => {
+  if (req.user.roles.includes('CLIENT')) {
+    return next()
+  }
+  throw new AuthFailureError('Permison denied!')
+})
+
 const isAdmin = asyncHandler(async (req, res, next) => {
   if (req.user.roles.includes('ADMIN')) {
     return next()
@@ -147,5 +154,8 @@ module.exports = {
   createTokenPair,
   authentication,
   authenticationV2,
-  verifyJWT
+  verifyJWT,
+  isFarm,
+  isClient,
+  isAdmin
 }

@@ -6,74 +6,82 @@ const crypto = require('crypto')
 const KeyTokenService = require('../services/keyToken.service')
 const { createTokenPair, verifyJWT } = require('../auth/authUtils')
 const { getInfoData } = require('../utils')
-const { BadRequestError, AuthFailureError, ForbiddenError } = require('../core/error.response')
-const { findByEmail, getFarm } = require('./farm.service')
+const { BadRequestError, AuthFailureError, ForbiddenError, MethodFailureError } = require('../core/error.response')
+const { findUserByEmail, getUser, addUser } = require('./user.service')
+const { client } = require('../models/client.model')
 
-const RoleFarm = {
+const Role = {
   FARM: 'FARM',
+  CLIENT: 'CLIENT',
   WRITE: 'WRITE',
   EDITOR: 'EDITOR',
   ADMIN: 'ADMIN'
 }
 
 class AccessService {
-  static signUp = async ({ name, email, password }) => {
+  static signUp = async ({ name, email, password, role }) => {
+    if (!email || !password || !role || !name) {
+      throw new BadRequestError('Email, password, role, name are required')
+    }
     // step 1: check email exists?
-    const holderFarm = await farmModel.findOne({ email }).lean().exec()
-    if (holderFarm) {
-      throw new BadRequestError('Error: Farm already registered!')
+    const holderUser = await findUserByEmail({ email })
+    if (holderUser) {
+      throw new BadRequestError('Error: User already registered!')
     }
 
     const passwordHash = await bcrypt.hash(password, 10)
-    const newFarm = await farmModel.create({
-      name,
-      email,
-      password: passwordHash,
-      roles: [RoleFarm.FARM]
+    const newUser = await addUser({ email, password: passwordHash, roles: [role] })
+    if (role === Role.FARM || role === Role.ADMIN) {
+      const newFarm = await farmModel.create({
+        _id: newUser._id,
+        name: name
+      })
+
+      if (!newFarm) throw new MethodFailureError('Farm registration failed')
+    }
+
+    if (role === Role.CLIENT) {
+      const newClient = await client.create({
+        _id: newUser._id,
+        name: name
+      })
+      if (!newClient) throw new MethodFailureError('User registration failed')
+    }
+
+    // created privateKey, publicKey
+    const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 4096,
+      publicKeyEncoding: {
+        type: 'pkcs1', //Public key CryptoGraphy Standards
+        format: 'pem'
+      },
+      privateKeyEncoding: {
+        type: 'pkcs1', //Public key CryptoGraphy Standards
+        format: 'pem'
+      }
     })
 
-    if (newFarm) {
-      // created privateKey, publicKey
-      const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-        modulusLength: 4096,
-        publicKeyEncoding: {
-          type: 'pkcs1', //Public key CryptoGraphy Standards
-          format: 'pem'
-        },
-        privateKeyEncoding: {
-          type: 'pkcs1', //Public key CryptoGraphy Standards
-          format: 'pem'
-        }
-      })
+    const keyStore = await KeyTokenService.createKeyToken({
+      userId: newUser._id,
+      publicKey
+    })
 
-      console.log({ privateKey, publicKey }) //save collection KeyStore
-      const keyStore = await KeyTokenService.createKeyToken({
-        userId: newFarm._id,
-        publicKey
-      })
-
-      if (!keyStore) {
-        return {
-          code: 'xxxx',
-          message: 'keyStore error'
-        }
-      }
-
-      // created token pair
-      const tokens = await createTokenPair({ userId: newFarm._id, email }, publicKey, privateKey)
-      console.log(`Created Token Success::`, tokens)
+    if (!keyStore) {
       return {
-        code: 201,
-        metadata: {
-          farm: getInfoData({ fields: ['_id', 'name', 'email'], object: newFarm }),
-          tokens
-        }
+        code: 'xxxx',
+        message: 'keyStore error'
       }
     }
 
+    // created token pair
+    const tokens = await createTokenPair({ userId: newUser._id, email, roles: newUser.roles }, publicKey, privateKey)
+    console.log(`Created Token Success::`, tokens)
     return {
       code: 201,
-      metadata: null
+      metadata: {
+        user: getInfoData({ fields: ['_id', 'email'], object: newUser }),
+        tokens
+      }
     }
   }
 
@@ -85,10 +93,10 @@ class AccessService {
    * 5. get data return login
    */
   static login = async ({ email, password, refreshToken = null }) => {
-    const foundFarm = await findByEmail({ email })
-    if (!foundFarm) throw new BadRequestError('Farm not registered')
+    const foundUser = await findUserByEmail({ email })
+    if (!foundUser) throw new BadRequestError('Farm not registered')
 
-    const match = await bcrypt.compare(password, foundFarm.password)
+    const match = await bcrypt.compare(password, foundUser.password)
     if (!match) throw new AuthFailureError('Authentication error')
 
     const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
@@ -103,8 +111,8 @@ class AccessService {
       }
     })
 
-    const { _id: userId } = foundFarm
-    const tokens = await createTokenPair({ userId, email }, publicKey, privateKey)
+    const { _id: userId } = foundUser
+    const tokens = await createTokenPair({ userId, email, roles: foundUser.roles }, publicKey, privateKey)
 
     await KeyTokenService.createKeyToken({
       userId,
@@ -115,7 +123,7 @@ class AccessService {
 
     return {
       metadata: {
-        farm: getInfoData({ fields: ['_id', 'name', 'email'], object: foundFarm }),
+        farm: getInfoData({ fields: ['_id', 'email'], object: foundUser }),
         tokens
       }
     }
@@ -127,11 +135,11 @@ class AccessService {
     return delKey
   }
 
-  static getFarm = async ({ farmId }) => {
-    const foundFarm = await getFarm({ farmId })
-    if (!foundFarm) throw new BadRequestError('Farm not registered')
+  static getUser = async ({ userId }) => {
+    const foundUser = await getUser({ userId })
+    if (!foundUser) throw new BadRequestError('User not registered')
 
-    return foundFarm
+    return foundUser
   }
 
   /**
@@ -189,13 +197,17 @@ class AccessService {
       throw new ForbiddenError('Something wrong happened || Pls re-login')
     }
 
-    if (keyStore.refreshToken !== refreshToken) throw new AuthFailureError('Farm not registered')
+    if (keyStore.refreshToken !== refreshToken) throw new AuthFailureError('User not registered')
 
-    const foundFarm = await findByEmail({ email })
-    if (!foundFarm) throw new AuthFailureError('Farm not registered')
+    const foundUser = await findUserByEmail({ email })
+    if (!foundUser) throw new AuthFailureError('User not registered')
 
     // create 1 cap moi
-    const tokens = await createTokenPair({ userId, email }, keyStore.publicKey, keyStore.privateKey)
+    const tokens = await createTokenPair(
+      { userId, email, roles: foundUser.roles },
+      keyStore.publicKey,
+      keyStore.privateKey
+    )
     //update token
     await keyStore
       .update({
