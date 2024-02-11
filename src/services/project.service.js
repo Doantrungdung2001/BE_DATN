@@ -20,7 +20,7 @@ const {
   deleteOutput,
   getPlantFarmingId
 } = require('../models/repositories/project.repo')
-const { addPlantFarming, getPlantFarmingByPlantFarmingId } = require('../services/plantFarming.service')
+const { addPlantFarming, getPlantFarmingByPlantFarmingId, deletePlantFarming, checkPlantFarmingExist } = require('../services/plantFarming.service')
 const { updateNestedObjectParser, removeUndefinedObject, isValidObjectId } = require('../utils')
 const { BadRequestError, MethodFailureError, NotFoundError } = require('../core/error.response')
 
@@ -73,9 +73,22 @@ class ProjectService {
     return updatedProject
   }
 
-  static async deleteProject({ projectId }) {
+  static async deleteProject({ projectId, farmId }) {
     if (!projectId) throw new BadRequestError('Missing project id')
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
+    // find farm of project and check if it is the same farm
+    const projectInfo = await getProjectInfo({ projectId })
+    if(!projectInfo) return {
+      message: 'Project not found'
+    }
+    if (projectInfo.farm._id.toString() !== farmId) throw new BadRequestError('Do not have permission to delete this project')
+    const plantFarmingId = await getPlantFarmingId({ projectId })
+  const isPlantFarmingExist = await checkPlantFarmingExist({plantFarmingId})
+
+    if (plantFarmingId && isPlantFarmingExist) {
+      const deletedPlantFarming = await deletePlantFarming({ plantFarmingId, farmId })
+      if (!deletedPlantFarming) throw new MethodFailureError('Cannot delete plant farming of this project')
+    }
     const updatedProject = await deleteProject({ projectId })
     if (!updatedProject) throw new MethodFailureError('Cannot delete project')
     return updatedProject
@@ -89,7 +102,6 @@ class ProjectService {
 
     const plantId = projectInfo.plant._id.toString()
     const seedId = projectInfo.seed._id.toString()
-    console.log('plantFarming in project service: ', plantFarming)
     const addedPlantFarming = await addPlantFarming({ plantFarmingData: plantFarming, farmId: farmId, plantId, seedId })
     if (!addedPlantFarming) throw new MethodFailureError('Cannot add plant farming')
     const updatedProject = await addPlantFarmingToProject({

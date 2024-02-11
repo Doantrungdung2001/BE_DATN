@@ -15,11 +15,12 @@ const {
   deleteDelivery,
   addClientRequest,
   updateClientRequest,
-  deleteClientRequest
+  deleteClientRequest,
+  deleteGarden
 } = require('../models/repositories/garden.repo')
 const { MethodFailureError, BadRequestError, NotFoundError } = require('../core/error.response')
 const { isValidObjectId } = require('../utils')
-const { initProject, addPlantFarmingToProject } = require('./project.service')
+const { initProject, addPlantFarmingToProject, deleteProject } = require('./project.service')
 const { getSeedDefaultFromPlantId } = require('./seed.service')
 const { getPlantFarmingBySeedId } = require('./plantFarming.service')
 
@@ -124,6 +125,31 @@ class GardenService {
       throw new MethodFailureError('Create garden failed')
     }
     return garden
+  }
+
+  static async deleteGarden({ farmId, gardenId }) {
+    if (!gardenId) throw new BadRequestError('GardenId is required')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
+    const gardenItem = await getGardenById({ gardenId })
+    if (!gardenItem) {
+      throw new NotFoundError('Garden not found')
+    }
+    if (gardenItem.farm._id.toString() !== farmId) {
+      throw new BadRequestError('Not permission to delete garden')
+    }
+    // delete all project in garden
+    const projectIdList = gardenItem.projects
+    for (const projectId of projectIdList) {
+      const project = await deleteProject({ projectId, farmId })
+      if (!project) {
+        throw new MethodFailureError('Delete project failed')
+      }
+    }
+    const modifiedCount = await deleteGarden({ gardenId })
+    if (!modifiedCount) {
+      throw new MethodFailureError('Delete garden failed')
+    }
+    return modifiedCount
   }
 
   static async addNewProjectToGarden({ farmId, gardenId, plantId, seedId, startDate }) {

@@ -33,7 +33,8 @@ class ProjectController {
     new SuccessResponse({
       message: 'Delete Project success!',
       metadata: await ProjectService.deleteProject({
-        projectId: req.params.projectId
+        projectId: req.params.projectId,
+        farmId: req.user.userId
       })
     }).send(res)
   }

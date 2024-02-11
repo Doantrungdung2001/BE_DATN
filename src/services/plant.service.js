@@ -35,6 +35,16 @@ class PlantService {
     return plantItem
   }
 
+  static async checkPlantExist({ plantId }) {
+    if (!plantId) throw new BadRequestError('PlantId is required')
+    if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
+    const plantItem = await getPlantByPlantId({ plantId })
+    if (!plantItem) {
+      return false
+    }
+    return true
+  }
+
   static async getPlantByPlantNameAndFarmId({ plantName, farmId }) {
     if (!plantName) throw new BadRequestError('PlantName is required')
     if (!farmId) throw new BadRequestError('FarmId is required')

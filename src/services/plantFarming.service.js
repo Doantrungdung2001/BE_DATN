@@ -20,6 +20,7 @@ const {
   checkSeedValidFromSeedNameAndPlant,
   getSeedBySeedId
 } = require('./seed.service')
+const { plantFarming } = require('../models/plantFarming.model')
 class PlantFarmingService {
   static async addPlantFarming({ plantFarmingData, farmId, plantId, seedId }) {
     if (!farmId) throw new BadRequestError('FarmId is required')
@@ -40,8 +41,6 @@ class PlantFarmingService {
     if (plantItem.farm.toString() !== farmId) {
       throw new BadRequestError('Farm does not have permission to create plantFarming with this plant id')
     }
-
-    console.log('plantFarmingData in plantFarmingService', plantFarmingData)
 
     const addedPlantFarming = await addPlantFarming({ plantFarmingData, plantId, seedId })
     if (!addedPlantFarming) {
@@ -142,15 +141,18 @@ class PlantFarmingService {
     if (!plantFarmingItem) {
       throw new NotFoundError('Plant farming not found')
     }
-    if (!plantFarmingItem.plant._id) {
-      throw new NotFoundError('Founded plantFarming is not valid')
-    }
-    const plantItem = await getPlantByPlantId({ plantId: plantFarmingItem.plant._id.toString() })
-    if (!plantItem) {
-      throw new NotFoundError('Plant id of Plant farming is not valid')
-    }
-    if (plantItem.farm.toString() !== farmId) {
-      throw new BadRequestError('Farm does not have permission to create plantFarming with this plant id')
+
+    if(plantFarmingItem.plant) {
+      if (!plantFarmingItem.plant._id) {
+        throw new NotFoundError('Founded plantFarming is not valid')
+      }
+      const plantItem = await getPlantByPlantId({ plantId: plantFarmingItem.plant._id.toString() })
+      if (!plantItem) {
+        throw new NotFoundError('Plant id of Plant farming is not valid')
+      }
+      if (plantItem.farm.toString() !== farmId) {
+        throw new BadRequestError('Farm does not have permission to create plantFarming with this plant id')
+      }
     }
 
     const deletedPlantFarming = await deletePlantFarming({ plantFarmingId })
@@ -176,6 +178,16 @@ class PlantFarmingService {
       throw new NotFoundError('Plant farming not found')
     }
     return plantFarmingItem
+  }
+
+  static async checkPlantFarmingExist({ plantFarmingId }) {
+    if (!plantFarmingId) throw new BadRequestError('Plant farming id is required')
+    if (!isValidObjectId(plantFarmingId)) throw new BadRequestError('Plant farming id is not valid')
+    const plantFarmingItem = await getPlantFarmingByPlantFarmingId({ plantFarmingId })
+    if (!plantFarmingItem) {
+      return false
+    }
+    return true
   }
 
   static async getPlantFarmingRecommend({ plantName, seedName, farmId }) {

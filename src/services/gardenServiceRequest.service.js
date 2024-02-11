@@ -7,6 +7,7 @@ const {
   deleteGardenServiceRequest
 } = require('../models/repositories/gardenServiceRequest.repo')
 const { getSeedDefaultFromPlantId } = require('./seed.service')
+const { checkPlantExist } = require('./plant.service')
 const { initProject, addPlantFarmingToProject } = require('./project.service')
 
 const { MethodFailureError, BadRequestError, NotFoundError } = require('../core/error.response')
@@ -171,14 +172,6 @@ class GardenServiceRequestService {
       throw new MethodFailureError('Not authorized to accept this GardenServiceRequest')
     }
 
-    const acceptedGardenServiceRequest = await updateGardenServiceRequest({
-      gardenServiceRequestId,
-      status: 'accepted'
-    })
-    if (!acceptedGardenServiceRequest) {
-      throw new MethodFailureError('Accept gardenServiceRequest failed')
-    }
-
     // init project for each plant with seed Default
     const plantList = [
       ...gardenServiceRequestItem.herbList,
@@ -186,6 +179,17 @@ class GardenServiceRequestService {
       ...gardenServiceRequestItem.rootList,
       ...gardenServiceRequestItem.fruitList
     ]
+
+
+    // check plant exist
+    await Promise.all(
+      plantList.map(async (plant) => {
+        const isPlantExist = await checkPlantExist({ plantId: plant._id.toString() })
+        if (!isPlantExist) {
+          throw new NotFoundError(`Request plant ${plant._id.toString()} not found`)
+        }
+      })
+    )
 
     const initProjectsData = await Promise.all(
       plantList.map(async (plant) => {
@@ -199,8 +203,6 @@ class GardenServiceRequestService {
         }
       })
     )
-
-    console.log('initProjectsData: ', initProjectsData)
 
     let projectIds = []
     await Promise.all(
@@ -221,7 +223,6 @@ class GardenServiceRequestService {
         if (!plantFarmingItem) {
           plantFarmingItem = plantFarmingList[0]
         }
-        console.log('plantFarmingItem: ', plantFarmingItem)
         const updatedProject = await addPlantFarmingToProject({
           farmId,
           projectId: projectItem._id.toString(),
@@ -249,6 +250,14 @@ class GardenServiceRequestService {
 
     if (!gardenItem) {
       throw new MethodFailureError('Create garden failed')
+    }
+
+    const acceptedGardenServiceRequest = await updateGardenServiceRequest({
+      gardenServiceRequestId,
+      status: 'accepted'
+    })
+    if (!acceptedGardenServiceRequest) {
+      throw new MethodFailureError('Accept gardenServiceRequest failed')
     }
 
     return acceptedGardenServiceRequest

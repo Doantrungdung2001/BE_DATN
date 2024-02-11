@@ -147,6 +147,11 @@ const createGarden = async ({
   return createdGarden
 }
 
+const deleteGarden = async ({ gardenId }) => {
+  const result = await garden.deleteOne({ _id: new Types.ObjectId(gardenId) }).exec()
+  return result
+}
+
 const addNewProjectToGarden = async ({ gardenId, projectId }) => {
   const foundGarden = await garden
     .findOne({
@@ -346,6 +351,7 @@ module.exports = {
   getClientRequestsByGarden,
   getDeliveriesByGarden,
   createGarden,
+  deleteGarden,
   addNewProjectToGarden,
   updateGardenStatus,
   addDelivery,
