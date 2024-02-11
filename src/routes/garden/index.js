@@ -20,14 +20,16 @@ router.use(authenticationV2)
 ////////////
 
 router.post('/:gardenId/addNewProject', asyncHandler(gardenController.addNewProjectToGarden))
+
 router.post('/:gardenId/delivery', asyncHandler(gardenController.addDelivery))
 router.patch('/:gardenId/delivery/:deliveryId', asyncHandler(gardenController.updateDelivery))
 router.delete('/:gardenId/delivery/:deliveryId', asyncHandler(gardenController.deleteDelivery))
-router.patch('/:gardenId', asyncHandler(gardenController.updateGardenStatus))
-router.delete('/:gardenId', asyncHandler(gardenController.deleteGarden))
 
 router.post('/:gardenId/request', asyncHandler(gardenController.addClientRequest))
 router.patch('/:gardenId/request/:clientRequestId', asyncHandler(gardenController.updateClientRequest))
 router.delete('/:gardenId/request/:clientRequestId', asyncHandler(gardenController.deleteClientRequest))
+
+router.patch('/:gardenId', asyncHandler(gardenController.updateGardenStatus))
+router.delete('/:gardenId', asyncHandler(gardenController.deleteGarden))
 
 module.exports = router

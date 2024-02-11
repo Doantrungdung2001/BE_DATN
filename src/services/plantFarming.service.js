@@ -142,7 +142,7 @@ class PlantFarmingService {
       throw new NotFoundError('Plant farming not found')
     }
 
-    if(plantFarmingItem.plant) {
+    if (plantFarmingItem.plant) {
       if (!plantFarmingItem.plant._id) {
         throw new NotFoundError('Founded plantFarming is not valid')
       }

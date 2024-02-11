@@ -180,7 +180,6 @@ class GardenServiceRequestService {
       ...gardenServiceRequestItem.fruitList
     ]
 
-
     // check plant exist
     await Promise.all(
       plantList.map(async (plant) => {

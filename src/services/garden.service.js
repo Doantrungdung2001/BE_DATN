@@ -273,7 +273,7 @@ class GardenService {
     return modifiedCount
   }
 
-  static async addClientRequest({ farmId, gardenId, clientRequestData }) {
+  static async addClientRequest({ clientId, gardenId, clientRequestData }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
     if (!clientRequestData) throw new BadRequestError('ClientRequest data is required')
     const gardenItem = await getGardenById({ gardenId })
@@ -281,14 +281,59 @@ class GardenService {
       throw new NotFoundError('Garden not found')
     }
 
-    if (gardenItem.farm.toString() !== farmId) {
+    if (gardenItem.client._id.toString() !== clientId) {
       throw new BadRequestError('Not permission to add delivery')
     }
-    const garden = await addClientRequest({ gardenId, clientRequestData })
-    if (!garden) {
+
+    const { type, newPlant, deliveryDetails, note } = clientRequestData
+    // switch case with type must in ['newPlant', 'deliveryRequest', 'other']
+    let formatClientRequestData = {}
+    switch (type) {
+      case 'newPlant':
+        if (!newPlant) throw new BadRequestError('NewPlant is required')
+        if (!isValidObjectId(newPlant)) throw new BadRequestError('NewPlant is not valid')
+        formatClientRequestData = {
+          time: new Date(),
+          type,
+          newPlant: new Types.ObjectId(newPlant),
+          note
+        }
+        break
+      case 'deliveryRequest':
+        if (!deliveryDetails) throw new BadRequestError('DeliveryDetails is required')
+        if (!Array.isArray(deliveryDetails)) throw new BadRequestError('DeliveryDetails must be an array')
+        let formattedDeliveryDetails = []
+        for (const detail of deliveryDetails) {
+          if (!detail.plant) throw new BadRequestError('Plant is required')
+          if (!isValidObjectId(detail.plant)) throw new BadRequestError('Plant is not valid')
+          if (!detail.amount) throw new BadRequestError('Amount is required')
+          formattedDeliveryDetails.push({
+            plant: new Types.ObjectId(detail.plant),
+            amount: detail.amount
+          })
+        }
+        formatClientRequestData = {
+          time: new Date(),
+          type,
+          deliveryDetails: formattedDeliveryDetails,
+          note
+        }
+        break
+      case 'other':
+        formatClientRequestData = {
+          time: new Date(),
+          type,
+          note
+        }
+        break
+      default:
+        throw new BadRequestError('Type is not valid')
+    }
+    const clientRequests = await addClientRequest({ gardenId, formatClientRequestData })
+    if (!clientRequests) {
       throw new MethodFailureError('Add clientRequest failed')
     }
-    return garden
+    return clientRequests
   }
 
   static async updateClientRequest({ farmId, gardenId, clientRequestId, clientRequestData }) {

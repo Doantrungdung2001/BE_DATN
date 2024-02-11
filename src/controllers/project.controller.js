@@ -12,7 +12,8 @@ class ProjectController {
         project: req.body,
         farmId: req.user.userId,
         isGarden: false,
-        status: 'inProgress'
+        status: 'inProgress',
+        startDate: new Date()
       })
     }).send(res)
   }

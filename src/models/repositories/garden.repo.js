@@ -100,8 +100,11 @@ const getClientRequestsByGarden = async ({ gardenId }) => {
     })
     .populate({
       path: 'clientRequests',
-      populate: { path: 'newPlant' },
       populate: { path: 'deliveryDetails.plant' }
+    })
+    .populate({
+      path: 'clientRequests',
+      populate: { path: 'newPlant' }
     })
     .exec()
 
@@ -258,7 +261,7 @@ const deleteDelivery = async ({ gardenId, deliveryId }) => {
   return modifiedCount
 }
 
-const addClientRequest = async ({ gardenId, type, newPlant, deliveryDetails, note }) => {
+const addClientRequest = async ({ gardenId, formatClientRequestData }) => {
   const foundGarden = await garden
     .findOne({
       _id: new Types.ObjectId(gardenId)
@@ -266,18 +269,7 @@ const addClientRequest = async ({ gardenId, type, newPlant, deliveryDetails, not
     .exec()
   if (!foundGarden) return null
 
-  const formattedDeliveryDetails = deliveryDetails.map((detail) => ({
-    ...detail,
-    plant: new Types.ObjectId(detail.plant)
-  }))
-
-  foundGarden.clientRequests.push({
-    time: new Date(),
-    type,
-    newPlant: new Types.ObjectId(newPlant),
-    deliveryDetails: formattedDeliveryDetails,
-    note
-  })
+  foundGarden.clientRequests.push(formatClientRequestData)
 
   await foundGarden.save()
 

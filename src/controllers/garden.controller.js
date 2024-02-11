@@ -28,7 +28,7 @@ class GardenController {
       })
     }).send(res)
   }
-  
+
   // update Garden status
   updateGardenStatus = async (req, res, next) => {
     new SuccessResponse({
@@ -83,7 +83,7 @@ class GardenController {
     new SuccessResponse({
       message: 'Add ClientRequest success!',
       metadata: await GardenService.addClientRequest({
-        farmId: req.user.userId,
+        clientId: req.user.userId,
         gardenId: req.params.gardenId,
         clientRequestData: req.body
       })
