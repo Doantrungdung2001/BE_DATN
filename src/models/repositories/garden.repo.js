@@ -11,6 +11,22 @@ const getAllGardensByFarm = async ({ limit, sort, page, filter } = {}) => {
     .populate('client')
     .populate('gardenServiceTemplate')
     .populate('gardenServiceRequest')
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: { path: 'herbList' }
+    })
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: { path: 'leafyList' }
+    })
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: { path: 'rootList' }
+    })
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: { path: 'fruitList' }
+    })
 
   if (sort) {
     const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
@@ -212,7 +228,7 @@ const updateDelivery = async ({ gardenId, deliveryId, deliveryDetails, note, sta
   const foundDelivery = foundGarden.deliveries.find((delivery) => delivery._id.toString() === deliveryId)
   if (!foundDelivery) return null
 
-  if (deliveryDetails & deliveryDetails.length > 0) {
+  if (deliveryDetails & (deliveryDetails.length > 0)) {
     foundDelivery.deliveryDetails = deliveryDetails
   }
 

@@ -16,7 +16,12 @@ const gardenServiceTemplateSchema = new Schema(
     herbMax: Number,
     leafyMax: Number,
     rootMax: Number,
-    fruitMax: Number
+    fruitMax: Number,
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+    deletedAt: Date
   },
   {
     collection: COLLECTION_NAME,

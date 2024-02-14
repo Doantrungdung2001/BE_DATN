@@ -13,7 +13,7 @@ class GardenServiceTemplateService {
   static async getAllGardenServiceTemplatesByFarm({ farmId, limit, sort, page }) {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
-    const filter = { farm: new Types.ObjectId(farmId) }
+    const filter = { farm: new Types.ObjectId(farmId), isDeleted: false }
     const gardenServiceTemplates = await getAllGardenServiceTemplatesByFarm({ limit, sort, page, filter })
 
     return gardenServiceTemplates

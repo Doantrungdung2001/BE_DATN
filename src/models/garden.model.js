@@ -48,7 +48,7 @@ const gardenSchema = new Schema(
     deliveries: [deliverySchema],
     status: {
       type: String,
-      enum: ['started', 'end'],
+      enum: ['started', 'end', 'cancel'],
       default: 'started'
     }
   },

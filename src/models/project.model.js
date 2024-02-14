@@ -83,7 +83,12 @@ const process = new Schema({
   other: {
     description: String
   },
-  historyProcess: [historyProcess]
+  historyProcess: [historyProcess],
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: Date
 })
 
 const historyExpect = new Schema({
@@ -100,7 +105,12 @@ const expect = new Schema({
   amount: Number,
   note: String,
   isEdited: Boolean,
-  historyExpect: [historyExpect]
+  historyExpect: [historyExpect],
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: Date
 })
 
 const distributerWithAmount = new Schema({
@@ -128,7 +138,12 @@ const output = new Schema({
   distributerWithAmount: [distributerWithAmount],
   exportQR: Boolean,
   isEdited: Boolean,
-  historyOutput: [historyOutput]
+  historyOutput: [historyOutput],
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: Date
 })
 
 const projectSchema = new Schema(
@@ -143,9 +158,10 @@ const projectSchema = new Schema(
     expect: [expect],
     output: [output],
     cameraId: [String],
+    description: String,
     status: {
       type: String,
-      enum: ['inProgress', 'harvesting', 'almostFinished', 'finished'],
+      enum: ['inProgress', 'harvesting', 'almostFinished', 'finished', 'cancel'],
       default: 'inProgress'
     },
     isGarden: Boolean

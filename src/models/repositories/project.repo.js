@@ -69,7 +69,8 @@ const getAllProcess = async ({ projectId }) => {
     .lean()
     .exec()
 
-  return processes
+  const filteredProcesses = processes.process.filter((process) => !process.isDeleted)
+  return filteredProcesses
 }
 
 const addPlantFarmingToProject = async ({ projectId, plantFarmingId }) => {
@@ -131,7 +132,12 @@ const updateProcess = async ({ projectId, processId, newProcessData }) => {
 
 const deleteProcess = async ({ projectId, processId }) => {
   const result = await project
-    .updateOne({ _id: new Types.ObjectId(projectId) }, { $pull: { process: { _id: new Types.ObjectId(processId) } } })
+    .updateOne(
+      { _id: new Types.ObjectId(projectId), 'process._id': new Types.ObjectId(processId) },
+      {
+        $set: { 'process.$.isDeleted': true, 'process.$.deletedAt': new Date() }
+      }
+    )
     .exec()
 
   return result
@@ -144,7 +150,8 @@ const getExpect = async ({ projectId }) => {
     .lean()
     .exec()
 
-  return expect
+  const filteredExpect = expect.expect.filter((expect) => !expect.isDeleted)
+  return filteredExpect
 }
 
 const addExpect = async ({ projectId, expect }) => {
@@ -198,7 +205,12 @@ const updateExpect = async ({ projectId, expectId, newExpectData }) => {
 
 const deleteExpect = async ({ projectId, expectId }) => {
   const result = await project
-    .updateOne({ _id: new Types.ObjectId(projectId) }, { $pull: { expect: { _id: new Types.ObjectId(expectId) } } })
+    .updateOne(
+      { _id: new Types.ObjectId(projectId), 'expect._id': new Types.ObjectId(expectId) },
+      {
+        $set: { 'expect.$.isDeleted': true, 'expect.$.deletedAt': new Date() }
+      }
+    )
     .exec()
 
   return result
@@ -212,7 +224,9 @@ const getOutput = async ({ projectId }) => {
     .lean()
     .exec()
 
-  return output
+  const filteredOutput = output.output.filter((output) => !output.isDeleted)
+
+  return filteredOutput
 }
 
 const addOutput = async ({ projectId, output }) => {
@@ -266,7 +280,12 @@ const updateOutput = async ({ projectId, outputId, newOutputData }) => {
 
 const deleteOutput = async ({ projectId, outputId }) => {
   const result = await project
-    .updateOne({ _id: new Types.ObjectId(projectId) }, { $pull: { output: { _id: new Types.ObjectId(outputId) } } })
+    .updateOne(
+      { _id: new Types.ObjectId(projectId), 'output._id': new Types.ObjectId(outputId) },
+      {
+        $set: { 'output.$.isDeleted': true, 'output.$.deletedAt': new Date() }
+      }
+    )
     .exec()
 
   return result

@@ -55,7 +55,12 @@ const plantFarmingSchema = new Schema(
     },
     farmingTime: Number,
     harvestTime: Number,
-    isPlantFarmingDefault: { type: Boolean, default: false }
+    isPlantFarmingDefault: { type: Boolean, default: false },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+    deletedAt: Date
   },
   {
     collection: COLLECTION_NAME,

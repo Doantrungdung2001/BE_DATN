@@ -66,7 +66,7 @@ class ProjectService {
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     const project = await getProjectInfo({
       projectId,
-      select: ['plant', 'seed', 'farm', 'startDate', 'square', 'status']
+      select: ['plant', 'seed', 'farm', 'startDate', 'square', 'status', 'description']
     })
     if (!project) throw new NotFoundError('Project not found')
     return project
@@ -77,9 +77,9 @@ class ProjectService {
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     if (!updatedFields) throw new BadRequestError('Missing updated fields')
 
-    const { seed, startDate, square, status } = updatedFields
+    const { seed, startDate, square, status, description } = updatedFields
     if (seed && !isValidObjectId(seed)) throw new BadRequestError('Invalid seed id')
-    const projectUpdate = removeUndefinedObject({ seed, startDate, square, status })
+    const projectUpdate = removeUndefinedObject({ seed, startDate, square, status, description })
 
     const updatedProject = await updateProjectInfo({ projectId, projectData: projectUpdate })
     if (!updatedProject) throw new MethodFailureError('Cannot update project')

@@ -2,6 +2,7 @@
 
 const { Schema, model } = require('mongoose')
 const slugify = require('slugify')
+var mongoose_delete = require('mongoose-delete')
 
 const DOCUMENT_NAME = 'Plant'
 const COLLECTION_NAME = 'Plants'
@@ -46,6 +47,7 @@ plantSchema.pre('save', function (next) {
   next()
 })
 
+plantSchema.plugin(mongoose_delete, { deletedAt: true })
 module.exports = {
   plant: model(DOCUMENT_NAME, plantSchema)
 }
