@@ -253,7 +253,7 @@ class ProjectService {
 
   // ...
 
-  static async addOutput({ projectId, output }) {
+  static async addOutput({ projectId, output, farmId }) {
     if (!projectId) throw new BadRequestError('Missing project id')
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     if (!output) throw new BadRequestError('Missing output')
@@ -261,6 +261,15 @@ class ProjectService {
     delete output.exportQR
     delete output.isEdited
     delete output.historyOutput
+
+    // check if project is belong to farm
+    const projectInfo = await getProjectInfo({ projectId })
+    if (!projectInfo)
+      return {
+        message: 'Project not found'
+      }
+    if (projectInfo.farm._id.toString() !== farmId)
+      throw new BadRequestError('Do not have permission to add output to this project')
     // Validate and convert distributer to ObjectId
     if (output.distributerWithAmount && Array.isArray(output.distributerWithAmount)) {
       output.distributerWithAmount.forEach((item) => {

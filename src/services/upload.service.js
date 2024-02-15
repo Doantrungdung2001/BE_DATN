@@ -16,15 +16,14 @@ class UploadService {
   static async uploadImageFromLocal({ path, folderName = 'product/8469' }) {
     try {
       const result = await cloudinary.uploader.upload(path, {
-        public_id: 'thumb',
+        public_id: 'image',
         folder: folderName
       })
       return {
         image_url: result.secure_url,
-        shopId: 8489,
         thumb_url: await cloudinary.url(result.public_id, {
-          width: 200,
-          height: 200,
+          width: 500,
+          height: 500,
           crop: 'fill',
           format: 'jpg'
         })
@@ -47,10 +46,9 @@ class UploadService {
           })
           return {
             image_url: image.secure_url,
-            shopId: 8489,
             thumb_url: await cloudinary.url(image.public_id, {
-              width: 200,
-              height: 200,
+              width: 500,
+              height: 500,
               crop: 'fill',
               format: 'jpg'
             })

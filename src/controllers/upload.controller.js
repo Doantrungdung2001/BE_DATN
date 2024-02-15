@@ -12,7 +12,7 @@ class UploadController {
     }).send(res)
   }
 
-  uploadThumb = async (req, res, next) => {
+  uploadSingleImageFromLocal = async (req, res, next) => {
     const { file } = req
     if (!file) {
       throw new BadRequestError('Please upload a file')
@@ -20,20 +20,23 @@ class UploadController {
     new SuccessResponse({
       message: 'File uploaded successfully',
       metadata: await UploadService.uploadImageFromLocal({
-        path: file.path
+        path: file.path,
+        folderName: `image/${req.user.userId}`
       })
     }).send(res)
   }
 
   uploadImageFromLocalFiles = async (req, res, next) => {
     const { files } = req
+    console.log('files', files)
     if (!files || files.length === 0) {
       throw new BadRequestError('Please upload a file')
     }
     new SuccessResponse({
       message: 'File uploaded successfully',
       metadata: await UploadService.uploadImageFromFromLocalFiles({
-        files
+        files,
+        folderName: `image/${req.user.userId}`
       })
     }).send(res)
   }
