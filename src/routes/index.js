@@ -20,6 +20,7 @@ router.use('/v1/api/garden', require('./garden'))
 router.use('/v1/api/distributer', require('./distributer'))
 router.use('/v1/api/upload', require('./upload'))
 router.use('/v1/api/qr', require('./qr'))
+router.use('/v1/api/farm', require('./farm'))
 router.use('/v1/api', require('./access'))
 
 module.exports = router

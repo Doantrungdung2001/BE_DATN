@@ -14,9 +14,9 @@ router.post('/login', asyncHandler(accessController.login))
 router.use(authenticationV2)
 
 router.get('/farm/test', asyncHandler(accessController.test))
-router.get('/farm/me', asyncHandler(accessController.getUser))
+router.get('/access/me', asyncHandler(accessController.getUser))
 ////////////
-router.post('/farm/logout', asyncHandler(accessController.logout))
-router.post('/farm/handlerRefreshToken', asyncHandler(accessController.handlerRefreshToken))
+router.post('/access/logout', asyncHandler(accessController.logout))
+router.post('/access/handlerRefreshToken', asyncHandler(accessController.handlerRefreshToken))
 
 module.exports = router
