@@ -140,7 +140,10 @@ class PlantFarmingService {
     delete bodyUpdate.seed
     const updatedPlantFarming = await updatePlantFarming({
       plantFarmingId,
-      updatedData: bodyUpdate,
+      updatedData: {
+        ...bodyUpdate,
+        createdAtTime: new Date()
+      },
       historyPlantFarmingEdit: historyPlantFarmingEdit
     })
     if (!updatedPlantFarming) {

@@ -42,7 +42,8 @@ const historyProcess = new Schema({
   other: {
     description: String
   },
-  modifiedAt: Date
+  modifiedAt: Date,
+  createdAtTime: Date
 })
 
 const process = new Schema({
@@ -84,6 +85,7 @@ const process = new Schema({
     description: String
   },
   historyProcess: [historyProcess],
+  createdAtTime: Date,
   isDeleted: {
     type: Boolean,
     default: false
@@ -96,7 +98,8 @@ const historyExpect = new Schema({
   time: Date,
   amount: Number,
   note: String,
-  modifiedAt: Date
+  modifiedAt: Date,
+  createdAtTime: Date
 })
 
 const expect = new Schema({
@@ -106,6 +109,7 @@ const expect = new Schema({
   note: String,
   isEdited: Boolean,
   historyExpect: [historyExpect],
+  createdAtTime: Date,
   isDeleted: {
     type: Boolean,
     default: false
@@ -126,7 +130,8 @@ const historyOutput = new Schema({
   images: [String],
   distributerWithAmount: [distributerWithAmount],
   exportQR: Boolean,
-  modifiedAt: Date
+  modifiedAt: Date,
+  createdAtTime: Date
 })
 
 const output = new Schema({
@@ -139,6 +144,7 @@ const output = new Schema({
   exportQR: Boolean,
   isEdited: Boolean,
   historyOutput: [historyOutput],
+  createdAtTime: Date,
   isDeleted: {
     type: Boolean,
     default: false
