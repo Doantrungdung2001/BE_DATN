@@ -121,10 +121,28 @@ class PlantFarmingService {
       throw new BadRequestError('Farm does not have permission to create plantFarming with this plant id')
     }
 
+    const historyPlantFarmingEdit = {
+      timeCultivates: plantFarmingItem.timeCultivates,
+      cultivationActivities: plantFarmingItem.cultivationActivities,
+      plantingActivity: plantFarmingItem.plantingActivity,
+      fertilizationActivities: plantFarmingItem.fertilizationActivities,
+      pestAndDiseaseControlActivities: plantFarmingItem.pestAndDiseaseControlActivities,
+      bestTimeCultivate: plantFarmingItem.bestTimeCultivate,
+      farmingTime: plantFarmingItem.farmingTime,
+      harvestTime: plantFarmingItem.harvestTime,
+      isPlantFarmingDefault: plantFarmingItem.isPlantFarmingDefault,
+      modifiedAt: new Date(),
+      createdAtTime: plantFarmingItem.createdAtTime || plantFarmingItem.createdAt
+    }
+
     delete bodyUpdate._id
     delete bodyUpdate.plant
     delete bodyUpdate.seed
-    const updatedPlantFarming = await updatePlantFarming({ plantFarmingId, updatedData: bodyUpdate })
+    const updatedPlantFarming = await updatePlantFarming({
+      plantFarmingId,
+      updatedData: bodyUpdate,
+      historyPlantFarmingEdit: historyPlantFarmingEdit
+    })
     if (!updatedPlantFarming) {
       throw new MethodFailureError('Update plant farming failed')
     }

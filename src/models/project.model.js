@@ -146,6 +146,16 @@ const output = new Schema({
   deletedAt: Date
 })
 
+const historyInfo = new Schema({
+  txHash: String,
+  createdAtTime: Date,
+  seed: { type: Schema.Types.ObjectId, ref: 'Seed' },
+  startDate: Date,
+  description: String,
+  square: Number,
+  modifiedAt: Date
+})
+
 const projectSchema = new Schema(
   {
     farm: { type: Schema.Types.ObjectId, ref: 'Farm' },
@@ -153,6 +163,8 @@ const projectSchema = new Schema(
     seed: { type: Schema.Types.ObjectId, ref: 'Seed' },
     startDate: Date,
     square: Number,
+    txHash: String,
+    projectIndex: Number,
     plantFarming: { type: Schema.Types.ObjectId, ref: 'PlantFarming' },
     process: [process],
     expect: [expect],
@@ -164,7 +176,10 @@ const projectSchema = new Schema(
       enum: ['inProgress', 'harvesting', 'almostFinished', 'finished', 'cancel'],
       default: 'inProgress'
     },
-    isGarden: Boolean
+    isGarden: Boolean,
+    createdAtTime: Date,
+    isInfoEdited: Boolean,
+    historyInfo: [historyInfo]
   },
   {
     collection: COLLECTION_NAME,

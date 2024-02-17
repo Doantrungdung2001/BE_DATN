@@ -55,7 +55,8 @@ class ProjectService {
       projectData: newProject,
       isGarden,
       status,
-      startDate
+      startDate,
+      createdAtTime: new Date()
     })
     if (!updatedProject) throw new MethodFailureError('Cannot init project')
     return updatedProject
@@ -66,7 +67,25 @@ class ProjectService {
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     const project = await getProjectInfo({
       projectId,
-      select: ['plant', 'seed', 'farm', 'startDate', 'square', 'status', 'description']
+      select: [
+        'plant',
+        'seed',
+        'farm',
+        'startDate',
+        'square',
+        'status',
+        'description',
+        'isGarden',
+        'projectIndex',
+        'txHash',
+        'createdAtTime',
+        'plantFarming',
+        'cameraId',
+        'historyInfo',
+        'isInfoEdited',
+        'createdAt',
+        'updatedAt'
+      ]
     })
     if (!project) throw new NotFoundError('Project not found')
     return project
@@ -79,9 +98,29 @@ class ProjectService {
 
     const { seed, startDate, square, status, description } = updatedFields
     if (seed && !isValidObjectId(seed)) throw new BadRequestError('Invalid seed id')
-    const projectUpdate = removeUndefinedObject({ seed, startDate, square, status, description })
-
-    const updatedProject = await updateProjectInfo({ projectId, projectData: projectUpdate })
+    const projectUpdate = removeUndefinedObject({
+      seed,
+      startDate,
+      square,
+      status,
+      description,
+      createdAtTime: new Date()
+    })
+    const projectInfo = await getProjectInfo({ projectId })
+    const historyInfoItem = {
+      txHash: projectInfo.txHash,
+      createdAtTime: projectInfo.createdAtTime ? projectInfo.createdAtTime : projectInfo.createdAt,
+      seed: projectInfo.seed,
+      startDate: projectInfo.startDate,
+      description: projectInfo.description,
+      modifiedAt: new Date(),
+      square: projectInfo.square
+    }
+    const updatedProject = await updateProjectInfo({
+      projectId,
+      projectData: projectUpdate,
+      historyInfoItem: historyInfoItem
+    })
     if (!updatedProject) throw new MethodFailureError('Cannot update project')
     return updatedProject
   }

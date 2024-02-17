@@ -50,7 +50,14 @@ const getProjectInfo = async ({ projectId, select }) => {
   return projectInfo
 }
 
-const updateProjectInfo = async ({ projectId, projectData }) => {
+const updateProjectInfo = async ({ projectId, projectData, historyInfoItem }) => {
+  const projectItem = await project.findOne({ _id: new Types.ObjectId(projectId) })
+  if (!projectItem) {
+    return null
+  }
+  projectItem.isInfoEdited = true
+  projectItem.historyInfo.push(historyInfoItem)
+  await projectItem.save()
   const result = await project.updateOne({ _id: new Types.ObjectId(projectId) }, projectData).exec()
 
   return result
