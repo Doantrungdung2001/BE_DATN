@@ -228,6 +228,7 @@ const getOutput = async ({ projectId }) => {
     .findOne({ _id: new Types.ObjectId(projectId) })
     .select(getSelectData(['output']))
     .populate('output.distributerWithAmount.distributer')
+    .populate('output.historyOutput.distributerWithAmount.distributer')
     .lean()
     .exec()
 
@@ -248,10 +249,14 @@ const updateOutput = async ({ projectId, outputId, newOutputData }) => {
     return null
   }
 
+  console.log('projectItem', projectItem)
+
   const output = projectItem.output.id(outputId)
   if (!output) {
     return null
   }
+
+  console.log('output', output.distributerWithAmount)
 
   // Tạo một bản sao của quy trình trước khi chỉnh sửa
   const previousOutputData = { ...output.toObject() }
