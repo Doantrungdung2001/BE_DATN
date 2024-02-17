@@ -207,7 +207,7 @@ class ProjectService {
 
     const updatedProject = await addProcess({
       projectId,
-      process: { tx, time, type, [activityField]: activity[activityField], createdAtTime: new Date()}
+      process: { tx, time, type, [activityField]: activity[activityField], createdAtTime: new Date() }
     })
     if (!updatedProject) throw new MethodFailureError('Cannot add process')
     return updatedProject
@@ -256,7 +256,10 @@ class ProjectService {
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     if (!expect) throw new BadRequestError('Missing expect')
 
-    const updatedProject = await addExpect({ projectId, expect: { ...expect, isEdited: false, createdAtTime: new Date() } })
+    const updatedProject = await addExpect({
+      projectId,
+      expect: { ...expect, isEdited: false, createdAtTime: new Date() }
+    })
     if (!updatedProject) throw new MethodFailureError('Cannot add expect')
     return updatedProject
   }
@@ -270,10 +273,14 @@ class ProjectService {
 
     const { tx, isEdited, historyExpect, ...updatedExpect } = expect
 
-    const updatedProject = await updateExpect({ projectId, expectId, newExpectData: {
-      ...updatedExpect,
-      createdAtTime: new Date()
-    } })
+    const updatedProject = await updateExpect({
+      projectId,
+      expectId,
+      newExpectData: {
+        ...updatedExpect,
+        createdAtTime: new Date()
+      }
+    })
     if (!updatedProject) throw new MethodFailureError('Cannot update expect')
     return updatedProject
   }
@@ -325,10 +332,13 @@ class ProjectService {
       })
     }
 
-    const updatedProject = await addOutput({ projectId, output: {
-      ...output,
-      createdAtTime: new Date()
-    } })
+    const updatedProject = await addOutput({
+      projectId,
+      output: {
+        ...output,
+        createdAtTime: new Date()
+      }
+    })
     if (!updatedProject) throw new MethodFailureError('Cannot add output')
     return updatedProject
   }
@@ -352,10 +362,30 @@ class ProjectService {
 
     const { tx, isEdited, historyOutput, exportQR, ...updatedOutput } = output
 
-    const updatedProject = await updateOutput({ projectId, outputId, newOutputData: {
-      ...updatedOutput,
-      createdAtTime: new Date()
-    } })
+    const updatedProject = await updateOutput({
+      projectId,
+      outputId,
+      newOutputData: {
+        ...updatedOutput,
+        createdAtTime: new Date()
+      }
+    })
+    if (!updatedProject) throw new MethodFailureError('Cannot update output')
+    return updatedProject
+  }
+
+  static async updateExportQR({ projectId, outputId }) {
+    if (!projectId) throw new BadRequestError('Missing project id')
+    if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
+    if (!outputId) throw new BadRequestError('Missing output id')
+    if (!isValidObjectId(outputId)) throw new BadRequestError('Invalid output id')
+    const updatedProject = await updateOutput({
+      projectId,
+      outputId,
+      newOutputData: {
+        exportQR: true
+      }
+    })
     if (!updatedProject) throw new MethodFailureError('Cannot update output')
     return updatedProject
   }

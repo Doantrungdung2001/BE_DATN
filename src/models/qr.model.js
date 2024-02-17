@@ -7,10 +7,12 @@ const COLLECTION_NAME = 'QRs'
 
 const qrSchema = new Schema(
   {
+    privateId: String,
     isScanned: Boolean,
     time: Date,
     timeScanned: Date,
     txScan: String,
+    project: { type: Schema.Types.ObjectId, ref: 'Project' },
     output: { type: Schema.Types.ObjectId, ref: 'Project.output' },
     distributer: { type: Schema.Types.ObjectId, ref: 'Distributer' },
     client: { type: Schema.Types.ObjectId, ref: 'Client' }
