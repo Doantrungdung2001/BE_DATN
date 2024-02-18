@@ -18,6 +18,11 @@ const farmSchema = new Schema(
       enum: ['active', 'inactive'],
       default: 'active'
     },
+    phone: [String],
+    email: [String],
+    avatar: {
+      type: String
+    },
     description: {
       type: String
     },
@@ -35,6 +40,12 @@ const farmSchema = new Schema(
     },
     address: {
       type: String
+    },
+    lat: {
+      type: Number
+    },
+    lng: {
+      type: Number
     }
   },
   {
@@ -52,4 +63,6 @@ farmSchema.pre('save', function (next) {
   next()
 })
 
-module.exports = model(DOCUMENT_NAME, farmSchema)
+module.exports = {
+  farm: model(DOCUMENT_NAME, farmSchema)
+}
