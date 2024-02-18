@@ -37,7 +37,11 @@ const updateGardenServiceTemplate = async ({ gardenServiceTemplateId, bodyUpdate
 }
 
 const deleteGardenServiceTemplate = async ({ gardenServiceTemplateId }) => {
-  return await gardenServiceTemplate.findByIdAndDelete(gardenServiceTemplateId).exec()
+  const bodyUpdate = {
+    isDeleted: true,
+    deletedAt: new Date()
+  }
+  return await gardenServiceTemplate.findByIdAndUpdate(gardenServiceTemplateId, bodyUpdate, { new: true }).exec()
 }
 
 module.exports = {

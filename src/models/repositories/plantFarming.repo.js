@@ -12,7 +12,14 @@ const addPlantFarming = async ({ plantFarmingData, plantId, seedId }) => {
 }
 
 // Update a plant farming
-const updatePlantFarming = async ({ plantFarmingId, updatedData }) => {
+const updatePlantFarming = async ({ plantFarmingId, updatedData, historyPlantFarmingEdit }) => {
+  const plantFarmingItem = await plantFarming.findById(plantFarmingId).exec()
+  if (!plantFarmingItem) {
+    return null
+  }
+  plantFarmingItem.isEdited = true
+  plantFarmingItem.historyPlantFarmingEdit.push(historyPlantFarmingEdit)
+  await plantFarmingItem.save()
   return await plantFarming.findByIdAndUpdate(plantFarmingId, updatedData, { new: true }).exec()
 }
 

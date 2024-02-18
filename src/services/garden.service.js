@@ -209,7 +209,7 @@ class GardenService {
     if (gardenItem.status === status) {
       throw new BadRequestError('Status is not changed')
     }
-    if (gardenItem.farm.toString() !== farmId) {
+    if (gardenItem.farm._id.toString() !== farmId) {
       throw new BadRequestError('Not permission to update garden status')
     }
     const garden = await updateGardenStatus({ gardenId, status })
@@ -288,10 +288,17 @@ class GardenService {
       }
     }
 
-    if(status) {
-      if (status !== 'coming' && status !== 'done' && status !== 'cancel') throw new BadRequestError('Status is not valid')
+    if (status) {
+      if (status !== 'coming' && status !== 'done' && status !== 'cancel')
+        throw new BadRequestError('Status is not valid')
     }
-    const garden = await updateDelivery({ gardenId, deliveryId, deliveryDetails: formattedDeliveryDetails, note, status})
+    const garden = await updateDelivery({
+      gardenId,
+      deliveryId,
+      deliveryDetails: formattedDeliveryDetails,
+      note,
+      status
+    })
     if (!garden) {
       throw new MethodFailureError('Update delivery failed')
     }

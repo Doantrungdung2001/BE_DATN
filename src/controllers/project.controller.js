@@ -126,7 +126,8 @@ class ProjectController {
       message: 'Add Output success!',
       metadata: await ProjectService.addOutput({
         projectId: req.params.projectId,
-        output: req.body
+        output: req.body,
+        farmId: req.user.userId
       })
     }).send(res)
   }

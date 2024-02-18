@@ -37,6 +37,26 @@ const pestAndDiseaseControlActivity = new Schema({
   note: String
 })
 
+const historyPlantFarmingEdit = new Schema({
+  timeCultivates: [timeCultivate],
+  cultivationActivities: [cultivationActivity],
+  plantingActivity: {
+    density: String,
+    description: String
+  },
+  fertilizationActivities: [fertilizationActivity],
+  pestAndDiseaseControlActivities: [pestAndDiseaseControlActivity],
+  bestTimeCultivate: {
+    start: Number,
+    end: Number
+  },
+  farmingTime: Number,
+  harvestTime: Number,
+  isPlantFarmingDefault: { type: Boolean, default: false },
+  modifiedAt: Date,
+  createdAtTime: Date
+})
+
 const plantFarmingSchema = new Schema(
   {
     plant: { type: Schema.Types.ObjectId, ref: 'Plant' },
@@ -55,7 +75,18 @@ const plantFarmingSchema = new Schema(
     },
     farmingTime: Number,
     harvestTime: Number,
-    isPlantFarmingDefault: { type: Boolean, default: false }
+    isPlantFarmingDefault: { type: Boolean, default: false },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+    deletedAt: Date,
+    isEdited: {
+      type: Boolean,
+      default: false
+    },
+    createdAtTime: Date,
+    historyPlantFarmingEdit: [historyPlantFarmingEdit]
   },
   {
     collection: COLLECTION_NAME,
