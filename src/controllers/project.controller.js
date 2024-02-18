@@ -8,7 +8,13 @@ class ProjectController {
   initProject = async (req, res, next) => {
     new SuccessResponse({
       message: 'Create new Project success!',
-      metadata: await ProjectService.initProject({ project: req.body, farmId: req.user.userId })
+      metadata: await ProjectService.initProject({
+        project: req.body,
+        farmId: req.user.userId,
+        isGarden: false,
+        status: 'inProgress',
+        startDate: new Date()
+      })
     }).send(res)
   }
 
@@ -28,7 +34,8 @@ class ProjectController {
     new SuccessResponse({
       message: 'Delete Project success!',
       metadata: await ProjectService.deleteProject({
-        projectId: req.params.projectId
+        projectId: req.params.projectId,
+        farmId: req.user.userId
       })
     }).send(res)
   }
@@ -119,7 +126,8 @@ class ProjectController {
       message: 'Add Output success!',
       metadata: await ProjectService.addOutput({
         projectId: req.params.projectId,
-        output: req.body
+        output: req.body,
+        farmId: req.user.userId
       })
     }).send(res)
   }
@@ -179,6 +187,13 @@ class ProjectController {
     return new SuccessResponse({
       message: 'Get list getOutput success!',
       metadata: await ProjectService.getOutput({ projectId: req.params.projectId })
+    }).send(res)
+  }
+
+  getPlantFarming = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get PlantFarming success!',
+      metadata: await ProjectService.getPlantFarming({ projectId: req.params.projectId })
     }).send(res)
   }
   // END QUERY //

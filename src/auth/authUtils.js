@@ -73,6 +73,7 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
   const clientId = req.headers[HEADER.CLIENT_ID]
   const refreshToken = extractToken(req.headers[HEADER.REFRESH_TOKEN])
   const accessToken = extractToken(req.headers[HEADER.AUTHORIZATION])
+  if (!refreshToken && !accessToken) throw new AuthFailureError('Invalid request')
   // if (!clientId) throw new AuthFailureError('Invalid Request')
 
   // 1. check user id
@@ -111,7 +112,7 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
     req.user = decodeUser
     return next()
   } catch (error) {
-    throw error
+    throw new AuthFailureError('Old token')
   }
 })
 
@@ -135,6 +136,13 @@ const isFarm = asyncHandler(async (req, res, next) => {
   throw new AuthFailureError('Permison denied!')
 })
 
+const isClient = asyncHandler(async (req, res, next) => {
+  if (req.user.roles.includes('CLIENT')) {
+    return next()
+  }
+  throw new AuthFailureError('Permison denied!')
+})
+
 const isAdmin = asyncHandler(async (req, res, next) => {
   if (req.user.roles.includes('ADMIN')) {
     return next()
@@ -146,5 +154,8 @@ module.exports = {
   createTokenPair,
   authentication,
   authenticationV2,
-  verifyJWT
+  verifyJWT,
+  isFarm,
+  isClient,
+  isAdmin
 }

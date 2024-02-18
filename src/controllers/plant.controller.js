@@ -12,6 +12,17 @@ class PlantController {
     }).send(res)
   }
 
+  // add Plant by recomment plantId
+  addPlantByRecommentPlantId = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Create new Plant by recomment plantId success!',
+      metadata: await PlantService.addPlantByRecommentPlantId({
+        recommentPlantId: req.params.recommentPlantId,
+        farmId: req.user.userId
+      })
+    }).send(res)
+  }
+
   // update Plant
   updatePlant = async (req, res, next) => {
     new SuccessResponse({
@@ -59,6 +70,13 @@ class PlantController {
     return new SuccessResponse({
       message: 'Get list getRecommendPlant success!',
       metadata: await PlantService.getAllPlantsByFarm({ farmId: admin_id, ...req.query })
+    }).send(res)
+  }
+
+  getDefaultPlantByPlantId = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get default plant success!',
+      metadata: await PlantService.getDefaultPlantByPlantId({ plantId: req.params.plantId, farmId: admin_id })
     }).send(res)
   }
   // END QUERY //

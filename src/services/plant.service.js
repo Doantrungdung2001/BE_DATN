@@ -35,6 +35,16 @@ class PlantService {
     return plantItem
   }
 
+  static async checkPlantExist({ plantId }) {
+    if (!plantId) throw new BadRequestError('PlantId is required')
+    if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
+    const plantItem = await getPlantByPlantId({ plantId })
+    if (!plantItem) {
+      return false
+    }
+    return true
+  }
+
   static async getPlantByPlantNameAndFarmId({ plantName, farmId }) {
     if (!plantName) throw new BadRequestError('PlantName is required')
     if (!farmId) throw new BadRequestError('FarmId is required')
@@ -46,10 +56,54 @@ class PlantService {
     return plantItem
   }
 
+  static async getDefaultPlantByPlantId({ plantId, farmId }) {
+    if (!plantId) throw new BadRequestError('PlantId is required')
+    if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
+    const plantItem = await getPlantByPlantId({ plantId })
+    if (!plantItem) {
+      throw new NotFoundError('Plant not found')
+    }
+    const plantDefaultItem = await getPlantByPlantNameAndFarmId({ plantName: plantItem.plant_name, farmId })
+    if (!plantDefaultItem) {
+      throw new NotFoundError('Default Plant not found')
+    }
+
+    return plantDefaultItem
+  }
   static async addPlant({ plantData, farmId }) {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
     if (!plantData) throw new BadRequestError('Plant data is required')
+
+    const existingPlant = await getPlantByPlantNameAndFarmId({ plantName: plantData.plant_name, farmId })
+    if (existingPlant) {
+      throw new MethodFailureError('Plant already exists')
+    }
+
+    const createdPlant = await addPlant({ plantData, farmId })
+    if (!createdPlant) {
+      throw new MethodFailureError('Create plant failed')
+    }
+    return createdPlant
+  }
+
+  static async addPlantByRecommentPlantId({ recommentPlantId, farmId }) {
+    if (!recommentPlantId) throw new BadRequestError('RecommentPlantId is required')
+    if (!isValidObjectId(recommentPlantId)) throw new BadRequestError('RecommentPlantId is not valid')
+    if (!farmId) throw new BadRequestError('FarmId is required')
+    if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
+    const recommentPlant = await getPlantByPlantId({ plantId: recommentPlantId })
+    if (!recommentPlant) {
+      throw new NotFoundError('Recomment plant not found')
+    }
+
+    const { _id, farm, ...plantData } = recommentPlant
+
+    const existingPlant = await getPlantByPlantNameAndFarmId({ plantName: plantData.plant_name, farmId })
+    if (existingPlant) {
+      throw new MethodFailureError('Plant already exists')
+    }
+
     const createdPlant = await addPlant({ plantData, farmId })
     if (!createdPlant) {
       throw new MethodFailureError('Create plant failed')

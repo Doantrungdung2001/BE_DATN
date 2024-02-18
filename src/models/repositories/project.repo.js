@@ -1,11 +1,16 @@
 'use strict'
 
 const { project } = require('../../models/project.model')
+const { distributer } = require('../../models/distributer.model')
 const { Types } = require('mongoose')
 const { getSelectData, unGetSelectData } = require('../../utils/index')
 
 const getAllProjectsByFarm = async ({ limit, sort, page, filter } = {}) => {
-  let query = project.find(filter || {})
+  let query = project
+    .find(filter || {})
+    .populate('farm')
+    .populate('plant')
+    .populate('seed')
 
   if (sort) {
     const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
@@ -21,13 +26,14 @@ const getAllProjectsByFarm = async ({ limit, sort, page, filter } = {}) => {
   return projects
 }
 
-const initProject = async ({ projectData, farmId, plantId, seedId }) => {
+const initProject = async ({ projectData, farmId, plantId, seedId, isGarden, status }) => {
   return await project.create({
     ...projectData,
     farm: new Types.ObjectId(farmId),
     plant: new Types.ObjectId(plantId),
     seed: new Types.ObjectId(seedId),
-    status: 'inProgress'
+    status,
+    isGarden
   })
 }
 
@@ -44,7 +50,14 @@ const getProjectInfo = async ({ projectId, select }) => {
   return projectInfo
 }
 
-const updateProjectInfo = async ({ projectId, projectData }) => {
+const updateProjectInfo = async ({ projectId, projectData, historyInfoItem }) => {
+  const projectItem = await project.findOne({ _id: new Types.ObjectId(projectId) })
+  if (!projectItem) {
+    return null
+  }
+  projectItem.isInfoEdited = true
+  projectItem.historyInfo.push(historyInfoItem)
+  await projectItem.save()
   const result = await project.updateOne({ _id: new Types.ObjectId(projectId) }, projectData).exec()
 
   return result
@@ -63,7 +76,8 @@ const getAllProcess = async ({ projectId }) => {
     .lean()
     .exec()
 
-  return processes
+  const filteredProcesses = processes.process.filter((process) => !process.isDeleted)
+  return filteredProcesses
 }
 
 const addPlantFarmingToProject = async ({ projectId, plantFarmingId }) => {
@@ -125,7 +139,12 @@ const updateProcess = async ({ projectId, processId, newProcessData }) => {
 
 const deleteProcess = async ({ projectId, processId }) => {
   const result = await project
-    .updateOne({ _id: new Types.ObjectId(projectId) }, { $pull: { process: { _id: new Types.ObjectId(processId) } } })
+    .updateOne(
+      { _id: new Types.ObjectId(projectId), 'process._id': new Types.ObjectId(processId) },
+      {
+        $set: { 'process.$.isDeleted': true, 'process.$.deletedAt': new Date() }
+      }
+    )
     .exec()
 
   return result
@@ -138,7 +157,8 @@ const getExpect = async ({ projectId }) => {
     .lean()
     .exec()
 
-  return expect
+  const filteredExpect = expect.expect.filter((expect) => !expect.isDeleted)
+  return filteredExpect
 }
 
 const addExpect = async ({ projectId, expect }) => {
@@ -192,7 +212,12 @@ const updateExpect = async ({ projectId, expectId, newExpectData }) => {
 
 const deleteExpect = async ({ projectId, expectId }) => {
   const result = await project
-    .updateOne({ _id: new Types.ObjectId(projectId) }, { $pull: { expect: { _id: new Types.ObjectId(expectId) } } })
+    .updateOne(
+      { _id: new Types.ObjectId(projectId), 'expect._id': new Types.ObjectId(expectId) },
+      {
+        $set: { 'expect.$.isDeleted': true, 'expect.$.deletedAt': new Date() }
+      }
+    )
     .exec()
 
   return result
@@ -203,10 +228,13 @@ const getOutput = async ({ projectId }) => {
     .findOne({ _id: new Types.ObjectId(projectId) })
     .select(getSelectData(['output']))
     .populate('output.distributerWithAmount.distributer')
+    .populate('output.historyOutput.distributerWithAmount.distributer')
     .lean()
     .exec()
 
-  return output
+  const filteredOutput = output.output.filter((output) => !output.isDeleted)
+
+  return filteredOutput
 }
 
 const addOutput = async ({ projectId, output }) => {
@@ -221,10 +249,14 @@ const updateOutput = async ({ projectId, outputId, newOutputData }) => {
     return null
   }
 
+  console.log('projectItem', projectItem)
+
   const output = projectItem.output.id(outputId)
   if (!output) {
     return null
   }
+
+  console.log('output', output.distributerWithAmount)
 
   // Tạo một bản sao của quy trình trước khi chỉnh sửa
   const previousOutputData = { ...output.toObject() }
@@ -260,10 +292,25 @@ const updateOutput = async ({ projectId, outputId, newOutputData }) => {
 
 const deleteOutput = async ({ projectId, outputId }) => {
   const result = await project
-    .updateOne({ _id: new Types.ObjectId(projectId) }, { $pull: { output: { _id: new Types.ObjectId(outputId) } } })
+    .updateOne(
+      { _id: new Types.ObjectId(projectId), 'output._id': new Types.ObjectId(outputId) },
+      {
+        $set: { 'output.$.isDeleted': true, 'output.$.deletedAt': new Date() }
+      }
+    )
     .exec()
 
   return result
+}
+
+const getPlantFarmingId = async ({ projectId }) => {
+  const projectInfo = await project
+    .findOne({ _id: new Types.ObjectId(projectId) })
+    .select('plantFarming')
+    .lean()
+    .exec()
+
+  return projectInfo.plantFarming
 }
 
 module.exports = {
@@ -284,5 +331,6 @@ module.exports = {
   getOutput,
   addOutput,
   updateOutput,
-  deleteOutput
+  deleteOutput,
+  getPlantFarmingId
 }

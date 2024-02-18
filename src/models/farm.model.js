@@ -13,19 +13,15 @@ const farmSchema = new Schema(
       trim: true,
       maxLength: 150
     },
-    email: {
-      type: String,
-      unique: true,
-      trim: true
-    },
-    password: {
-      type: String,
-      require: true
-    },
     status: {
       type: String,
       enum: ['active', 'inactive'],
       default: 'active'
+    },
+    phone: [String],
+    email: [String],
+    avatar: {
+      type: String
     },
     description: {
       type: String
@@ -45,9 +41,11 @@ const farmSchema = new Schema(
     address: {
       type: String
     },
-    roles: {
-      type: Array,
-      default: []
+    lat: {
+      type: Number
+    },
+    lng: {
+      type: Number
     }
   },
   {
@@ -65,4 +63,6 @@ farmSchema.pre('save', function (next) {
   next()
 })
 
-module.exports = model(DOCUMENT_NAME, farmSchema)
+module.exports = {
+  farm: model(DOCUMENT_NAME, farmSchema)
+}
