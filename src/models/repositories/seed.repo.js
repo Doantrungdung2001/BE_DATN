@@ -60,7 +60,11 @@ const getSeedDefaultFromPlantId = async ({ plantId }) => {
 
 const getSeedFromSeedNameAndPlantId = async ({ seedName, plantId }) => {
   return await seed
-    .findOne({ seed_name: seedName, plant: new Types.ObjectId(plantId) })
+    .findOne({
+      seed_name: seedName,
+      plant: new Types.ObjectId(plantId),
+      $or: [{ isDeleted: { $exists: false } }, { isDeleted: false }]
+    })
     .populate({
       path: 'plant'
     })

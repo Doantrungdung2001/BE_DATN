@@ -28,7 +28,6 @@ class UploadController {
 
   uploadImageFromLocalFiles = async (req, res, next) => {
     const { files } = req
-    console.log('files', files)
     if (!files || files.length === 0) {
       throw new BadRequestError('Please upload a file')
     }

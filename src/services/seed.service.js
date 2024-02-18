@@ -80,7 +80,6 @@ class SeedService {
     }
     const seedDefault = await getSeedDefaultFromPlantId({ plantId })
     if (!seedDefault) {
-      console.log('plantId: ', plantId)
       throw new NotFoundError('Recommend not worked with this plant, cause Seed default not found')
     }
     return seedDefault
@@ -192,6 +191,7 @@ class SeedService {
       seedName: seedData.seed_name,
       plantId: plantInFarm._id.toString()
     })
+
     if (existingSeed) {
       throw new MethodFailureError('Seed already exists')
     }
@@ -260,6 +260,48 @@ class SeedService {
       throw new MethodFailureError('Update seed failed')
     }
     return updateSeedItem
+  }
+
+  static async updateSeedDefault({ seedId, farmId }) {
+    if (!seedId) {
+      throw new BadRequestError('Seed id is required')
+    }
+    if (!isValidObjectId(seedId)) {
+      throw new BadRequestError('Invalid seed id')
+    }
+    if (!farmId) {
+      throw new BadRequestError('Farm id is required')
+    }
+    if (!isValidObjectId(farmId)) {
+      throw new BadRequestError('Invalid farm id')
+    }
+    const seed = await getSeedBySeedId({ seedId })
+    if (!seed) {
+      throw new BadRequestError('Seed not found')
+    }
+    if (seed.plant.farm.toString() !== farmId) {
+      throw new BadRequestError('Farm does not have permission to update seeds')
+    }
+
+    const seeds = await getSeedByPlantInFarm({ plantId: seed.plant._id.toString() })
+    if (!seeds || seeds.length === 0) {
+      throw new MethodFailureError('Seed not found')
+    }
+
+    for (const seedItem of seeds) {
+      if (seedItem._id.toString() === seedId) {
+        continue
+      }
+      const updateSeedItem = await updateSeed({ seedId: seedItem._id, bodyUpdate: { isSeedDefault: false } })
+      if (!updateSeedItem) {
+        throw new MethodFailureError('Update seed default failed')
+      }
+    }
+    const updateDefaultSeedItem = await updateSeed({ seedId, bodyUpdate: { isSeedDefault: true } })
+    if (!updateDefaultSeedItem) {
+      throw new MethodFailureError('Update seed default failed')
+    }
+    return updateDefaultSeedItem
   }
 
   static async deleteSeed({ seedId, farmId }) {

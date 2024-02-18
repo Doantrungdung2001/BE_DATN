@@ -34,6 +34,17 @@ class SeedController {
     }).send(res)
   }
 
+  // update isSeedDefault
+  updateSeedDefault = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Update Seed success!',
+      metadata: await SeedService.updateSeedDefault({
+        seedId: req.params.seedId,
+        farmId: req.user.userId
+      })
+    }).send(res)
+  }
+
   // delete Seed
   deleteSeed = async (req, res, next) => {
     new SuccessResponse({
