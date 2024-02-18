@@ -61,7 +61,11 @@ const updatePlant = async ({ plantId, bodyUpdate }) => {
 }
 
 const deletePlant = async (plantId) => {
-  return await plant.findByIdAndDelete(plantId).exec()
+  const bodyUpdate = {
+    isDeleted: true,
+    deletedAt: new Date()
+  }
+  return await plant.findByIdAndUpdate(plantId, bodyUpdate, { new: true }).exec()
 }
 
 module.exports = {

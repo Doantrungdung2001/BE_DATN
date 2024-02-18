@@ -86,7 +86,12 @@ const plantFarmingSchema = new Schema(
       default: false
     },
     createdAtTime: Date,
-    historyPlantFarmingEdit: [historyPlantFarmingEdit]
+    historyPlantFarmingEdit: [historyPlantFarmingEdit],
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
+    deletedAt: Date
   },
   {
     collection: COLLECTION_NAME,

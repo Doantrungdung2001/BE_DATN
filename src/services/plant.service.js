@@ -19,7 +19,7 @@ class PlantService {
   static async getAllPlantsByFarm({ farmId, limit, sort, page }) {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
-    const filter = { farm: new Types.ObjectId(farmId) }
+    const filter = { farm: new Types.ObjectId(farmId), $or: [{ isDeleted: { $exists: false } }, { isDeleted: false }] }
     const plants = await getAllPlantsByFarm({ limit, sort, page, filter })
 
     return plants
@@ -76,8 +76,20 @@ class PlantService {
     if (!plantData) throw new BadRequestError('Plant data is required')
 
     const existingPlant = await getPlantByPlantNameAndFarmId({ plantName: plantData.plant_name, farmId })
-    if (existingPlant) {
+    if (existingPlant && !existingPlant.isDeleted) {
       throw new MethodFailureError('Plant already exists')
+    }
+
+    if (existingPlant && existingPlant.isDeleted) {
+      const bodyUpdate = {
+        isDeleted: false,
+        deletedAt: null
+      }
+      const updatePlantItem = await updatePlant({ plantId: existingPlant._id, bodyUpdate })
+      if (!updatePlantItem) {
+        throw new MethodFailureError('Update plant failed')
+      }
+      return updatePlantItem
     }
 
     const createdPlant = await addPlant({ plantData, farmId })
@@ -100,8 +112,20 @@ class PlantService {
     const { _id, farm, ...plantData } = recommentPlant
 
     const existingPlant = await getPlantByPlantNameAndFarmId({ plantName: plantData.plant_name, farmId })
-    if (existingPlant) {
+    if (existingPlant && !existingPlant.isDeleted) {
       throw new MethodFailureError('Plant already exists')
+    }
+
+    if (existingPlant && existingPlant.isDeleted) {
+      const bodyUpdate = {
+        isDeleted: false,
+        deletedAt: null
+      }
+      const updatePlantItem = await updatePlant({ plantId: existingPlant._id, bodyUpdate })
+      if (!updatePlantItem) {
+        throw new MethodFailureError('Update plant failed')
+      }
+      return updatePlantItem
     }
 
     const createdPlant = await addPlant({ plantData, farmId })

@@ -33,7 +33,7 @@ class FarmService {
       throw new BadRequestError('Farm is required')
     }
 
-    const { name, description, status, district, address, images, lat, lng, phone, avatar, email } = farm
+    const { name, description, status, district, address, images, lat, lng, phone, email } = farm
 
     return await updateFarm({
       farmId,
@@ -47,8 +47,7 @@ class FarmService {
         lat,
         lng,
         phone,
-        email,
-        avatar
+        email
       })
     })
   }

@@ -25,7 +25,11 @@ const updatePlantFarming = async ({ plantFarmingId, updatedData, historyPlantFar
 
 // Delete a plant farming
 const deletePlantFarming = async ({ plantFarmingId }) => {
-  return await plantFarming.findByIdAndDelete(plantFarmingId).exec()
+  const bodyUpdate = {
+    isDeleted: true,
+    deletedAt: new Date()
+  }
+  return await plantFarming.findByIdAndUpdate(plantFarmingId, bodyUpdate, { new: true }).exec()
 }
 
 // Get all plant farming by plant
