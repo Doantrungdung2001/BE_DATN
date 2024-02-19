@@ -91,6 +91,40 @@ class PlantFarmingService {
     return addedPlantFarming
   }
 
+  static async addPlantFarmingWithPlantIdAndSeedName({ plantFarmingData, farmId, plantId, seedName }) {
+    if (!farmId) throw new BadRequestError('FarmId is required')
+    if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
+    if (!plantId) throw new BadRequestError('PlantId is required')
+    if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
+    if (!seedName) throw new BadRequestError('SeedName is required')
+    if (plantFarmingData._id) delete plantFarmingData._id
+    if (plantFarmingData.plant) delete plantFarmingData.plant
+    if (plantFarmingData.seed) delete plantFarmingData.seed
+
+    const plantInFarm = await getPlantByPlantId({ plantId })
+    if (!plantInFarm) {
+      throw new BadRequestError('Plant does not exist with this plant id')
+    }
+
+    const seedInFarm = await getSeedFromSeedNameAndPlantId({
+      seedName: seedName,
+      plantId: plantInFarm._id.toString()
+    })
+    if (!seedInFarm) {
+      throw new BadRequestError('Seed does not exist in farm')
+    }
+
+    const addedPlantFarming = await addPlantFarming({
+      plantFarmingData,
+      plantId: plantInFarm._id.toString(),
+      seedId: seedInFarm._id.toString()
+    })
+    if (!addedPlantFarming) {
+      throw new MethodFailureError('Create plant farming failed')
+    }
+    return addedPlantFarming
+  }
+
   static async updatePlantFarming({ plantFarmingId, updatedData, farmId }) {
     if (!plantFarmingId) throw new BadRequestError('Plant farming id is required')
     if (!isValidObjectId(plantFarmingId)) throw new BadRequestError('Plant farming id is not valid')

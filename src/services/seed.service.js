@@ -192,6 +192,8 @@ class SeedService {
       plantId: plantInFarm._id.toString()
     })
 
+    console.log('existingSeed', existingSeed)
+
     if (existingSeed) {
       throw new MethodFailureError('Seed already exists')
     }

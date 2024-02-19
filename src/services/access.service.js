@@ -123,7 +123,7 @@ class AccessService {
 
     return {
       metadata: {
-        farm: getInfoData({ fields: ['_id', 'email'], object: foundUser }),
+        farm: getInfoData({ fields: ['_id', 'email', 'roles'], object: foundUser }),
         tokens
       }
     }

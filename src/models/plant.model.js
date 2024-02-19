@@ -30,6 +30,7 @@ const plantSchema = new Schema(
     },
     farmingTime: Number,
     harvestTime: Number,
+    isActive: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
     deteletedAt: Date
   },
