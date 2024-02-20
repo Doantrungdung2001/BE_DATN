@@ -52,12 +52,14 @@ class ProjectService {
       farmId,
       plantId,
       seedId,
-      projectData: newProject,
+      projectData: {
+        ...newProject,
+        createdAtTime: new Date()
+      },
       isGarden,
       status,
-      startDate,
-      createdAtTime: new Date()
-    })
+      startDate
+      })
     if (!updatedProject) throw new MethodFailureError('Cannot init project')
     return updatedProject
   }
