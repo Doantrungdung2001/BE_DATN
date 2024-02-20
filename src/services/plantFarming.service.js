@@ -155,7 +155,9 @@ class PlantFarmingService {
       throw new BadRequestError('Farm does not have permission to create plantFarming with this plant id')
     }
 
-    const historyPlantFarmingEdit = {
+    let historyPlantFarmingEdit = null
+    if(!plantFarmingItem.isPlantFarmingDefault){
+    historyPlantFarmingEdit = {
       timeCultivates: plantFarmingItem.timeCultivates,
       cultivationActivities: plantFarmingItem.cultivationActivities,
       plantingActivity: plantFarmingItem.plantingActivity,
@@ -168,6 +170,7 @@ class PlantFarmingService {
       modifiedAt: new Date(),
       createdAtTime: plantFarmingItem.createdAtTime || plantFarmingItem.createdAt
     }
+  }
 
     delete bodyUpdate._id
     delete bodyUpdate.plant

@@ -18,7 +18,9 @@ const updatePlantFarming = async ({ plantFarmingId, updatedData, historyPlantFar
     return null
   }
   plantFarmingItem.isEdited = true
-  plantFarmingItem.historyPlantFarmingEdit.push(historyPlantFarmingEdit)
+  if(historyPlantFarmingEdit) {
+    plantFarmingItem.historyPlantFarmingEdit.push(historyPlantFarmingEdit)
+  }
   await plantFarmingItem.save()
   return await plantFarming.findByIdAndUpdate(plantFarmingId, updatedData, { new: true }).exec()
 }

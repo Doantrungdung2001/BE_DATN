@@ -92,10 +92,13 @@ class PlantService {
       return updatePlantItem
     }
 
-    const createdPlant = await addPlant({ plantData: {
-      ...plantData,
-      isActive: false
-    }, farmId })
+    const createdPlant = await addPlant({
+      plantData: {
+        ...plantData,
+        isActive: false
+      },
+      farmId
+    })
     if (!createdPlant) {
       throw new MethodFailureError('Create plant failed')
     }

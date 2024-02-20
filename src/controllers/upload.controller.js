@@ -17,6 +17,7 @@ class UploadController {
     if (!file) {
       throw new BadRequestError('Please upload a file')
     }
+    console.log("file", file)
     new SuccessResponse({
       message: 'File uploaded successfully',
       metadata: await UploadService.uploadImageFromLocal({
