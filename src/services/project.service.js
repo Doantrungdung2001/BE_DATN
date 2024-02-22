@@ -54,11 +54,11 @@ class ProjectService {
       seedId,
       projectData: {
         ...newProject,
-        createdAtTime: new Date()
+        createdAtTime: new Date(),
+        startDate
       },
       isGarden,
-      status,
-      startDate
+      status
       })
     if (!updatedProject) throw new MethodFailureError('Cannot init project')
     return updatedProject
@@ -98,7 +98,7 @@ class ProjectService {
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     if (!updatedFields) throw new BadRequestError('Missing updated fields')
 
-    const { seed, startDate, square, status, description } = updatedFields
+    const { seed, startDate, square, status, description, txHash } = updatedFields
     if (seed && !isValidObjectId(seed)) throw new BadRequestError('Invalid seed id')
     const projectUpdate = removeUndefinedObject({
       seed,
@@ -106,7 +106,8 @@ class ProjectService {
       square,
       status,
       description,
-      createdAtTime: new Date()
+      createdAtTime: new Date(),
+      txHash
     })
     const projectInfo = await getProjectInfo({ projectId })
     const historyInfoItem = {
@@ -222,7 +223,7 @@ class ProjectService {
     if (!isValidObjectId(processId)) throw new BadRequestError('Invalid process id')
     if (!process) throw new BadRequestError('Missing process')
 
-    const { tx, isEdited, historyProcess, ...updatedProcess } = process
+    const { isEdited, historyProcess, ...updatedProcess } = process
     const updatedProject = await updateProcess({
       projectId,
       processId,
@@ -273,7 +274,7 @@ class ProjectService {
     if (!isValidObjectId(expectId)) throw new BadRequestError('Invalid expect id')
     if (!expect) throw new BadRequestError('Missing expect')
 
-    const { tx, isEdited, historyExpect, ...updatedExpect } = expect
+    const { isEdited, historyExpect, ...updatedExpect } = expect
 
     const updatedProject = await updateExpect({
       projectId,
@@ -362,7 +363,7 @@ class ProjectService {
       })
     }
 
-    const { tx, isEdited, historyOutput, exportQR, ...updatedOutput } = output
+    const { isEdited, historyOutput, exportQR, ...updatedOutput } = output
 
     const updatedProject = await updateOutput({
       projectId,
