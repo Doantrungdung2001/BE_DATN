@@ -18,7 +18,7 @@ const updatePlantFarming = async ({ plantFarmingId, updatedData, historyPlantFar
     return null
   }
   plantFarmingItem.isEdited = true
-  if(historyPlantFarmingEdit) {
+  if (historyPlantFarmingEdit) {
     plantFarmingItem.historyPlantFarmingEdit.push(historyPlantFarmingEdit)
   }
   await plantFarmingItem.save()

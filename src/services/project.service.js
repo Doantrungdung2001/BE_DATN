@@ -59,7 +59,7 @@ class ProjectService {
       },
       isGarden,
       status
-      })
+    })
     if (!updatedProject) throw new MethodFailureError('Cannot init project')
     return updatedProject
   }
