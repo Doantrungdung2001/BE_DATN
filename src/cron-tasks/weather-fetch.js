@@ -102,7 +102,7 @@ async function fetchWeatherData(district) {
 
 // Schedule cron job
 cron.schedule(
-  '00 59 * * * *',
+  '00 06 * * * *',
   () => {
     districts.forEach((district) => {
       fetchWeatherData(district)

@@ -159,7 +159,10 @@ class ProjectService {
 
     const plantId = projectInfo.plant._id.toString()
     const seedId = projectInfo.seed._id.toString()
-    const addedPlantFarming = await addPlantFarming({ plantFarmingData: plantFarming, farmId: farmId, plantId, seedId })
+    const addedPlantFarming = await addPlantFarming({ plantFarmingData: {
+      ...plantFarming,
+      isPlantFarmingDefault: false
+    }, farmId: farmId, plantId, seedId })
     if (!addedPlantFarming) throw new MethodFailureError('Cannot add plant farming')
     const updatedProject = await addPlantFarmingToProject({
       projectId,
