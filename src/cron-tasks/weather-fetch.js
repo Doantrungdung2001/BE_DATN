@@ -88,7 +88,7 @@ async function fetchWeatherData(district) {
           humidity: data.main.humidity,
           windSpeed: data.wind.speed
         })
-    
+
         await newWeatherData.save()
         console.log(`Data for ${district} saved successfully.`)
       })
