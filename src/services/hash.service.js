@@ -7,21 +7,23 @@ class HashService {
     if (!Array.isArray(images)) throw new BadRequestError('Images must be an array')
     if (images.length === 0) throw new BadRequestError('Images is empty')
     const hashImages = []
-   await Promise.all(images.map((imageUrl) => {
-    return new Promise((resolve, reject) => {
-      imageHash(imageUrl, 16, true, (error, data) => {
-        if (error) {
-          reject(error);
-          throw new MethodFailureError('Hash images failed')
-        } else {
-          hashImages.push(data);
-          resolve();
-        }
-      });
-    });
-  }));
+    await Promise.all(
+      images.map((imageUrl) => {
+        return new Promise((resolve, reject) => {
+          imageHash(imageUrl, 16, true, (error, data) => {
+            if (error) {
+              reject(error)
+              throw new MethodFailureError('Hash images failed')
+            } else {
+              hashImages.push(data)
+              resolve()
+            }
+          })
+        })
+      })
+    )
 
-  return hashImages;
+    return hashImages
   }
 }
 
