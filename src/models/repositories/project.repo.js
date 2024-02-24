@@ -43,6 +43,7 @@ const getProjectInfo = async ({ projectId, select }) => {
     .populate('farm')
     .populate('plant')
     .populate('seed')
+    .populate('historyInfo.seed')
     .select(getSelectData(select))
     .lean()
     .exec()
