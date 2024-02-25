@@ -9,6 +9,10 @@ const router = express.Router()
 // signUp
 router.post('/signup', asyncHandler(accessController.signUp))
 router.post('/login', asyncHandler(accessController.login))
+router.post('/forgotPassword', asyncHandler(accessController.forgotPassword))
+router.post('/resetPassword', asyncHandler(accessController.resetPassword))
+
+router.get('/testSendEmail', asyncHandler(accessController.testSendEmail))
 
 // Authentication
 router.use(authenticationV2)
