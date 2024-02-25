@@ -28,6 +28,16 @@ const getUser = async ({ userId }) => {
   }
 }
 
+const getPasswordHash = async ({ userId }) => {
+  const foundUser = await user
+    .findOne({
+      _id: new Types.ObjectId(userId)
+    })
+    .exec()
+
+  return foundUser.password
+}
+
 const addUser = async ({ email, password, roles }) => {
   return await user.create({ email, password, roles })
 }
@@ -40,5 +50,6 @@ module.exports = {
   findUserByEmail,
   getUser,
   addUser,
-  updateUser
+  updateUser,
+  getPasswordHash
 }

@@ -66,6 +66,17 @@ class AccessController {
     }).send(res)
   }
 
+  updatePassword = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Update password success',
+      metadata: await AccessService.updatePassword({
+        userId: req.user.userId,
+        oldPassword: req.body.oldPassword,
+        newPassword: req.body.newPassword
+      })
+    }).send(res)
+  }
+
   test = async (req, res, next) => {
     new SuccessResponse({
       message: 'Passes authentication',

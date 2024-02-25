@@ -1,5 +1,5 @@
 const { Types } = require('mongoose')
-const { findUserByEmail, getUser, addUser, updateUser } = require('../models/repositories/user.repo')
+const { findUserByEmail, getUser, addUser, updateUser, getPasswordHash } = require('../models/repositories/user.repo')
 const { BadRequestError, NotFoundError, MethodFailureError } = require('../core/error.response')
 const { isValidObjectId } = require('../utils/index')
 
@@ -24,6 +24,17 @@ class UserService {
       throw new NotFoundError('User not found')
     }
     return user
+  }
+
+  static async getPasswordHash({ userId }) {
+    if (!userId) {
+      throw new BadRequestError('userId is required')
+    }
+    if (!isValidObjectId(userId)) {
+      throw new BadRequestError('Invalid userId')
+    }
+    const passwordHash = await getPasswordHash({ userId })
+    return passwordHash
   }
 
   static async addUser({ email, password, roles }) {

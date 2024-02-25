@@ -7,8 +7,9 @@ const KeyTokenService = require('../services/keyToken.service')
 const { createTokenPair, verifyJWT } = require('../auth/authUtils')
 const { getInfoData, sendEmail } = require('../utils')
 const { BadRequestError, AuthFailureError, ForbiddenError, MethodFailureError } = require('../core/error.response')
-const { findUserByEmail, getUser, addUser, updateUser } = require('./user.service')
+const { findUserByEmail, getUser, addUser, updateUser, getPasswordHash } = require('./user.service')
 const { client } = require('../models/client.model')
+const { isValidObjectId } = require('../utils')
 
 const Role = {
   FARM: 'FARM',
@@ -247,7 +248,7 @@ class AccessService {
     }
   }
 
-  static async resetPassword({ resetToken, email, newPassword }) {
+  static resetPassword = async ({ resetToken, email, newPassword }) => {
     const foundUser = await findUserByEmail({ email })
     if (!foundUser) throw new BadRequestError('User not registered')
     if (foundUser.resetPasswordExpires < Date.now()) throw new BadRequestError('Token expired')
@@ -264,6 +265,30 @@ class AccessService {
         resetPasswordExpires: null
       }
     })
+  }
+
+  static updatePassword = async ({ userId, oldPassword, newPassword }) => {
+    if (!userId || !oldPassword || !newPassword) {
+      throw new BadRequestError('UserId, oldPassword, newPassword are required')
+    }
+    if (!isValidObjectId(userId)) {
+      throw new BadRequestError('UserId is invalid')
+    }
+    const passwordHash = await getPasswordHash({ userId })
+    if (!passwordHash) throw new BadRequestError('User not registered')
+    const match = await bcrypt.compare(oldPassword, passwordHash)
+    if (!match) throw new BadRequestError('Old password is not correct')
+    const newPasswordHash = await bcrypt.hash(newPassword, 10)
+    const updatedUser = await updateUser({
+      userId: userId,
+      data: {
+        password: newPasswordHash
+      }
+    })
+    if (!updatedUser) throw new MethodFailureError('Update user failed')
+    return {
+      message: 'Update password success'
+    }
   }
 
   static testSendEmail = async () => {
