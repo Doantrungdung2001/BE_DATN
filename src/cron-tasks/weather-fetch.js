@@ -1,74 +1,21 @@
 const cron = require('node-cron')
 const axios = require('axios')
 const mongoose = require('mongoose')
+const { farm } = require('../models/farm.model') // Import your farm model
 const { weather } = require('../models/weather.model')
 require('../dbs/init.mongodb')
 
-const districts = [
-  'an giang',
-  'bà rịa - vũng tàu',
-  'bắc giang',
-  'bắc kạn',
-  'bạc liêu',
-  'bắc ninh',
-  'bến tre',
-  'bình định',
-  'bình dương',
-  'bình phước',
-  'bình thuận',
-  'cà mau',
-  'cần thơ',
-  'cao bằng',
-  'đà nẵng',
-  'đắk lắk',
-  'đắk nông',
-  'điện biên',
-  'đồng nai',
-  'đồng tháp',
-  'gia lai',
-  'hà giang',
-  'hà nam',
-  'hà nội',
-  'hà tĩnh',
-  'hải dương',
-  'hải phòng',
-  'hậu giang',
-  'hòa bình',
-  'hưng yên',
-  'khánh hòa',
-  'kiên giang',
-  'kon tum',
-  'lai châu',
-  'lâm đồng',
-  'lạng sơn',
-  'lào cai',
-  'long an',
-  'nam định',
-  'nghệ an',
-  'ninh bình',
-  'ninh thuận',
-  'phú thọ',
-  'phú yên',
-  'quảng bình',
-  'quảng nam',
-  'quảng ngãi',
-  'quảng ninh',
-  'quảng trị',
-  'sóc trăng',
-  'sơn la',
-  'tây ninh',
-  'thái bình',
-  'thái nguyên',
-  'thanh hóa',
-  'thừa thiên huế',
-  'tiền giang',
-  'hồ chí minh',
-  'trà vinh',
-  'tuyên quang',
-  'vĩnh long',
-  'vĩnh phúc',
-  'yên bái'
-]
+// Function to retrieve the list of districts from farm documents
+async function getDistrictsFromFarms() {
+  try {
+    const farms = await farm.find({}, { district: 1, _id: 0 }) // Retrieve only the district field from farms
+    const districts = farms.map((farm) => farm.district)
+    return districts
+  } catch (error) {
+    console.error('Error fetching districts from farms:', error.message)
+    throw error
+  }
+}
 
 // Hàm gọi API và lưu dữ liệu vào MongoDB
 async function fetchWeatherData(district) {
@@ -102,11 +49,17 @@ async function fetchWeatherData(district) {
 
 // Schedule cron job
 cron.schedule(
-  '00 06 * * * *',
-  () => {
-    districts.forEach((district) => {
-      fetchWeatherData(district)
-    })
+  '00 25 * * * *',
+  async () => {
+    try {
+      const districts = await getDistrictsFromFarms() // Retrieve districts from farms
+      console.log('Fetched districts:', districts)
+      districts.forEach((district) => {
+        fetchWeatherData(district)
+      })
+    } catch (error) {
+      console.error('Error scheduling cron job:', error.message)
+    }
   },
   {
     scheduled: true,
