@@ -167,7 +167,7 @@ class AccessService {
     const { userId, email } = await verifyJWT(refreshToken, holderToken.privateKey)
     console.log('[2]--', { userId, email })
     // check userId
-    const foundFarm = await findByEmail({ email })
+    const foundFarm = await findUserByEmail({ email })
     if (!foundFarm) throw new AuthFailureError('Farm not registered')
 
     //create 1 cap moi
