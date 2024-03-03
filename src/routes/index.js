@@ -23,6 +23,7 @@ router.use('/v1/api/qr', require('./qr'))
 router.use('/v1/api/farm', require('./farm'))
 router.use('/v1/api/hash', require('./hash'))
 router.use('/v1/api/weather', require('./weather'))
+router.use('/v1/api/camera', require('./camera'))
 router.use('/v1/api', require('./access'))
 
 module.exports = router
