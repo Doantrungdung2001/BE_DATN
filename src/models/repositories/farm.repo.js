@@ -25,12 +25,17 @@ const findFarmByEmail = async ({ email }) => {
     .exec()
 }
 
-const updateFarm = async ({ farmId, famrInfo }) => {
-  return await farm.findByIdAndUpdate(farmId, famrInfo, { new: true }).lean().exec()
+const updateFarm = async ({ farmId, farmInfo }) => {
+  return await farm.findByIdAndUpdate(farmId, farmInfo, { new: true }).lean().exec()
+}
+
+const getAllFarms = async () => {
+  return await farm.find().lean().exec()
 }
 
 module.exports = {
   getFarm,
   findFarmByEmail,
-  updateFarm
+  updateFarm,
+  getAllFarms
 }

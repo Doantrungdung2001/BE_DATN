@@ -21,6 +21,25 @@ class DistributerController {
       })
     }).send(res)
   }
+
+  addDistributer = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Add distributer success!',
+      metadata: await DistributerService.addDistributer({
+        distributerData: req.body
+      })
+    }).send(res)
+  }
+
+  updateDistributer = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Update distributer success!',
+      metadata: await DistributerService.updateDistributer({
+        distributerId: req.params.distributerId,
+        distributerData: req.body
+      })
+    }).send(res)
+  }
 }
 
 module.exports = new DistributerController()

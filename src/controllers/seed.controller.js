@@ -17,8 +17,7 @@ class SeedController {
       message: 'Create new Seed by recomment seedId success!',
       metadata: await SeedService.addSeedByRecommentSeedId({
         recommentSeedId: req.params.recommentSeedId,
-        farmId: req.user.userId,
-        isSeedDefault: req.body.isSeedDefault
+        farmId: req.user.userId
       })
     }).send(res)
   }
@@ -30,6 +29,17 @@ class SeedController {
       metadata: await SeedService.updateSeed({
         seedId: req.params.seedId,
         seedData: req.body,
+        farmId: req.user.userId
+      })
+    }).send(res)
+  }
+
+  // update isSeedDefault
+  updateSeedDefault = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Update Seed success!',
+      metadata: await SeedService.updateSeedDefault({
+        seedId: req.params.seedId,
         farmId: req.user.userId
       })
     }).send(res)

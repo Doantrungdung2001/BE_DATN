@@ -18,6 +18,12 @@ const userSchema = new Schema(
     roles: {
       type: Array,
       default: []
+    },
+    resetPasswordToken: {
+      type: String
+    },
+    resetPasswordExpires: {
+      type: Date
     }
   },
   {

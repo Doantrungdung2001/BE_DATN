@@ -238,7 +238,9 @@ class GardenService {
     for (const detail of deliveryDetails) {
       if (!detail.plant) throw new BadRequestError('Plant is required')
       if (!isValidObjectId(detail.plant)) throw new BadRequestError('Plant is not valid')
-      if (!detail.amount) throw new BadRequestError('Amount is required')
+      if (!detail.amount && detail.amount != 0) throw new BadRequestError('Amount is required')
+      if (isNaN(detail.amount)) throw new BadRequestError('Amount is not valid')
+      if (detail.amount < 0) throw new BadRequestError('Amount is not valid')
       formattedDeliveryDetails.push({
         plant: new Types.ObjectId(detail.plant),
         amount: detail.amount
@@ -280,7 +282,9 @@ class GardenService {
       for (const detail of deliveryDetails) {
         if (!detail.plant) throw new BadRequestError('Plant is required')
         if (!isValidObjectId(detail.plant)) throw new BadRequestError('Plant is not valid')
-        if (!detail.amount) throw new BadRequestError('Amount is required')
+        if (!detail.amount && detail.amount != 0) throw new BadRequestError('Amount is required')
+        if (isNaN(detail.amount)) throw new BadRequestError('Amount is not valid')
+        if (detail.amount < 0) throw new BadRequestError('Amount is not valid')
         formattedDeliveryDetails.push({
           plant: new Types.ObjectId(detail.plant),
           amount: detail.amount
@@ -288,10 +292,13 @@ class GardenService {
       }
     }
 
+    console.log('formattedDeliveryDetails', formattedDeliveryDetails)
+
     if (status) {
       if (status !== 'coming' && status !== 'done' && status !== 'cancel')
         throw new BadRequestError('Status is not valid')
     }
+
     const garden = await updateDelivery({
       gardenId,
       deliveryId,
@@ -355,7 +362,9 @@ class GardenService {
         for (const detail of deliveryDetails) {
           if (!detail.plant) throw new BadRequestError('Plant is required')
           if (!isValidObjectId(detail.plant)) throw new BadRequestError('Plant is not valid')
-          if (!detail.amount) throw new BadRequestError('Amount is required')
+          if (!detail.amount && detail.amount != 0) throw new BadRequestError('Amount is required')
+          if (isNaN(detail.amount)) throw new BadRequestError('Amount is not valid')
+          if (detail.amount < 0) throw new BadRequestError('Amount is not valid')
           formattedDeliveryDetails.push({
             plant: new Types.ObjectId(detail.plant),
             amount: detail.amount

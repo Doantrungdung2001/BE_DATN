@@ -91,6 +91,40 @@ class PlantFarmingService {
     return addedPlantFarming
   }
 
+  static async addPlantFarmingWithPlantIdAndSeedName({ plantFarmingData, farmId, plantId, seedName }) {
+    if (!farmId) throw new BadRequestError('FarmId is required')
+    if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
+    if (!plantId) throw new BadRequestError('PlantId is required')
+    if (!isValidObjectId(plantId)) throw new BadRequestError('PlantId is not valid')
+    if (!seedName) throw new BadRequestError('SeedName is required')
+    if (plantFarmingData._id) delete plantFarmingData._id
+    if (plantFarmingData.plant) delete plantFarmingData.plant
+    if (plantFarmingData.seed) delete plantFarmingData.seed
+
+    const plantInFarm = await getPlantByPlantId({ plantId })
+    if (!plantInFarm) {
+      throw new BadRequestError('Plant does not exist with this plant id')
+    }
+
+    const seedInFarm = await getSeedFromSeedNameAndPlantId({
+      seedName: seedName,
+      plantId: plantInFarm._id.toString()
+    })
+    if (!seedInFarm) {
+      throw new BadRequestError('Seed does not exist in farm')
+    }
+
+    const addedPlantFarming = await addPlantFarming({
+      plantFarmingData,
+      plantId: plantInFarm._id.toString(),
+      seedId: seedInFarm._id.toString()
+    })
+    if (!addedPlantFarming) {
+      throw new MethodFailureError('Create plant farming failed')
+    }
+    return addedPlantFarming
+  }
+
   static async updatePlantFarming({ plantFarmingId, updatedData, farmId }) {
     if (!plantFarmingId) throw new BadRequestError('Plant farming id is required')
     if (!isValidObjectId(plantFarmingId)) throw new BadRequestError('Plant farming id is not valid')
@@ -121,18 +155,21 @@ class PlantFarmingService {
       throw new BadRequestError('Farm does not have permission to create plantFarming with this plant id')
     }
 
-    const historyPlantFarmingEdit = {
-      timeCultivates: plantFarmingItem.timeCultivates,
-      cultivationActivities: plantFarmingItem.cultivationActivities,
-      plantingActivity: plantFarmingItem.plantingActivity,
-      fertilizationActivities: plantFarmingItem.fertilizationActivities,
-      pestAndDiseaseControlActivities: plantFarmingItem.pestAndDiseaseControlActivities,
-      bestTimeCultivate: plantFarmingItem.bestTimeCultivate,
-      farmingTime: plantFarmingItem.farmingTime,
-      harvestTime: plantFarmingItem.harvestTime,
-      isPlantFarmingDefault: plantFarmingItem.isPlantFarmingDefault,
-      modifiedAt: new Date(),
-      createdAtTime: plantFarmingItem.createdAtTime || plantFarmingItem.createdAt
+    let historyPlantFarmingEdit = null
+    if (!plantFarmingItem.isPlantFarmingDefault) {
+      historyPlantFarmingEdit = {
+        timeCultivates: plantFarmingItem.timeCultivates,
+        cultivationActivities: plantFarmingItem.cultivationActivities,
+        plantingActivity: plantFarmingItem.plantingActivity,
+        fertilizationActivities: plantFarmingItem.fertilizationActivities,
+        pestAndDiseaseControlActivities: plantFarmingItem.pestAndDiseaseControlActivities,
+        bestTimeCultivate: plantFarmingItem.bestTimeCultivate,
+        farmingTime: plantFarmingItem.farmingTime,
+        harvestTime: plantFarmingItem.harvestTime,
+        isPlantFarmingDefault: plantFarmingItem.isPlantFarmingDefault,
+        modifiedAt: new Date(),
+        createdAtTime: plantFarmingItem.createdAtTime || plantFarmingItem.createdAt
+      }
     }
 
     delete bodyUpdate._id
@@ -186,7 +223,11 @@ class PlantFarmingService {
   static async getAllPlantFarmingByPlant({ plantId, limit, sort, page }) {
     if (!plantId) throw new BadRequestError('Plant id is required')
     if (!isValidObjectId(plantId)) throw new BadRequestError('Plant id is not valid')
-    const filter = { plant: new Types.ObjectId(plantId), isPlantFarmingDefault: true }
+    const filter = {
+      plant: new Types.ObjectId(plantId),
+      isPlantFarmingDefault: true,
+      $or: [{ isDeleted: { $exists: false } }, { isDeleted: false }]
+    }
     return getAllPlantFarmingByPlant({ limit, sort, page, filter })
   }
 

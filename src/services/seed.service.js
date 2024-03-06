@@ -13,7 +13,7 @@ const {
 const { BadRequestError, NotFoundError, MethodFailureError } = require('../core/error.response')
 const { updateNestedObjectParser, removeUndefinedObject, isValidObjectId } = require('../utils')
 const { default: slugify } = require('slugify')
-const { getAllPlantsByFarm, getPlantByPlantNameAndFarmId } = require('../services/plant.service')
+const { getAllPlantsByFarm, getPlantByPlantNameAndFarmId, getPlantByPlantId } = require('../services/plant.service')
 
 class SeedService {
   static async searchSeedByUser({ keySearch }) {
@@ -80,7 +80,6 @@ class SeedService {
     }
     const seedDefault = await getSeedDefaultFromPlantId({ plantId })
     if (!seedDefault) {
-      console.log('plantId: ', plantId)
       throw new NotFoundError('Recommend not worked with this plant, cause Seed default not found')
     }
     return seedDefault
@@ -143,16 +142,20 @@ class SeedService {
       throw new BadRequestError('Invalid farm id')
     }
 
-    const plantItem = await plant
-      .findOne({ _id: new Types.ObjectId(plantId), farm: new Types.ObjectId(farmId) })
-      .lean()
-      .exec()
-    if (!plantItem) {
+    const plantItem = await getPlantByPlantId({ plantId })
+    if (plantItem.farm._id.toString() !== farmId) {
       throw new BadRequestError('Farm does not have permission to create seeds with this plant')
     }
 
     delete seedData.plant
     delete seedData._id
+
+    const seeds = await getSeedByPlantInFarm({ plantId })
+    if (!seeds || seeds.length === 0) {
+      seedData.isSeedDefault = true
+    } else {
+      seedData.isSeedDefault = false
+    }
 
     const createdSeed = addSeed({ seedData, farmId, plantId })
     if (!createdSeed) {
@@ -161,7 +164,7 @@ class SeedService {
     return createdSeed
   }
 
-  static async addSeedByRecommentSeedId({ recommentSeedId, farmId, isSeedDefault }) {
+  static async addSeedByRecommentSeedId({ recommentSeedId, farmId }) {
     if (!recommentSeedId) {
       throw new BadRequestError('Recomment seed id is required')
     }
@@ -188,8 +191,17 @@ class SeedService {
       seedName: seedData.seed_name,
       plantId: plantInFarm._id.toString()
     })
+
+    console.log('existingSeed', existingSeed)
+
     if (existingSeed) {
       throw new MethodFailureError('Seed already exists')
+    }
+
+    const seeds = await getSeedByPlantInFarm({ plantId: plantInFarm._id.toString() })
+    let isSeedDefault = false
+    if (!seeds || seeds.length === 0) {
+      isSeedDefault = true
     }
 
     const createdSeed = addSeed({ seedData: { ...seedData, isSeedDefault }, plantId: plantInFarm._id.toString() })
@@ -250,6 +262,48 @@ class SeedService {
       throw new MethodFailureError('Update seed failed')
     }
     return updateSeedItem
+  }
+
+  static async updateSeedDefault({ seedId, farmId }) {
+    if (!seedId) {
+      throw new BadRequestError('Seed id is required')
+    }
+    if (!isValidObjectId(seedId)) {
+      throw new BadRequestError('Invalid seed id')
+    }
+    if (!farmId) {
+      throw new BadRequestError('Farm id is required')
+    }
+    if (!isValidObjectId(farmId)) {
+      throw new BadRequestError('Invalid farm id')
+    }
+    const seed = await getSeedBySeedId({ seedId })
+    if (!seed) {
+      throw new BadRequestError('Seed not found')
+    }
+    if (seed.plant.farm.toString() !== farmId) {
+      throw new BadRequestError('Farm does not have permission to update seeds')
+    }
+
+    const seeds = await getSeedByPlantInFarm({ plantId: seed.plant._id.toString() })
+    if (!seeds || seeds.length === 0) {
+      throw new MethodFailureError('Seed not found')
+    }
+
+    for (const seedItem of seeds) {
+      if (seedItem._id.toString() === seedId) {
+        continue
+      }
+      const updateSeedItem = await updateSeed({ seedId: seedItem._id, bodyUpdate: { isSeedDefault: false } })
+      if (!updateSeedItem) {
+        throw new MethodFailureError('Update seed default failed')
+      }
+    }
+    const updateDefaultSeedItem = await updateSeed({ seedId, bodyUpdate: { isSeedDefault: true } })
+    if (!updateDefaultSeedItem) {
+      throw new MethodFailureError('Update seed default failed')
+    }
+    return updateDefaultSeedItem
   }
 
   static async deleteSeed({ seedId, farmId }) {

@@ -43,7 +43,7 @@ const getSeedBySeedId = async ({ seedId }, unSelect = ['__v']) => {
 
 const getSeedByPlantInFarm = async ({ plantId }) => {
   const seeds = await seed
-    .find({ plant: new Types.ObjectId(plantId) })
+    .find({ plant: new Types.ObjectId(plantId), $or: [{ isDeleted: { $exists: false } }, { isDeleted: false }] })
     .populate('plant')
     .lean()
     .exec()
@@ -60,7 +60,11 @@ const getSeedDefaultFromPlantId = async ({ plantId }) => {
 
 const getSeedFromSeedNameAndPlantId = async ({ seedName, plantId }) => {
   return await seed
-    .findOne({ seed_name: seedName, plant: new Types.ObjectId(plantId) })
+    .findOne({
+      seed_name: seedName,
+      plant: new Types.ObjectId(plantId),
+      $or: [{ isDeleted: { $exists: false } }, { isDeleted: false }]
+    })
     .populate({
       path: 'plant'
     })
@@ -80,7 +84,11 @@ const updateSeed = async ({ seedId, bodyUpdate }) => {
 }
 
 const deleteSeed = async (seedId) => {
-  return await seed.findByIdAndDelete(seedId).exec()
+  const bodyUpdate = {
+    isDeleted: true,
+    deletedAt: new Date()
+  }
+  return await seed.findByIdAndUpdate(seedId, bodyUpdate, { new: true }).exec()
 }
 
 module.exports = {

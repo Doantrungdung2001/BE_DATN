@@ -46,12 +46,50 @@ class AccessController {
     }).send(res)
   }
 
+  forgotPassword = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Send verify email success',
+      metadata: await AccessService.forgotPassword({
+        email: req.body.email
+      })
+    }).send(res)
+  }
+
+  resetPassword = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Reset password success',
+      metadata: await AccessService.resetPassword({
+        resetToken: req.body.resetToken,
+        email: req.body.email,
+        newPassword: req.body.newPassword
+      })
+    }).send(res)
+  }
+
+  updatePassword = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Update password success',
+      metadata: await AccessService.updatePassword({
+        userId: req.user.userId,
+        oldPassword: req.body.oldPassword,
+        newPassword: req.body.newPassword
+      })
+    }).send(res)
+  }
+
   test = async (req, res, next) => {
     new SuccessResponse({
       message: 'Passes authentication',
       metadata: {
         data: 'Here we go!'
       }
+    }).send(res)
+  }
+
+  testSendEmail = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Send email success',
+      metadata: await AccessService.testSendEmail()
     }).send(res)
   }
 }

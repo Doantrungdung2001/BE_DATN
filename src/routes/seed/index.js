@@ -19,6 +19,7 @@ router.use(authenticationV2)
 router.post('/add/:recommentSeedId', asyncHandler(seedController.addSeedByRecommentSeedId))
 router.post('/', asyncHandler(seedController.addSeed))
 router.patch('/:seedId', asyncHandler(seedController.updateSeed))
+router.patch('/default/:seedId', asyncHandler(seedController.updateSeedDefault))
 router.delete('/:seedId', asyncHandler(seedController.deleteSeed))
 
 module.exports = router
