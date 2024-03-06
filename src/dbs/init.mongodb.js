@@ -2,9 +2,9 @@
 
 const mongoose = require('mongoose')
 const {
-  db: { host, name, port, user_name, password }
+  db: { host, name, port, user_name, password, MONGO_URI }
 } = require('../configs/config.mongodb')
-const connectString = `mongodb://${user_name}:${password}@${host}:${port}/${name}`
+const connectString = MONGO_URI || `mongodb://${user_name}:${password}@${host}:${port}/${name}`
 
 class Database {
   constructor() {
