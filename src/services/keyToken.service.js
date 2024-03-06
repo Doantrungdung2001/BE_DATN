@@ -35,7 +35,10 @@ class KeyTokenService {
   }
 
   static removeKeyById = async (id) => {
-    return await keyTokenModel.remove(id).exec()
+    return await keyTokenModel
+      .deleteOne({ _id: new Types.ObjectId(id) })
+      .lean()
+      .exec()
   }
 
   static findByRefreshTokenUsed = async (refreshToken) => {

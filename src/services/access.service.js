@@ -1,14 +1,15 @@
 'use strict'
 
-const farmModel = require('../models/farm.model')
+const { farm } = require('../models/farm.model')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const KeyTokenService = require('../services/keyToken.service')
 const { createTokenPair, verifyJWT } = require('../auth/authUtils')
-const { getInfoData } = require('../utils')
+const { getInfoData, sendEmail } = require('../utils')
 const { BadRequestError, AuthFailureError, ForbiddenError, MethodFailureError } = require('../core/error.response')
-const { findUserByEmail, getUser, addUser } = require('./user.service')
+const { findUserByEmail, getUser, addUser, updateUser, getPasswordHash } = require('./user.service')
 const { client } = require('../models/client.model')
+const { isValidObjectId } = require('../utils')
 
 const Role = {
   FARM: 'FARM',
@@ -32,7 +33,7 @@ class AccessService {
     const passwordHash = await bcrypt.hash(password, 10)
     const newUser = await addUser({ email, password: passwordHash, roles: [role] })
     if (role === Role.FARM || role === Role.ADMIN) {
-      const newFarm = await farmModel.create({
+      const newFarm = await farm.create({
         _id: newUser._id,
         name: name
       })
@@ -123,7 +124,7 @@ class AccessService {
 
     return {
       metadata: {
-        farm: getInfoData({ fields: ['_id', 'email'], object: foundUser }),
+        farm: getInfoData({ fields: ['_id', 'email', 'roles'], object: foundUser }),
         tokens
       }
     }
@@ -166,7 +167,7 @@ class AccessService {
     const { userId, email } = await verifyJWT(refreshToken, holderToken.privateKey)
     console.log('[2]--', { userId, email })
     // check userId
-    const foundFarm = await findByEmail({ email })
+    const foundFarm = await findUserByEmail({ email })
     if (!foundFarm) throw new AuthFailureError('Farm not registered')
 
     //create 1 cap moi
@@ -223,6 +224,77 @@ class AccessService {
     return {
       user,
       tokens
+    }
+  }
+
+  static forgotPassword = async ({ email }) => {
+    const foundUser = await findUserByEmail({ email })
+    if (!foundUser) throw new BadRequestError('User not registered')
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    const resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+    const resetPasswordExpires = Date.now() + 10 * 60 * 1000
+    const updatedUser = await updateUser({
+      userId: foundUser._id,
+      data: {
+        resetPasswordToken,
+        resetPasswordExpires
+      }
+    })
+    if (!updatedUser) throw new MethodFailureError('Update user failed')
+
+    await sendEmail({ email, resetToken })
+    return {
+      message: 'Send verify email success'
+    }
+  }
+
+  static resetPassword = async ({ resetToken, email, newPassword }) => {
+    const foundUser = await findUserByEmail({ email })
+    if (!foundUser) throw new BadRequestError('User not registered')
+    if (foundUser.resetPasswordExpires < Date.now()) throw new BadRequestError('Token expired')
+    const resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+    console.log('resetPasswordToken', resetPasswordToken)
+    console.log('foundUser.resetPasswordToken', foundUser.resetPasswordToken)
+    if (foundUser.resetPasswordToken !== resetPasswordToken) throw new BadRequestError('Token invalid')
+    const passwordHash = await bcrypt.hash(newPassword, 10)
+    const updatedUser = await updateUser({
+      userId: foundUser._id,
+      data: {
+        password: passwordHash,
+        resetPasswordToken: null,
+        resetPasswordExpires: null
+      }
+    })
+  }
+
+  static updatePassword = async ({ userId, oldPassword, newPassword }) => {
+    if (!userId || !oldPassword || !newPassword) {
+      throw new BadRequestError('UserId, oldPassword, newPassword are required')
+    }
+    if (!isValidObjectId(userId)) {
+      throw new BadRequestError('UserId is invalid')
+    }
+    const passwordHash = await getPasswordHash({ userId })
+    if (!passwordHash) throw new BadRequestError('User not registered')
+    const match = await bcrypt.compare(oldPassword, passwordHash)
+    if (!match) throw new BadRequestError('Old password is not correct')
+    const newPasswordHash = await bcrypt.hash(newPassword, 10)
+    const updatedUser = await updateUser({
+      userId: userId,
+      data: {
+        password: newPasswordHash
+      }
+    })
+    if (!updatedUser) throw new MethodFailureError('Update user failed')
+    return {
+      message: 'Update password success'
+    }
+  }
+
+  static testSendEmail = async () => {
+    await sendEmail()
+    return {
+      data: 'Send email success'
     }
   }
 }

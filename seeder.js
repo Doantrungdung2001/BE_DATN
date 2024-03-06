@@ -4,16 +4,22 @@ const { faker } = require('@faker-js/faker')
 const { seed } = require('./src/models/seed.model') // Update with your path to the seed model
 const { plant } = require('./src/models/plant.model') // Update with your path to the plant model
 const { plantFarming } = require('./src/models/plantFarming.model') // Update with your path to the plantFarming model
-const { distributer } = require('./src/models/distributer.model') // Update with your path to the distributer model
 const { project } = require('./src/models/project.model')
+const { gardenServiceRequest } = require('./src/models/gardenServiceRequest.model')
+const { gardenServiceTemplate } = require('./src/models/gardenServiceTemplate.model')
+const { garden } = require('./src/models/garden.model')
+const { qr } = require('./src/models/qr.model')
 require('./src/dbs/init.mongodb')
 
 async function deleteAllDocuments() {
   await seed.deleteMany({})
   await plant.deleteMany({})
   await plantFarming.deleteMany({})
-  await distributer.deleteMany({})
   await project.deleteMany({})
+  await gardenServiceRequest.deleteMany({})
+  await gardenServiceTemplate.deleteMany({})
+  await garden.deleteMany({})
+  await qr.deleteMany({})
   console.log('All documents deleted')
 }
 
@@ -98,4 +104,4 @@ async function seedData(farmId) {
 }
 
 deleteAllDocuments()
-seedData('6597b90a0730b4164d7f9c7a')
+// seedData('6597b90a0730b4164d7f9c7a')

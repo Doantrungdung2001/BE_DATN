@@ -31,7 +31,20 @@ const getDistributerById = async ({ distributerId }) => {
   return foundDistributer
 }
 
+const addDistributer = async ({ distributerData }) => {
+  const newDistributer = new distributer(distributerData)
+  const result = await newDistributer.save()
+  return result
+}
+
+const updateDistributer = async ({ distributerId, distributerData }) => {
+  const result = await distributer.findByIdAndUpdate(distributerId, distributerData, { new: true }).lean().exec()
+  return result
+}
+
 module.exports = {
   getAllDistributers,
-  getDistributerById
+  getDistributerById,
+  addDistributer,
+  updateDistributer
 }

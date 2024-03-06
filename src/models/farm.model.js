@@ -20,18 +20,13 @@ const farmSchema = new Schema(
     },
     phone: [String],
     email: [String],
-    avatar: {
-      type: String
-    },
     description: {
       type: String
     },
     name_slug: {
       type: String
     },
-    images: {
-      type: String
-    },
+    images: [String],
     cameraId: {
       type: String
     },

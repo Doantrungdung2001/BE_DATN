@@ -43,6 +43,7 @@ const getProjectInfo = async ({ projectId, select }) => {
     .populate('farm')
     .populate('plant')
     .populate('seed')
+    .populate('historyInfo.seed')
     .select(getSelectData(select))
     .lean()
     .exec()
@@ -249,14 +250,10 @@ const updateOutput = async ({ projectId, outputId, newOutputData }) => {
     return null
   }
 
-  console.log('projectItem', projectItem)
-
   const output = projectItem.output.id(outputId)
   if (!output) {
     return null
   }
-
-  console.log('output', output.distributerWithAmount)
 
   // Tạo một bản sao của quy trình trước khi chỉnh sửa
   const previousOutputData = { ...output.toObject() }

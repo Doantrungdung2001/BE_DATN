@@ -228,7 +228,7 @@ const updateDelivery = async ({ gardenId, deliveryId, deliveryDetails, note, sta
   const foundDelivery = foundGarden.deliveries.find((delivery) => delivery._id.toString() === deliveryId)
   if (!foundDelivery) return null
 
-  if (deliveryDetails & (deliveryDetails.length > 0)) {
+  if (deliveryDetails && deliveryDetails.length > 0) {
     foundDelivery.deliveryDetails = deliveryDetails
   }
 

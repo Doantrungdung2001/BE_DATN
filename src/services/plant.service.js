@@ -19,7 +19,7 @@ class PlantService {
   static async getAllPlantsByFarm({ farmId, limit, sort, page }) {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
-    const filter = { farm: new Types.ObjectId(farmId) }
+    const filter = { farm: new Types.ObjectId(farmId), $or: [{ isDeleted: { $exists: false } }, { isDeleted: false }] }
     const plants = await getAllPlantsByFarm({ limit, sort, page, filter })
 
     return plants
@@ -76,11 +76,29 @@ class PlantService {
     if (!plantData) throw new BadRequestError('Plant data is required')
 
     const existingPlant = await getPlantByPlantNameAndFarmId({ plantName: plantData.plant_name, farmId })
-    if (existingPlant) {
+    if (existingPlant && !existingPlant.isDeleted) {
       throw new MethodFailureError('Plant already exists')
     }
 
-    const createdPlant = await addPlant({ plantData, farmId })
+    if (existingPlant && existingPlant.isDeleted) {
+      const bodyUpdate = {
+        isDeleted: false,
+        deletedAt: null
+      }
+      const updatePlantItem = await updatePlant({ plantId: existingPlant._id, bodyUpdate })
+      if (!updatePlantItem) {
+        throw new MethodFailureError('Update plant failed')
+      }
+      return updatePlantItem
+    }
+
+    const createdPlant = await addPlant({
+      plantData: {
+        ...plantData,
+        isActive: false
+      },
+      farmId
+    })
     if (!createdPlant) {
       throw new MethodFailureError('Create plant failed')
     }
@@ -100,11 +118,29 @@ class PlantService {
     const { _id, farm, ...plantData } = recommentPlant
 
     const existingPlant = await getPlantByPlantNameAndFarmId({ plantName: plantData.plant_name, farmId })
-    if (existingPlant) {
+    if (existingPlant && !existingPlant.isDeleted) {
       throw new MethodFailureError('Plant already exists')
     }
 
-    const createdPlant = await addPlant({ plantData, farmId })
+    if (existingPlant && existingPlant.isDeleted) {
+      const bodyUpdate = {
+        isDeleted: false,
+        deletedAt: null
+      }
+      const updatePlantItem = await updatePlant({ plantId: existingPlant._id, bodyUpdate })
+      if (!updatePlantItem) {
+        throw new MethodFailureError('Update plant failed')
+      }
+      return updatePlantItem
+    }
+
+    const createdPlant = await addPlant({
+      plantData: {
+        ...plantData,
+        isActive: true
+      },
+      farmId
+    })
     if (!createdPlant) {
       throw new MethodFailureError('Create plant failed')
     }

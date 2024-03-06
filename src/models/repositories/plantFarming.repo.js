@@ -18,14 +18,20 @@ const updatePlantFarming = async ({ plantFarmingId, updatedData, historyPlantFar
     return null
   }
   plantFarmingItem.isEdited = true
-  plantFarmingItem.historyPlantFarmingEdit.push(historyPlantFarmingEdit)
+  if (historyPlantFarmingEdit) {
+    plantFarmingItem.historyPlantFarmingEdit.push(historyPlantFarmingEdit)
+  }
   await plantFarmingItem.save()
   return await plantFarming.findByIdAndUpdate(plantFarmingId, updatedData, { new: true }).exec()
 }
 
 // Delete a plant farming
 const deletePlantFarming = async ({ plantFarmingId }) => {
-  return await plantFarming.findByIdAndDelete(plantFarmingId).exec()
+  const bodyUpdate = {
+    isDeleted: true,
+    deletedAt: new Date()
+  }
+  return await plantFarming.findByIdAndUpdate(plantFarmingId, bodyUpdate, { new: true }).exec()
 }
 
 // Get all plant farming by plant
