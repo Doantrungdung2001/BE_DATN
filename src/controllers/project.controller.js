@@ -165,7 +165,7 @@ class ProjectController {
       })
     }).send(res)
   }
-  
+
   // QUERY //
   getAllProjectsByFarm = async (req, res, next) => {
     return new SuccessResponse({
