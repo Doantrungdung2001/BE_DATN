@@ -12,6 +12,7 @@ router.get('/:projectId/plantFarming', asyncHandler(projectController.getPlantFa
 router.get('/:projectId/process', asyncHandler(projectController.getAllProcess))
 router.get('/:projectId/expect', asyncHandler(projectController.getExpect))
 router.get('/:projectId/output', asyncHandler(projectController.getOutput))
+router.get('/:projectId/certificateImages', asyncHandler(projectController.getCertificateImages))
 router.get('/:projectId', asyncHandler(projectController.getProjectInfo))
 
 // Authentication
@@ -28,6 +29,7 @@ router.delete('/:projectId/expect/:expectId', asyncHandler(projectController.del
 router.post('/:projectId/output', asyncHandler(projectController.addOutput))
 router.patch('/:projectId/output/:outputId', asyncHandler(projectController.updateOutput))
 router.delete('/:projectId/output/:outputId', asyncHandler(projectController.deleteOutput))
+router.patch('/:projectId/certificateImages', asyncHandler(projectController.updateCertificateImages))
 router.post('/', asyncHandler(projectController.initProject))
 router.patch('/:projectId', asyncHandler(projectController.updateProjectInfo))
 router.delete('/:projectId', asyncHandler(projectController.deleteProject))

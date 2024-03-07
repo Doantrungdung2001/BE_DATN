@@ -154,6 +154,18 @@ class ProjectController {
       })
     }).send(res)
   }
+
+  // update Certificate images
+  updateCertificateImages = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Update Certificate images success!',
+      metadata: await ProjectService.updateCertificateImages({
+        projectId: req.params.projectId,
+        images: req.body.images
+      })
+    }).send(res)
+  }
+  
   // QUERY //
   getAllProjectsByFarm = async (req, res, next) => {
     return new SuccessResponse({
@@ -194,6 +206,13 @@ class ProjectController {
     return new SuccessResponse({
       message: 'Get PlantFarming success!',
       metadata: await ProjectService.getPlantFarming({ projectId: req.params.projectId })
+    }).send(res)
+  }
+
+  getCertificateImages = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get CertificateImages success!',
+      metadata: await ProjectService.getCertificateImages({ projectId: req.params.projectId })
     }).send(res)
   }
   // END QUERY //

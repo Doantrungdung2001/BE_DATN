@@ -42,6 +42,7 @@ const historyProcess = new Schema({
   other: {
     description: String
   },
+  certificateImages: [String],
   modifiedAt: Date,
   createdAtTime: Date
 })

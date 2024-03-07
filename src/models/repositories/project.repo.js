@@ -310,6 +310,22 @@ const getPlantFarmingId = async ({ projectId }) => {
   return projectInfo.plantFarming
 }
 
+const getCertificateImages = async ({ projectId }) => {
+  const projectInfo = await project
+    .findOne({ _id: new Types.ObjectId(projectId) })
+    .select('images')
+    .lean()
+    .exec()
+
+  return projectInfo.images
+}
+
+const updateCertificateImages = async ({ projectId, images }) => {
+  const result = await project.updateOne({ _id: new Types.ObjectId(projectId) }, { images }).exec()
+
+  return result
+}
+
 module.exports = {
   getAllProjectsByFarm,
   initProject,
@@ -329,5 +345,7 @@ module.exports = {
   addOutput,
   updateOutput,
   deleteOutput,
-  getPlantFarmingId
+  getPlantFarmingId,
+  getCertificateImages,
+  updateCertificateImages
 }

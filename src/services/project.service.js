@@ -18,7 +18,8 @@ const {
   addOutput,
   updateOutput,
   deleteOutput,
-  getPlantFarmingId
+  getPlantFarmingId,
+  updateCertificateImages
 } = require('../models/repositories/project.repo')
 const {
   addPlantFarming,
@@ -420,6 +421,23 @@ class ProjectService {
     const plantFarming = await getPlantFarmingByPlantFarmingId({ plantFarmingId })
     if (!plantFarming) return null
     return plantFarming
+  }
+
+  static async getCertificateImages({ projectId }) {
+    if (!projectId) throw new BadRequestError('Missing project id')
+    if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
+    const certificateImages = await getCertificateImages({ projectId })
+    return certificateImages
+  }
+
+  static async updateCertificateImages({ projectId, certificateImages }) {
+    if (!projectId) throw new BadRequestError('Missing project id')
+    if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
+    if (!certificateImages && certificateImages != []) throw new BadRequestError('Missing certificate images')
+
+    const updatedProject = await updateCertificateImages({ projectId, certificateImages })
+    if (!updatedProject) throw new MethodFailureError('Cannot update certificate images')
+    return updatedProject
   }
 }
 
