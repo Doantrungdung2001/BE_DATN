@@ -19,7 +19,8 @@ const {
   updateOutput,
   deleteOutput,
   getPlantFarmingId,
-  updateCertificateImages
+  updateCertificateImages,
+  getCertificateImages
 } = require('../models/repositories/project.repo')
 const {
   addPlantFarming,
