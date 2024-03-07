@@ -161,11 +161,11 @@ class ProjectController {
       message: 'Update Certificate images success!',
       metadata: await ProjectService.updateCertificateImages({
         projectId: req.params.projectId,
-        images: req.body.images
+        certificateImages: req.body.images
       })
     }).send(res)
   }
-  
+
   // QUERY //
   getAllProjectsByFarm = async (req, res, next) => {
     return new SuccessResponse({

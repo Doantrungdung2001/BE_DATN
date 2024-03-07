@@ -436,7 +436,7 @@ class ProjectService {
     if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
     if (!certificateImages && certificateImages != []) throw new BadRequestError('Missing certificate images')
 
-    const updatedProject = await updateCertificateImages({ projectId, certificateImages })
+    const updatedProject = await updateCertificateImages({ projectId, images: certificateImages })
     if (!updatedProject) throw new MethodFailureError('Cannot update certificate images')
     return updatedProject
   }

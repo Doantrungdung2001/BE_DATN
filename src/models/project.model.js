@@ -42,7 +42,6 @@ const historyProcess = new Schema({
   other: {
     description: String
   },
-  certificateImages: [String],
   modifiedAt: Date,
   createdAtTime: Date
 })
@@ -186,6 +185,7 @@ const projectSchema = new Schema(
     isGarden: Boolean,
     createdAtTime: Date,
     isInfoEdited: Boolean,
+    images: [String],
     historyInfo: [historyInfo]
   },
   {

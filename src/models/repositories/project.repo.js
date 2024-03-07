@@ -317,6 +317,8 @@ const getCertificateImages = async ({ projectId }) => {
     .lean()
     .exec()
 
+  if (!projectInfo.images) return []
+
   return projectInfo.images
 }
 
