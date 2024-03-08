@@ -11,7 +11,7 @@ const dev = {
     name: process.env.DEV_DB_NAME || 'shopDEV',
     user_name: process.env.DEV_DB_USERNAME || 'huy',
     password: process.env.DEV_DB_PASSWORD || '12345678',
-    MONGO_URI: process.env.DEV_MONGO_URI || 'mongodb://localhost:27017/shopDEV'
+    MONGO_URI: process.env.DEV_MONGO_URI
   }
 }
 
@@ -25,7 +25,7 @@ const pro = {
     name: process.env.PRO_DB_NAME || 'shopDEV',
     user_name: process.env.PRO_DB_USERNAME || 'huy',
     password: process.env.PRO_DB_PASSWORD || '12345678',
-    MONGO_URI: process.env.PRO_MONGO_URI || 'mongodb://localhost:27017/shopDEV'
+    MONGO_URI: process.env.PRO_MONGO_URI
   }
 }
 
