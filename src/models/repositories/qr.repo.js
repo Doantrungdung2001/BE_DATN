@@ -3,7 +3,7 @@
 const { qr } = require('../qr.model')
 const { Types } = require('mongoose')
 
-const exportQR = async ({ projectId, outputId, distributerId, quantity, txExport }) => {
+const exportQR = async ({ projectId, outputId, distributerId, quantity, txExport, privateIdsEachDistributer }) => {
   // insert quantity qr document
   const qrData = []
   for (let i = 0; i < quantity; i++) {
@@ -13,7 +13,8 @@ const exportQR = async ({ projectId, outputId, distributerId, quantity, txExport
       project: new Types.ObjectId(projectId),
       output: new Types.ObjectId(outputId),
       distributer: new Types.ObjectId(distributerId),
-      txExport
+      txExport,
+      privateId: privateIdsEachDistributer[i]
     })
   }
   return await qr.insertMany(qrData)

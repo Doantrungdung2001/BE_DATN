@@ -12,7 +12,6 @@ class QRController {
         outputId: req.params.outputId,
         outputData: req.body,
         farmId: req.user.userId,
-        privateIds: req.body.privateIds,
         txExport: req.body.txExport
       })
     }).send(res)
