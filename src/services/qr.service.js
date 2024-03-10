@@ -245,6 +245,10 @@ class QRService {
       throw new BadRequestError('QR not found')
     }
 
+    if (qrItem.isScanned) {
+      throw new BadRequestError('QR is already scanned')
+    }
+
     const purchaseInfo = `${
       clientItem.name
     } with id ${clientItem._id.toString()} bought this product from distributer: ${qrItem.distributer.name}, farm: ${
