@@ -1,5 +1,5 @@
 const { Types } = require('mongoose')
-const { exportQR, scanQR, getQRById } = require('../models/repositories/qr.repo')
+const { exportQR, scanQR, getQRById, getQRByProject } = require('../models/repositories/qr.repo')
 const { BadRequestError } = require('../core/error.response')
 const { isValidObjectId } = require('../utils')
 const { getProjectInfo, updateExportQR } = require('./project.service')
@@ -288,6 +288,15 @@ class QRService {
       client: clientItem,
       qrItem
     }
+  }
+
+  static async getQRByProject({ projectId }) {
+    if (!projectId || !isValidObjectId(projectId)) {
+      throw new BadRequestError('Invalid project id')
+    }
+
+    const qrItems = await getQRByProject(projectId)
+    return qrItems
   }
 
   // static async scanQR({ qrId, clientId }) {

@@ -27,6 +27,16 @@ class QRController {
       })
     }).send(res)
   }
+
+  // get QR by project
+  getQRByProject = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Get QR by project success!',
+      metadata: await QRService.getQRByProject({
+        projectId: req.params.projectId
+      })
+    }).send(res)
+  }
 }
 
 module.exports = new QRController()

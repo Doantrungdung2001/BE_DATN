@@ -41,8 +41,16 @@ const scanQR = async ({ qrId, txScan, clientId }) => {
   )
 }
 
+const getQRByProject = async (projectId) => {
+  return await qr
+    .find({ project: new Types.ObjectId(projectId) })
+    .populate('distributer')
+    .exec()
+}
+
 module.exports = {
   exportQR,
   scanQR,
-  getQRById
+  getQRById,
+  getQRByProject
 }
