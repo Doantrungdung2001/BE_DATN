@@ -38,7 +38,7 @@ class FarmService {
 
     return await updateFarm({
       farmId,
-      famrInfo: removeUndefinedObject({
+      farmInfo: removeUndefinedObject({
         name,
         description,
         status,
