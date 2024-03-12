@@ -2,7 +2,7 @@
 
 const { farm } = require('../models/farm.model')
 const bcrypt = require('bcrypt')
-const crypto = require('crypto')
+// const crypto = require('crypto')
 const KeyTokenService = require('../services/keyToken.service')
 const { createTokenPair, verifyJWT } = require('../auth/authUtils')
 const { getInfoData, sendEmail } = require('../utils')
@@ -10,6 +10,7 @@ const { BadRequestError, AuthFailureError, ForbiddenError, MethodFailureError } 
 const { findUserByEmail, getUser, addUser, updateUser, getPasswordHash } = require('./user.service')
 const { client } = require('../models/client.model')
 const { isValidObjectId } = require('../utils')
+const crypto = require('node:crypto')
 
 const Role = {
   FARM: 'FARM',
@@ -50,21 +51,13 @@ class AccessService {
     }
 
     // created privateKey, publicKey
-    const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-      modulusLength: 4096,
-      publicKeyEncoding: {
-        type: 'pkcs1', //Public key CryptoGraphy Standards
-        format: 'pem'
-      },
-      privateKeyEncoding: {
-        type: 'pkcs1', //Public key CryptoGraphy Standards
-        format: 'pem'
-      }
-    })
+    const privateKey = crypto.randomBytes(64).toString('hex')
+    const publicKey = crypto.randomBytes(64).toString('hex')
 
     const keyStore = await KeyTokenService.createKeyToken({
       userId: newUser._id,
-      publicKey
+      publicKey,
+      privateKey
     })
 
     if (!keyStore) {
@@ -100,17 +93,8 @@ class AccessService {
     const match = await bcrypt.compare(password, foundUser.password)
     if (!match) throw new AuthFailureError('Authentication error')
 
-    const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-      modulusLength: 4096,
-      publicKeyEncoding: {
-        type: 'pkcs1', //Public key CryptoGraphy Standards
-        format: 'pem'
-      },
-      privateKeyEncoding: {
-        type: 'pkcs1', //Public key CryptoGraphy Standards
-        format: 'pem'
-      }
-    })
+    const privateKey = crypto.randomBytes(64).toString('hex')
+    const publicKey = crypto.randomBytes(64).toString('hex')
 
     const { _id: userId } = foundUser
     const tokens = await createTokenPair({ userId, email, roles: foundUser.roles }, publicKey, privateKey)

@@ -11,6 +11,7 @@ const qrSchema = new Schema(
     isScanned: Boolean,
     time: Date,
     timeScanned: Date,
+    txExport: String,
     txScan: String,
     project: { type: Schema.Types.ObjectId, ref: 'Project' },
     output: { type: Schema.Types.ObjectId, ref: 'Project.output' },
