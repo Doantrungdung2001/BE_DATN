@@ -4,6 +4,8 @@ const express = require('express')
 const { default: helmet } = require('helmet')
 const morgan = require('morgan')
 const cors = require('cors')
+const deleteUploads = require('./cron-tasks/delete-uploads')
+const fetchWeather = require('./cron-tasks/weather-fetch')
 const app = express()
 
 // init moddlewares
@@ -18,6 +20,8 @@ app.use(
 )
 
 app.use(cors())
+deleteUploads.start()
+fetchWeather.start()
 
 // init db
 require('./dbs/init.mongodb')
