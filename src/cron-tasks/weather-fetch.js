@@ -10,7 +10,8 @@ async function getDistrictsFromFarms() {
   try {
     const farms = await farm.find({}, { district: 1, _id: 0 }) // Retrieve only the district field from farms
     const districts = farms.map((farm) => farm.district)
-    return districts
+    // remove underfined and duplicate
+    return districts.filter((district, index) => districts.indexOf(district) === index && district !== undefined)
   } catch (error) {
     console.error('Error fetching districts from farms:', error.message)
     throw error
@@ -48,8 +49,8 @@ async function fetchWeatherData(district) {
 }
 
 // Schedule cron job
-cron.schedule(
-  '00 25 * * * *',
+const fetchWeather = cron.schedule(
+  '00 54 * * * *',
   async () => {
     try {
       const districts = await getDistrictsFromFarms() // Retrieve districts from farms
@@ -66,3 +67,5 @@ cron.schedule(
     timezone: 'Asia/Ho_Chi_Minh' // Thiết lập múi giờ cho cron job
   }
 )
+
+module.exports = fetchWeather
