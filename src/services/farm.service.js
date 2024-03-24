@@ -106,6 +106,26 @@ class FarmService {
 
     return updatedFarm
   }
+
+  static async updateWalletAddress({ farmId, walletAddress }) {
+    if (!farmId) {
+      throw new BadRequestError('Farm ID is required')
+    }
+    if (!isValidObjectId(farmId)) {
+      throw new BadRequestError('Farm ID is invalid')
+    }
+    if (!walletAddress && walletAddress !== '') {
+      throw new BadRequestError('Wallet address is required')
+    }
+
+    const updatedFarm = await updateFarm({ farmId, farmInfo: { walletAddress } })
+
+    if (!updatedFarm) {
+      throw new MethodFailureError('Update farm wallet address failed')
+    }
+
+    return updatedFarm
+  }
 }
 
 module.exports = FarmService
