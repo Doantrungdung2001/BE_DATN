@@ -31,10 +31,11 @@ class TransferService {
 
   static async addTransfer({ data }) {
     if (!data) throw new BadRequestError('Transfer data is required')
-    const { farm, tx, amount } = data
+    const { farm, tx, amount, time } = data
     if (!farm) throw new BadRequestError('Farm is required')
     if (!tx) throw new BadRequestError('Transaction is required')
     if (!amount) throw new BadRequestError('Amount is required')
+    if (!time) throw new BadRequestError('Time is required')
     if (!isValidObjectId(farm)) {
       throw new BadRequestError('Invalid farm id')
     }
@@ -48,7 +49,8 @@ class TransferService {
       data: {
         farm: new Types.ObjectId(farm),
         tx,
-        amount
+        amount,
+        time
       }
     })
     return newTransfer
@@ -60,7 +62,7 @@ class TransferService {
       throw new BadRequestError('Invalid transfer id')
     }
 
-    const { farm, tx, amount } = data
+    const { farm, tx, amount, time } = data
     if (farm && !isValidObjectId(farm)) {
       throw new BadRequestError('Invalid farm id')
     }
@@ -75,6 +77,7 @@ class TransferService {
     if (farm) dataUpdate.farm = new Types.ObjectId(farm)
     if (tx) dataUpdate.tx = tx
     if (amount) dataUpdate.amount = amount
+    if (time) dataUpdate.time = time
 
     const updatedTransfer = await updateTransfer({ transferId, data: dataUpdate })
     if (!updatedTransfer) {

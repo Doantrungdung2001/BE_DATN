@@ -9,6 +9,7 @@ const transferSchema = new Schema(
     farm: { type: Schema.Types.ObjectId, ref: 'Farm' },
     tx: String,
     amount: Number,
+    time: Date,
     isDeleted: { type: Boolean, default: false },
     deletedAt: Date
   },

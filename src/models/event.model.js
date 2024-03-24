@@ -10,7 +10,8 @@ const eventSchema = new Schema(
     walletAddress: String,
     fee: Number,
     timestamp: Date,
-    event: String
+    event: String,
+    tx: String
   },
   {
     collection: COLLECTION_NAME,

@@ -3,8 +3,6 @@
 const { event } = require('../../models/event.model')
 const { Types } = require('mongoose')
 const { getSelectData, unGetSelectData } = require('../../utils/index')
-const { farm } = require('../farm.model')
-const FarmService = require('../../services/farm.service')
 
 const getAllEvents = async ({ limit, sort, page, filter } = {}) => {
   let query = event.find(filter || {})
