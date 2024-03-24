@@ -71,7 +71,8 @@ class FarmService {
           address: farm.address,
           createdAt: farm.createdAt,
           email: user.email,
-          roles: user.roles[0]
+          roles: user.roles[0],
+          walletAddress: farm.walletAddress
         }
       })
     )
