@@ -14,5 +14,6 @@ router.use(authenticationV2)
 router.patch('/', asyncHandler(farmController.updateFarm))
 router.get('/', isAdmin, asyncHandler(farmController.getAllFarms))
 router.patch('/:farmId/status', isAdmin, asyncHandler(farmController.updateStatusFarm))
+router.patch('/:farmId/walletAddress', isAdmin, asyncHandler(farmController.updateWalletAddress))
 
 module.exports = router

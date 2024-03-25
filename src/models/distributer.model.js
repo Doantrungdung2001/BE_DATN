@@ -34,7 +34,9 @@ const distributerSchema = new Schema(
     },
     address: {
       type: String
-    }
+    },
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: Date
   },
   {
     collection: COLLECTION_NAME,

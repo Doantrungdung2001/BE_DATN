@@ -17,7 +17,14 @@ const clientSchema = new Schema(
     address: String,
     map: Object,
     district: String,
-    history: [scanHistory]
+    history: [scanHistory],
+    status: {
+      type: String,
+      enum: ['active', 'inactive'],
+      default: 'active'
+    },
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: Date
   },
   {
     collection: COLLECTION_NAME,

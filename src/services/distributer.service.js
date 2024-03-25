@@ -3,14 +3,15 @@ const {
   getAllDistributers,
   getDistributerById,
   addDistributer,
-  updateDistributer
+  updateDistributer,
+  deleteDistributer
 } = require('../models/repositories/distributer.repo')
 const { MethodFailureError, BadRequestError, NotFoundError } = require('../core/error.response')
 const { isValidObjectId } = require('../utils')
 
 class DistributerService {
   static async getAllDistributers({ limit, sort, page } = {}) {
-    const filter = {}
+    const filter = { $or: [{ isDeleted: { $exists: false } }, { isDeleted: false }] }
     const distributers = await getAllDistributers({ limit, sort, page, filter })
     return distributers
   }
@@ -47,6 +48,20 @@ class DistributerService {
     }
 
     return updatedDistributer
+  }
+
+  static async deleteDistributer({ distributerId }) {
+    if (!distributerId) throw new BadRequestError('Distributer id is required')
+    if (!isValidObjectId(distributerId)) {
+      throw new BadRequestError('Invalid distributer id')
+    }
+
+    const deletedDistributer = await deleteDistributer({ distributerId })
+    if (!deletedDistributer) {
+      throw new MethodFailureError('Failed to delete distributer')
+    }
+
+    return deletedDistributer
   }
 }
 
