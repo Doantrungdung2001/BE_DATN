@@ -41,7 +41,8 @@ const farmSchema = new Schema(
     },
     lng: {
       type: Number
-    }
+    },
+    walletAddress: String
   },
   {
     collection: COLLECTION_NAME,

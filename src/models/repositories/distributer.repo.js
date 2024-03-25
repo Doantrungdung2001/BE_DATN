@@ -42,9 +42,18 @@ const updateDistributer = async ({ distributerId, distributerData }) => {
   return result
 }
 
+const deleteDistributer = async ({ distributerId }) => {
+  const bodyUpdate = {
+    isDeleted: true,
+    deletedAt: new Date()
+  }
+  return await distributer.findByIdAndUpdate(distributerId, bodyUpdate, { new: true }).exec()
+}
+
 module.exports = {
   getAllDistributers,
   getDistributerById,
   addDistributer,
-  updateDistributer
+  updateDistributer,
+  deleteDistributer
 }

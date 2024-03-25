@@ -32,7 +32,7 @@ const plantSchema = new Schema(
     harvestTime: Number,
     isActive: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
-    deteletedAt: Date
+    deletedAt: Date
   },
   {
     collection: COLLECTION_NAME,

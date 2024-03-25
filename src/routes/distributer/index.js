@@ -13,5 +13,6 @@ router.get('/:distributerId', asyncHandler(distributerController.getDistributerB
 router.use(authenticationV2)
 router.post('/', isAdmin, asyncHandler(distributerController.addDistributer))
 router.patch('/:distributerId', isAdmin, asyncHandler(distributerController.updateDistributer))
+router.delete('/:distributerId', isAdmin, asyncHandler(distributerController.deleteDistributer))
 
 module.exports = router

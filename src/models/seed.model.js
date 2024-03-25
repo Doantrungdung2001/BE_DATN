@@ -15,7 +15,7 @@ const seedSchema = new Schema(
     seed_slug: String,
     isSeedDefault: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
-    deteletedAt: Date
+    deletedAt: Date
   },
   {
     collection: COLLECTION_NAME,

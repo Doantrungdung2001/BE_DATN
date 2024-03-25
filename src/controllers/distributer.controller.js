@@ -40,6 +40,15 @@ class DistributerController {
       })
     }).send(res)
   }
+
+  deleteDistributer = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Delete distributer success!',
+      metadata: await DistributerService.deleteDistributer({
+        distributerId: req.params.distributerId
+      })
+    }).send(res)
+  }
 }
 
 module.exports = new DistributerController()
