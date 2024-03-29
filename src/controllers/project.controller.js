@@ -215,6 +215,13 @@ class ProjectController {
       metadata: await ProjectService.getCertificateImages({ projectId: req.params.projectId })
     }).send(res)
   }
+
+  getProcessesWithObjectDetections = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get ProcessesWithObjectDetections success!',
+      metadata: await ProjectService.getProcessWithObjectDetection({ projectId: req.params.projectId })
+    }).send(res)
+  }
   // END QUERY //
 }
 

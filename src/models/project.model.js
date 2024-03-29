@@ -175,7 +175,7 @@ const projectSchema = new Schema(
     process: [process],
     expect: [expect],
     output: [output],
-    cameraId: [String],
+    cameraId: [{ type: Schema.Types.ObjectId, ref: 'Camera' }],
     description: String,
     status: {
       type: String,
