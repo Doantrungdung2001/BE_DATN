@@ -20,7 +20,8 @@ const {
   deleteOutput,
   getPlantFarmingId,
   updateCertificateImages,
-  getCertificateImages
+  getCertificateImages,
+  updateCameraToProject
 } = require('../models/repositories/project.repo')
 const {
   addPlantFarming,
@@ -30,6 +31,7 @@ const {
 } = require('../services/plantFarming.service')
 const { updateNestedObjectParser, removeUndefinedObject, isValidObjectId } = require('../utils')
 const { BadRequestError, MethodFailureError, NotFoundError } = require('../core/error.response')
+const { getObjectDetectionByCameraIdAndTime } = require('./objectDetection.service')
 
 class ProjectService {
   static async getAllProjectsByFarm({ farmId, limit, sort, page }) {
@@ -439,6 +441,93 @@ class ProjectService {
     const updatedProject = await updateCertificateImages({ projectId, images: certificateImages })
     if (!updatedProject) throw new MethodFailureError('Cannot update certificate images')
     return updatedProject
+  }
+
+  static async getProcessWithObjectDetection({ projectId }) {
+    if (!projectId) throw new BadRequestError('Missing project id')
+    if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
+
+    const projectItem = await getProjectInfo({ projectId })
+    const outputs = await getOutput({ projectId })
+    let endTime = new Date()
+    if (outputs.length > 0) {
+      // get the time of output has the time field is latest
+      endTime = outputs.reduce((acc, cur) => (acc.time > cur.time ? acc : cur)).time
+    }
+
+    const startTime = projectItem.startDate
+    const cameraIds = projectItem.cameraId
+    let objectDetections = []
+    for (const cameraId of cameraIds) {
+      const objectDetection = await getObjectDetectionByCameraIdAndTime({
+        cameraId: cameraId.toString(),
+        startTime,
+        endTime
+      })
+      if (objectDetection) objectDetections.push(...objectDetection)
+    }
+
+    let processes = await getAllProcess({ projectId })
+
+    let nonProcessObjectDetection = []
+    for (let process of processes) {
+      if (!process.objectDetections) {
+        process.objectDetections = []
+      }
+    }
+
+    if (!objectDetections || objectDetections.length === 0) {
+      return { processes, nonProcessObjectDetection }
+    }
+
+    for (const detection of objectDetections) {
+      let isAdded = false
+      for (let process of processes) {
+        if (
+          process.time.getDate() === detection.start_time.getDate() &&
+          process.time.getMonth() === detection.start_time.getMonth() &&
+          process.time.getFullYear() === detection.start_time.getFullYear()
+        ) {
+          if (!process.objectDetections) {
+            process.objectDetections = []
+          }
+          process.objectDetections.push(detection)
+          isAdded = true
+          break
+        }
+      }
+      if (!isAdded) {
+        nonProcessObjectDetection.push(detection)
+      }
+    }
+
+    // scan processes, if process has not objectDetections, then list objectDetecions of that process set to []
+
+    return { processes, nonProcessObjectDetection }
+  }
+
+  static async updateCameraToProject({ projectId, cameraId }) {
+    if (!projectId) throw new BadRequestError('Missing project id')
+    if (!cameraId) throw new BadRequestError('Missing camera id')
+    if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
+    // cameraId is a list of Object id
+    if (!Array.isArray(cameraId)) throw new BadRequestError('Invalid camera id')
+    // check each item in cameraId is valid ObjectId
+    for (const id of cameraId) {
+      if (!isValidObjectId(id)) throw new BadRequestError('Invalid camera id')
+    }
+
+    const updatedProject = await updateCameraToProject({ projectId, cameraId })
+    if (!updatedProject) throw new MethodFailureError('Cannot update camera to project')
+    return updatedProject
+  }
+
+  static async getCameraInProject({ projectId }) {
+    if (!projectId) throw new BadRequestError('Missing project id')
+    if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
+
+    const projectItem = await getProjectInfo({ projectId })
+    return projectItem.cameraId || []
   }
 }
 

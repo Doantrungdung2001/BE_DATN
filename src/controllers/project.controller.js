@@ -166,6 +166,17 @@ class ProjectController {
     }).send(res)
   }
 
+  // update Camera to Project
+  updateCameraToProject = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Update Camera to Project success!',
+      metadata: await ProjectService.updateCameraToProject({
+        projectId: req.params.projectId,
+        cameraId: req.body.cameraId
+      })
+    }).send(res)
+  }
+
   // QUERY //
   getAllProjectsByFarm = async (req, res, next) => {
     return new SuccessResponse({
@@ -213,6 +224,20 @@ class ProjectController {
     return new SuccessResponse({
       message: 'Get CertificateImages success!',
       metadata: await ProjectService.getCertificateImages({ projectId: req.params.projectId })
+    }).send(res)
+  }
+
+  getProcessesWithObjectDetections = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get ProcessesWithObjectDetections success!',
+      metadata: await ProjectService.getProcessWithObjectDetection({ projectId: req.params.projectId })
+    }).send(res)
+  }
+
+  getCameraInProject = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get CameraInProject success!',
+      metadata: await ProjectService.getCameraInProject({ projectId: req.params.projectId })
     }).send(res)
   }
   // END QUERY //

@@ -44,6 +44,7 @@ const getProjectInfo = async ({ projectId, select }) => {
     .populate('plant')
     .populate('seed')
     .populate('historyInfo.seed')
+    .populate('cameraId')
     .select(getSelectData(select))
     .lean()
     .exec()
@@ -330,6 +331,11 @@ const updateCertificateImages = async ({ projectId, images }) => {
   return result
 }
 
+const updateCameraToProject = async ({ projectId, cameraId }) => {
+  const result = await project.updateOne({ _id: new Types.ObjectId(projectId) }, { cameraId: cameraId }).exec()
+  return result
+}
+
 module.exports = {
   getAllProjectsByFarm,
   initProject,
@@ -351,5 +357,6 @@ module.exports = {
   deleteOutput,
   getPlantFarmingId,
   getCertificateImages,
-  updateCertificateImages
+  updateCertificateImages,
+  updateCameraToProject
 }
