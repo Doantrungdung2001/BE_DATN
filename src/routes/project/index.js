@@ -9,10 +9,15 @@ const router = express.Router()
 
 router.get('/farm/:farmId', asyncHandler(projectController.getAllProjectsByFarm))
 router.get('/:projectId/plantFarming', asyncHandler(projectController.getPlantFarming))
+router.get(
+  '/:projectId/processesWithObjectDetections',
+  asyncHandler(projectController.getProcessesWithObjectDetections)
+)
 router.get('/:projectId/process', asyncHandler(projectController.getAllProcess))
 router.get('/:projectId/expect', asyncHandler(projectController.getExpect))
 router.get('/:projectId/output', asyncHandler(projectController.getOutput))
 router.get('/:projectId/certificateImages', asyncHandler(projectController.getCertificateImages))
+router.get('/:projectId/camera', asyncHandler(projectController.getCameraInProject))
 router.get('/:projectId', asyncHandler(projectController.getProjectInfo))
 
 // Authentication
@@ -33,5 +38,6 @@ router.patch('/:projectId/certificateImages', asyncHandler(projectController.upd
 router.post('/', asyncHandler(projectController.initProject))
 router.patch('/:projectId', asyncHandler(projectController.updateProjectInfo))
 router.delete('/:projectId', asyncHandler(projectController.deleteProject))
+router.patch('/:projectId/camera', asyncHandler(projectController.updateCameraToProject))
 
 module.exports = router
