@@ -20,7 +20,8 @@ const {
   deleteOutput,
   getPlantFarmingId,
   updateCertificateImages,
-  getCertificateImages
+  getCertificateImages,
+  updateCameraToProject
 } = require('../models/repositories/project.repo')
 const {
   addPlantFarming,
@@ -503,6 +504,30 @@ class ProjectService {
     // scan processes, if process has not objectDetections, then list objectDetecions of that process set to []
 
     return { processes, nonProcessObjectDetection }
+  }
+
+  static async updateCameraToProject({ projectId, cameraId }) {
+    if (!projectId) throw new BadRequestError('Missing project id')
+    if (!cameraId) throw new BadRequestError('Missing camera id')
+    if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
+    // cameraId is a list of Object id
+    if (!Array.isArray(cameraId)) throw new BadRequestError('Invalid camera id')
+    // check each item in cameraId is valid ObjectId
+    for (const id of cameraId) {
+      if (!isValidObjectId(id)) throw new BadRequestError('Invalid camera id')
+    }
+
+    const updatedProject = await updateCameraToProject({ projectId, cameraId })
+    if (!updatedProject) throw new MethodFailureError('Cannot update camera to project')
+    return updatedProject
+  }
+
+  static async getCameraInProject({ projectId }) {
+    if (!projectId) throw new BadRequestError('Missing project id')
+    if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
+
+    const projectItem = await getProjectInfo({ projectId })
+    return projectItem.cameraId || []
   }
 }
 
