@@ -9,7 +9,9 @@ const cameraSchema = new Schema(
   {
     name: String,
     rtsp_link: String,
-    farm: { type: Schema.Types.ObjectId, ref: 'Farm' }
+    farm: { type: Schema.Types.ObjectId, ref: 'Farm' },
+    cameraIndex: String,
+    tx: String,
   },
   {
     collection: COLLECTION_NAME,
