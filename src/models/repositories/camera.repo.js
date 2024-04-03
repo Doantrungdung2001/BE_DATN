@@ -43,8 +43,11 @@ const updateCamera = async ({ cameraId, cameraData }) => {
 }
 
 const deleteCamera = async ({ cameraId }) => {
-  const result = await camera.findByIdAndDelete(cameraId).lean().exec()
-  return result
+  const bodyUpdate = {
+    isDeleted: true,
+    deletedAt: new Date()
+  }
+  return await camera.findByIdAndUpdate(cameraId, bodyUpdate, { new: true }).exec()
 }
 
 module.exports = {
