@@ -2,15 +2,14 @@
 
 const { Schema, model } = require('mongoose')
 
-const DOCUMENT_NAME = 'ObjectDetection'
-const COLLECTION_NAME = 'ObjectDetections'
+const DOCUMENT_NAME = 'ConnectionLoss'
+const COLLECTION_NAME = 'ConnectionLosses'
 
-const objectDetectionSchema = new Schema(
+const connectionLossSchema = new Schema(
   {
     camera_id: { type: Schema.Types.ObjectId, ref: 'Camera' },
     start_time: Date,
-    end_time: Date,
-    video_url: String
+    end_time: Date
   },
   {
     collection: COLLECTION_NAME,
@@ -19,5 +18,5 @@ const objectDetectionSchema = new Schema(
 )
 
 module.exports = {
-  objectDetection: model(DOCUMENT_NAME, objectDetectionSchema)
+  connectionLoss: model(DOCUMENT_NAME, connectionLossSchema)
 }

@@ -27,6 +27,8 @@ router.use('/v1/api/camera', require('./camera'))
 router.use('/v1/api/client', require('./client'))
 router.use('/v1/api/event', require('./event'))
 router.use('/v1/api/transfer', require('./transfer'))
+router.use('/v1/api/connectionLoss', require('./connectionLoss'))
+router.use('/v1/api/image', require('./image'))
 router.use('/v1/api', require('./access'))
 
 module.exports = router
