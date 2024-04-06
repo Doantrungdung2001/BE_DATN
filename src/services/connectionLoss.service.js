@@ -20,6 +20,8 @@ class ConnectionLossService {
     if (!isValidObjectId(cameraId)) throw new BadRequestError('CameraId is not valid')
     if (!startTime) startTime = new Date(0)
     if (!endTime) endTime = new Date()
+    if (startTime > endTime) throw new BadRequestError('Start time must be less than end time')
+    if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) throw new BadRequestError('Invalid date')
     const connectionLosss = await getConnectionLossByCameraIdAndTime({ cameraId, startTime, endTime })
     return connectionLosss
   }
@@ -28,6 +30,7 @@ class ConnectionLossService {
     if (!cameraId) throw new BadRequestError('CameraId is required')
     if (!isValidObjectId(cameraId)) throw new BadRequestError('CameraId is not valid')
     if (!date) throw new BadRequestError('Date is required')
+    if (isNaN(new Date(date).getTime())) throw new BadRequestError('Invalid date')
     const connectionLosss = await getConnectionLossByCameraIdAndDate({ cameraId, date })
     return connectionLosss
   }

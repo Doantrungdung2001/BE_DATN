@@ -1,39 +1,39 @@
 const { Types } = require('mongoose')
 const {
-  getAllObjectDetectionByCameraId,
-  getObjectDetectionByCameraIdAndTime,
-  getObjectDetecionByCameraIdAndDate
-} = require('../models/repositories/objectDetection.repo')
+  getAllImageByCameraId,
+  getImageByCameraIdAndTime,
+  getImageByCameraIdAndDate
+} = require('../models/repositories/image.repo')
 const { BadRequestError, MethodFailureError } = require('../core/error.response')
 const { isValidObjectId } = require('../utils')
 
-class ObjectDetectionService {
-  static async getAllObjectDetectionByCameraId({ cameraId }) {
+class ImageService {
+  static async getAllImageByCameraId({ cameraId }) {
     if (!cameraId) throw new BadRequestError('CameraId is required')
     if (!isValidObjectId(cameraId)) throw new BadRequestError('CameraId is not valid')
-    const objectDetections = await getAllObjectDetectionByCameraId({ cameraId })
-    return objectDetections
+    const images = await getAllImageByCameraId({ cameraId })
+    return images
   }
 
-  static async getObjectDetectionByCameraIdAndTime({ cameraId, startTime, endTime }) {
+  static async getImageByCameraIdAndTime({ cameraId, startTime, endTime }) {
     if (!cameraId) throw new BadRequestError('CameraId is required')
     if (!isValidObjectId(cameraId)) throw new BadRequestError('CameraId is not valid')
     if (!startTime) startTime = new Date(0)
     if (!endTime) endTime = new Date()
     if (startTime > endTime) throw new BadRequestError('Start time must be less than end time')
     if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) throw new BadRequestError('Invalid date')
-    const objectDetections = await getObjectDetectionByCameraIdAndTime({ cameraId, startTime, endTime })
-    return objectDetections
+    const images = await getImageByCameraIdAndTime({ cameraId, startTime, endTime })
+    return images
   }
 
-  static async getObjectDetecionByCameraIdAndDate({ cameraId, date }) {
+  static async getImageByCameraIdAndDate({ cameraId, date }) {
     if (!cameraId) throw new BadRequestError('CameraId is required')
     if (!isValidObjectId(cameraId)) throw new BadRequestError('CameraId is not valid')
     if (!date) throw new BadRequestError('Date is required')
     if (isNaN(new Date(date).getTime())) throw new BadRequestError('Invalid date')
-    const objectDetections = await getObjectDetecionByCameraIdAndDate({ cameraId, date })
-    return objectDetections
+    const images = await getImageByCameraIdAndDate({ cameraId, date })
+    return images
   }
 }
 
-module.exports = ObjectDetectionService
+module.exports = ImageService
