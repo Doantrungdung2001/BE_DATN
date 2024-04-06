@@ -1,39 +1,39 @@
 const { Types } = require('mongoose')
 const {
-  getAllObjectDetectionByCameraId,
-  getObjectDetectionByCameraIdAndTime,
-  getObjectDetecionByCameraIdAndDate
-} = require('../models/repositories/objectDetection.repo')
+  getAllConnectionLossByCameraId,
+  getConnectionLossByCameraIdAndTime,
+  getConnectionLossByCameraIdAndDate
+} = require('../models/repositories/connectionLoss.repo')
 const { BadRequestError, MethodFailureError } = require('../core/error.response')
 const { isValidObjectId } = require('../utils')
 
-class ObjectDetectionService {
-  static async getAllObjectDetectionByCameraId({ cameraId }) {
+class ConnectionLossService {
+  static async getAllConnectionLossByCameraId({ cameraId }) {
     if (!cameraId) throw new BadRequestError('CameraId is required')
     if (!isValidObjectId(cameraId)) throw new BadRequestError('CameraId is not valid')
-    const objectDetections = await getAllObjectDetectionByCameraId({ cameraId })
-    return objectDetections
+    const connectionLosss = await getAllConnectionLossByCameraId({ cameraId })
+    return connectionLosss
   }
 
-  static async getObjectDetectionByCameraIdAndTime({ cameraId, startTime, endTime }) {
+  static async getConnectionLossByCameraIdAndTime({ cameraId, startTime, endTime }) {
     if (!cameraId) throw new BadRequestError('CameraId is required')
     if (!isValidObjectId(cameraId)) throw new BadRequestError('CameraId is not valid')
     if (!startTime) startTime = new Date(0)
     if (!endTime) endTime = new Date()
     if (startTime > endTime) throw new BadRequestError('Start time must be less than end time')
     if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) throw new BadRequestError('Invalid date')
-    const objectDetections = await getObjectDetectionByCameraIdAndTime({ cameraId, startTime, endTime })
-    return objectDetections
+    const connectionLosss = await getConnectionLossByCameraIdAndTime({ cameraId, startTime, endTime })
+    return connectionLosss
   }
 
-  static async getObjectDetecionByCameraIdAndDate({ cameraId, date }) {
+  static async getConnectionLossByCameraIdAndDate({ cameraId, date }) {
     if (!cameraId) throw new BadRequestError('CameraId is required')
     if (!isValidObjectId(cameraId)) throw new BadRequestError('CameraId is not valid')
     if (!date) throw new BadRequestError('Date is required')
     if (isNaN(new Date(date).getTime())) throw new BadRequestError('Invalid date')
-    const objectDetections = await getObjectDetecionByCameraIdAndDate({ cameraId, date })
-    return objectDetections
+    const connectionLosss = await getConnectionLossByCameraIdAndDate({ cameraId, date })
+    return connectionLosss
   }
 }
 
-module.exports = ObjectDetectionService
+module.exports = ConnectionLossService
