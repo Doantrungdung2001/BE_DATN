@@ -240,6 +240,13 @@ class ProjectController {
       metadata: await ProjectService.getCameraInProject({ projectId: req.params.projectId })
     }).send(res)
   }
+
+  getCameraIndexAndStartDateAndEndDate = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get CameraIndexAndStartDateAndEndDate success!',
+      metadata: await ProjectService.getCameraIndexAndStartDateAndEndDate({ projectIndex: req.params.projectIndex })
+    }).send(res)
+  }
   // END QUERY //
 }
 

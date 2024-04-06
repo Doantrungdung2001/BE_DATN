@@ -18,6 +18,7 @@ router.get('/:projectId/expect', asyncHandler(projectController.getExpect))
 router.get('/:projectId/output', asyncHandler(projectController.getOutput))
 router.get('/:projectId/certificateImages', asyncHandler(projectController.getCertificateImages))
 router.get('/:projectId/camera', asyncHandler(projectController.getCameraInProject))
+router.get('/:projectIndex/cameraIndex', asyncHandler(projectController.getCameraIndexAndStartDateAndEndDate))
 router.get('/:projectId', asyncHandler(projectController.getProjectInfo))
 
 // Authentication

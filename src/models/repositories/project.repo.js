@@ -336,6 +336,17 @@ const updateCameraToProject = async ({ projectId, cameraId }) => {
   return result
 }
 
+const getProjectByProjectIndex = async ({ projectIndex }) => {
+  const projectInfo = await project
+    .findOne({ projectIndex })
+    .select(getSelectData(['_id', 'startDate', 'cameraId']))
+    .populate('cameraId')
+    .lean()
+    .exec()
+
+  return projectInfo
+}
+
 module.exports = {
   getAllProjectsByFarm,
   initProject,
@@ -358,5 +369,6 @@ module.exports = {
   getPlantFarmingId,
   getCertificateImages,
   updateCertificateImages,
-  updateCameraToProject
+  updateCameraToProject,
+  getProjectByProjectIndex
 }

@@ -21,7 +21,8 @@ const {
   getPlantFarmingId,
   updateCertificateImages,
   getCertificateImages,
-  updateCameraToProject
+  updateCameraToProject,
+  getProjectByProjectIndex
 } = require('../models/repositories/project.repo')
 const {
   addPlantFarming,
@@ -528,6 +529,30 @@ class ProjectService {
 
     const projectItem = await getProjectInfo({ projectId })
     return projectItem.cameraId || []
+  }
+
+  // input: projectIndex, output: list of cameraIndex (by cameraId in projectItem) and startDate and date of latest output
+  static async getCameraIndexAndStartDateAndEndDate({ projectIndex }) {
+    if (!projectIndex) throw new BadRequestError('Missing project index')
+    const projectIndexNumber = parseInt(projectIndex)
+
+    const projectItem = await getProjectByProjectIndex({ projectIndex: projectIndexNumber })
+    if (!projectItem) throw new NotFoundError('Project not found')
+    const outputs = await getOutput({ projectId: projectItem._id.toString() })
+    let endTime = new Date()
+    if (outputs.length > 0) {
+      // get the time of output has the time field is latest
+      endTime = outputs.reduce((acc, cur) => (acc.time > cur.time ? acc : cur)).time
+    }
+
+    const startTime = projectItem.startDate
+    const cameraIds = projectItem.cameraId
+    let cameraIndex = []
+    for (const cameraId of cameraIds) {
+      cameraIndex.push(cameraId.cameraIndex)
+    }
+
+    return { cameraIndex, startDate: startTime, endDate: endTime }
   }
 }
 
