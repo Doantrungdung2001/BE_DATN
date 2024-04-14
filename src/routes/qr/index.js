@@ -14,6 +14,6 @@ router.use(authenticationV2)
 ////////////
 
 router.post('/export/:projectId/:outputId', asyncHandler(qrController.exportQR))
-router.post('/scan/:qrId', asyncHandler(qrController.scanQR))
+router.post('/scan', asyncHandler(qrController.scanQR))
 
 module.exports = router

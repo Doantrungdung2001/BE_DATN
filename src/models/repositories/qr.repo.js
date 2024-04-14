@@ -2,6 +2,7 @@
 
 const { qr } = require('../qr.model')
 const { Types } = require('mongoose')
+const md5 = require('md5')
 
 const exportQR = async ({ projectId, outputId, distributerId, quantity, txExport, privateIdsEachDistributer }) => {
   // insert quantity qr document
@@ -48,9 +49,25 @@ const getQRByProject = async (projectId) => {
     .exec()
 }
 
+const getQRByPrivateIdAndProjectId = async ({ privateId, projectId }) => {
+  const md5HashPrivateId = md5(privateId)
+  return await qr
+    .findOne({ privateId: md5HashPrivateId, project: new Types.ObjectId(projectId) })
+    .populate('project')
+    .populate({
+      path: 'project',
+      populate: {
+        path: 'farm'
+      }
+    })
+    .populate('distributer')
+    .exec()
+}
+
 module.exports = {
   exportQR,
   scanQR,
   getQRById,
-  getQRByProject
+  getQRByProject,
+  getQRByPrivateIdAndProjectId
 }
