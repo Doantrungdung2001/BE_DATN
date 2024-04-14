@@ -1,5 +1,11 @@
 const { Types } = require('mongoose')
-const { exportQR, scanQR, getQRById, getQRByProject } = require('../models/repositories/qr.repo')
+const {
+  exportQR,
+  scanQR,
+  getQRById,
+  getQRByProject,
+  getQRByPrivateIdAndProjectId
+} = require('../models/repositories/qr.repo')
 const { BadRequestError } = require('../core/error.response')
 const { isValidObjectId } = require('../utils')
 const { getProjectInfo, updateExportQR } = require('./project.service')
@@ -225,10 +231,13 @@ class QRService {
     return true
   }
 
-  static async scanQR({ qrId, clientId }) {
+  static async scanQR({ privateId, projectId, clientId }) {
     // Kiểm tra và xác thực dữ liệu đầu vào
-    if (!qrId || !isValidObjectId(qrId)) {
-      throw new BadRequestError('Invalid QR id')
+    if (!privateId) {
+      throw new BadRequestError('Private id is required')
+    }
+    if (!projectId || !isValidObjectId(projectId)) {
+      throw new BadRequestError('Invalid project id')
     }
     if (!clientId || !isValidObjectId(clientId)) {
       throw new BadRequestError('Invalid client id')
@@ -239,21 +248,24 @@ class QRService {
       throw new BadRequestError('Client not found')
     }
 
-    // Kiểm tra sự tồn tại của QR
-    const qrItem = await getQRById(qrId)
+    // Lấy thông tin QR từ privateId va projectId
+    // find qr by privateId (use hash md5 to compare privateId in database) and projectId
+    const qrItem = await getQRByPrivateIdAndProjectId({ privateId, projectId })
+
     if (!qrItem) {
       throw new BadRequestError('QR not found')
     }
 
     if (qrItem.isScanned) {
-      throw new BadRequestError('QR is already scanned')
+      return {
+        message: 'QR is already scanned',
+        scannedQR: qrItem
+      }
     }
 
-    const purchaseInfo = `${
-      clientItem.name
-    } with id ${clientItem._id.toString()} bought this product from distributer: ${qrItem.distributer.name}, farm: ${
-      qrItem.project.farm.name
-    } at ${new Date()}`
+    const purchaseInfo = `${clientItem.name} with id ${clientItem._id.toString()} scan this product from distributer: ${
+      qrItem.distributer.name
+    }, farm: ${qrItem.project.farm.name} at ${new Date()}`
 
     // Khởi tạo provider của Ethereum (ví dụ: Infura)
     const provider = new ethers.providers.JsonRpcProvider('https://evmos-pokt.nodies.app')
@@ -267,7 +279,10 @@ class QRService {
     // Kiểm tra xem QR đã được quét trên blockchain chưa
     const checkProductStatus = await contract.checkProductStatus(qrItem.project._id.toString(), qrItem.privateId)
     if (checkProductStatus) {
-      throw new BadRequestError('QR is already scanned in blockchain')
+      return {
+        message: 'QR is already scanned in blockchain',
+        scannedQR: qrItem
+      }
     }
 
     // Gửi giao dịch mua sản phẩm lên blockchain
