@@ -22,7 +22,8 @@ class QRController {
     new SuccessResponse({
       message: 'Scan QR success!',
       metadata: await QRService.scanQR({
-        qrId: req.params.qrId,
+        privateId: req.body.privateId,
+        projectId: req.body.projectId,
         clientId: req.user.userId
       })
     }).send(res)
