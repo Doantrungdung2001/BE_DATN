@@ -22,7 +22,10 @@ const {
   updateCertificateImages,
   getCertificateImages,
   updateCameraToProject,
-  getProjectByProjectIndex
+  getProjectByProjectIndex,
+  getDeletedProcess,
+  getDeletedExpect,
+  getDeletedOutput
 } = require('../models/repositories/project.repo')
 const {
   addPlantFarming,
@@ -553,6 +556,17 @@ class ProjectService {
     }
 
     return { cameraIndex, startDate: startTime, endDate: endTime }
+  }
+
+  static async getDeletedItemInProject({ projectId }) {
+    if (!projectId) throw new BadRequestError('Missing project id')
+    if (!isValidObjectId(projectId)) throw new BadRequestError('Invalid project id')
+
+    const deletedProcess = await getDeletedProcess({ projectId })
+    const deletedExpect = await getDeletedExpect({ projectId })
+    const deletedOutput = await getDeletedOutput({ projectId })
+
+    return { deletedProcess, deletedExpect, deletedOutput }
   }
 }
 
