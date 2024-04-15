@@ -347,6 +347,39 @@ const getProjectByProjectIndex = async ({ projectIndex }) => {
   return projectInfo
 }
 
+const getDeletedProcess = async ({ projectId }) => {
+  const processes = await project
+    .findOne({ _id: new Types.ObjectId(projectId) })
+    .select(getSelectData(['process']))
+    .lean()
+    .exec()
+
+  const filteredProcesses = processes.process.filter((process) => process.isDeleted)
+  return filteredProcesses
+}
+
+const getDeletedExpect = async ({ projectId }) => {
+  const expect = await project
+    .findOne({ _id: new Types.ObjectId(projectId) })
+    .select(getSelectData(['expect']))
+    .lean()
+    .exec()
+
+  const filteredExpect = expect.expect.filter((expect) => expect.isDeleted)
+  return filteredExpect
+}
+
+const getDeletedOutput = async ({ projectId }) => {
+  const output = await project
+    .findOne({ _id: new Types.ObjectId(projectId) })
+    .select(getSelectData(['output']))
+    .lean()
+    .exec()
+
+  const filteredOutput = output.output.filter((output) => output.isDeleted)
+  return filteredOutput
+}
+
 module.exports = {
   getAllProjectsByFarm,
   initProject,
@@ -370,5 +403,8 @@ module.exports = {
   getCertificateImages,
   updateCertificateImages,
   updateCameraToProject,
-  getProjectByProjectIndex
+  getProjectByProjectIndex,
+  getDeletedProcess,
+  getDeletedExpect,
+  getDeletedOutput
 }
