@@ -247,6 +247,13 @@ class ProjectController {
       metadata: await ProjectService.getCameraIndexAndStartDateAndEndDate({ projectIndex: req.params.projectIndex })
     }).send(res)
   }
+
+  getDeletedItemInProject = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get DeletedItemInProject success!',
+      metadata: await ProjectService.getDeletedItemInProject({ projectId: req.params.projectId })
+    }).send(res)
+  }
   // END QUERY //
 }
 
