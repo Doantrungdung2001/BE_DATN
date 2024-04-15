@@ -461,7 +461,7 @@ class ProjectService {
     let objectDetections = []
     for (const cameraId of cameraIds) {
       const objectDetection = await getObjectDetectionByCameraIdAndTime({
-        cameraId: cameraId.toString(),
+        cameraId: cameraId._id.toString(),
         startTime,
         endTime
       })
