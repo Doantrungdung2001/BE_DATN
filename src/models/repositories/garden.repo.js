@@ -54,6 +54,7 @@ const getGardenById = async ({ gardenId }) => {
       path: 'gardenServiceRequest',
       populate: [{ path: 'herbList' }, { path: 'leafyList' }, { path: 'rootList' }, { path: 'fruitList' }]
     })
+    .populate('cameraIds')
     .exec()
 
   return foundGarden
@@ -336,6 +337,21 @@ const deleteClientRequest = async ({ gardenId, clientRequestId }) => {
   return modifiedCount
 }
 
+const updateCameraToGarden = async ({ gardenId, cameraId }) => {
+  const foundGarden = await garden
+    .findOne({
+      _id: new Types.ObjectId(gardenId)
+    })
+    .exec()
+  if (!foundGarden) return null
+
+  foundGarden.cameraIds = cameraId.map((cameraIdItem) => new Types.ObjectId(cameraIdItem))
+
+  await foundGarden.save()
+
+  return foundGarden
+}
+
 module.exports = {
   getAllGardensByFarm,
   getGardenById,
@@ -353,5 +369,6 @@ module.exports = {
   deleteDelivery,
   addClientRequest,
   updateClientRequest,
-  deleteClientRequest
+  deleteClientRequest,
+  updateCameraToGarden
 }

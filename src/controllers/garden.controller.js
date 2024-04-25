@@ -115,6 +115,17 @@ class GardenController {
     }).send(res)
   }
 
+  // update camera to garden
+  updateCameraToGarden = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Update Camera success!',
+      metadata: await GardenService.updateCameraToGarden({
+        gardenId: req.params.gardenId,
+        cameraId: req.body.cameraId
+      })
+    }).send(res)
+  }
+
   // QUERY //
 
   getAllGardensByFarm = async (req, res, next) => {
@@ -178,6 +189,15 @@ class GardenController {
     return new SuccessResponse({
       message: 'Get Deliveries success!',
       metadata: await GardenService.getDeliveriesByGarden({
+        gardenId: req.params.gardenId
+      })
+    }).send(res)
+  }
+
+  getCameraInGarden = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get Camera success!',
+      metadata: await GardenService.getCameraInGarden({
         gardenId: req.params.gardenId
       })
     }).send(res)

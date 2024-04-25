@@ -50,7 +50,8 @@ const gardenSchema = new Schema(
       type: String,
       enum: ['started', 'end', 'cancel'],
       default: 'started'
-    }
+    },
+    cameraIds: [{ type: Schema.Types.ObjectId, ref: 'Camera' }]
   },
   {
     collection: COLLECTION_NAME,

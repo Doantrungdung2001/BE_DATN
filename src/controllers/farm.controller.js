@@ -33,16 +33,6 @@ class FarmController {
       metadata: await FarmService.updateStatusFarm({ farmId: req.params.farmId, status: req.body.status })
     }).send(res)
   }
-
-  updateWalletAddress = async (req, res, next) => {
-    new SuccessResponse({
-      message: 'Update wallet address success!',
-      metadata: await FarmService.updateWalletAddress({
-        farmId: req.params.farmId,
-        walletAddress: req.body.walletAddress
-      })
-    }).send(res)
-  }
 }
 
 module.exports = new FarmController()

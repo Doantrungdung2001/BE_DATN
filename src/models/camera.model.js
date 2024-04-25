@@ -10,8 +10,6 @@ const cameraSchema = new Schema(
     name: String,
     rtsp_link: String,
     farm: { type: Schema.Types.ObjectId, ref: 'Farm' },
-    cameraIndex: Number,
-    tx: String,
     isDeleted: { type: Boolean, default: false },
     deletedAt: Date
   },

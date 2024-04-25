@@ -13,6 +13,7 @@ router.get('/:gardenId/process/:projectId', asyncHandler(gardenController.getPro
 router.get('/:gardenId/projects', asyncHandler(gardenController.getProjectsInfoByGarden))
 router.get('/:gardenId/clientRequest', asyncHandler(gardenController.getClientRequestsByGarden))
 router.get('/:gardenId/delivery', asyncHandler(gardenController.getDeliveriesByGarden))
+router.get('/:gardenId/camera', asyncHandler(gardenController.getCameraInGarden))
 router.get('/:gardenId', asyncHandler(gardenController.getGardenById))
 
 // Authentication
@@ -24,6 +25,8 @@ router.post('/:gardenId/addNewProject', asyncHandler(gardenController.addNewProj
 router.post('/:gardenId/delivery', asyncHandler(gardenController.addDelivery))
 router.patch('/:gardenId/delivery/:deliveryId', asyncHandler(gardenController.updateDelivery))
 router.delete('/:gardenId/delivery/:deliveryId', asyncHandler(gardenController.deleteDelivery))
+
+router.patch('/:gardenId/camera', asyncHandler(gardenController.updateCameraToGarden))
 
 router.post('/:gardenId/request', isClient, asyncHandler(gardenController.addClientRequest))
 router.patch('/:gardenId/request/:clientRequestId', isClient, asyncHandler(gardenController.updateClientRequest))

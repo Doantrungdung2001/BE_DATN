@@ -209,7 +209,6 @@ class GardenServiceRequestService {
         const projectItem = await initProject({
           farmId,
           project: projectData,
-          isGarden: true,
           status: 'inProgress',
           startDate: new Date()
         })

@@ -37,26 +37,18 @@ class CameraService {
       throw new BadRequestError('Invalid farm id')
     }
     if (!cameraData) throw new BadRequestError('Camera data is required')
-    const { name, rtsp_link, cameraIndex, tx } = cameraData
+    const { name, rtsp_link } = cameraData
     if (!name) {
       throw new BadRequestError('Camera name are required')
     }
     if (!rtsp_link) {
       throw new BadRequestError('Camera rtsp link is required')
     }
-    if (!cameraIndex && cameraIndex !== 0) {
-      throw new BadRequestError('Camera index is required')
-    }
-    if (!tx) {
-      throw new BadRequestError('Camera tx is required')
-    }
     const newCamera = await addCamera({
       cameraData: {
         farm: new Types.ObjectId(farmId),
         name,
-        rtsp_link,
-        cameraIndex,
-        tx
+        rtsp_link
       }
     })
     if (!newCamera) {
@@ -81,7 +73,7 @@ class CameraService {
       throw new BadRequestError('Camera does not belong to this farm')
     }
 
-    const { _id, farm, cameraIndex, tx, ...updateData } = cameraData
+    const { _id, farm, ...updateData } = cameraData
 
     const updatedCamera = await updateCamera({ cameraId, cameraData: updateData })
     if (!updatedCamera) {

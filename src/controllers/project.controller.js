@@ -11,7 +11,6 @@ class ProjectController {
       metadata: await ProjectService.initProject({
         project: req.body,
         farmId: req.user.userId,
-        isGarden: false,
         status: 'inProgress',
         startDate: new Date()
       })
@@ -86,104 +85,7 @@ class ProjectController {
     }).send(res)
   }
 
-  // add Expect
-  addExpect = async (req, res, next) => {
-    new SuccessResponse({
-      message: 'Add Expect success!',
-      metadata: await ProjectService.addExpect({
-        projectId: req.params.projectId,
-        expect: req.body
-      })
-    }).send(res)
-  }
-
-  // update Expect
-  updateExpect = async (req, res, next) => {
-    new SuccessResponse({
-      message: 'Update Expect success!',
-      metadata: await ProjectService.updateExpect({
-        projectId: req.params.projectId,
-        expectId: req.params.expectId,
-        expect: req.body
-      })
-    }).send(res)
-  }
-
-  // delete Expect
-  deleteExpect = async (req, res, next) => {
-    new SuccessResponse({
-      message: 'Delete Expect success!',
-      metadata: await ProjectService.deleteExpect({
-        projectId: req.params.projectId,
-        expectId: req.params.expectId
-      })
-    }).send(res)
-  }
-
-  // add Output
-  addOutput = async (req, res, next) => {
-    new SuccessResponse({
-      message: 'Add Output success!',
-      metadata: await ProjectService.addOutput({
-        projectId: req.params.projectId,
-        output: req.body,
-        farmId: req.user.userId
-      })
-    }).send(res)
-  }
-
-  // update Output
-  updateOutput = async (req, res, next) => {
-    new SuccessResponse({
-      message: 'Update Output success!',
-      metadata: await ProjectService.updateOutput({
-        projectId: req.params.projectId,
-        outputId: req.params.outputId,
-        output: req.body
-      })
-    }).send(res)
-  }
-
-  // delete Output
-  deleteOutput = async (req, res, next) => {
-    new SuccessResponse({
-      message: 'Delete Output success!',
-      metadata: await ProjectService.deleteOutput({
-        projectId: req.params.projectId,
-        outputId: req.params.outputId
-      })
-    }).send(res)
-  }
-
-  // update Certificate images
-  updateCertificateImages = async (req, res, next) => {
-    new SuccessResponse({
-      message: 'Update Certificate images success!',
-      metadata: await ProjectService.updateCertificateImages({
-        projectId: req.params.projectId,
-        certificateImages: req.body.images
-      })
-    }).send(res)
-  }
-
-  // update Camera to Project
-  updateCameraToProject = async (req, res, next) => {
-    new SuccessResponse({
-      message: 'Update Camera to Project success!',
-      metadata: await ProjectService.updateCameraToProject({
-        projectId: req.params.projectId,
-        cameraId: req.body.cameraId
-      })
-    }).send(res)
-  }
-
   // QUERY //
-  getAllProjectsByFarm = async (req, res, next) => {
-    return new SuccessResponse({
-      message: 'Get list getAllProjectsByFarm success!',
-      metadata: await ProjectService.getAllProjectsByFarm({ farmId: req.params.farmId, ...req.query })
-    }).send(res)
-  }
 
   getProjectInfo = async (req, res, next) => {
     return new SuccessResponse({
@@ -199,20 +101,6 @@ class ProjectController {
     }).send(res)
   }
 
-  getExpect = async (req, res, next) => {
-    return new SuccessResponse({
-      message: 'Get list getExpect success!',
-      metadata: await ProjectService.getExpect({ projectId: req.params.projectId })
-    }).send(res)
-  }
-
-  getOutput = async (req, res, next) => {
-    return new SuccessResponse({
-      message: 'Get list getOutput success!',
-      metadata: await ProjectService.getOutput({ projectId: req.params.projectId })
-    }).send(res)
-  }
-
   getPlantFarming = async (req, res, next) => {
     return new SuccessResponse({
       message: 'Get PlantFarming success!',
@@ -220,38 +108,10 @@ class ProjectController {
     }).send(res)
   }
 
-  getCertificateImages = async (req, res, next) => {
-    return new SuccessResponse({
-      message: 'Get CertificateImages success!',
-      metadata: await ProjectService.getCertificateImages({ projectId: req.params.projectId })
-    }).send(res)
-  }
-
   getProcessesWithObjectDetections = async (req, res, next) => {
     return new SuccessResponse({
       message: 'Get ProcessesWithObjectDetections success!',
       metadata: await ProjectService.getProcessWithObjectDetection({ projectId: req.params.projectId })
-    }).send(res)
-  }
-
-  getCameraInProject = async (req, res, next) => {
-    return new SuccessResponse({
-      message: 'Get CameraInProject success!',
-      metadata: await ProjectService.getCameraInProject({ projectId: req.params.projectId })
-    }).send(res)
-  }
-
-  getCameraIndexAndStartDateAndEndDate = async (req, res, next) => {
-    return new SuccessResponse({
-      message: 'Get CameraIndexAndStartDateAndEndDate success!',
-      metadata: await ProjectService.getCameraIndexAndStartDateAndEndDate({ projectIndex: req.params.projectIndex })
-    }).send(res)
-  }
-
-  getDeletedItemInProject = async (req, res, next) => {
-    return new SuccessResponse({
-      message: 'Get DeletedItemInProject success!',
-      metadata: await ProjectService.getDeletedItemInProject({ projectId: req.params.projectId })
     }).send(res)
   }
   // END QUERY //

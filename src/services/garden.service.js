@@ -16,7 +16,8 @@ const {
   addClientRequest,
   updateClientRequest,
   deleteClientRequest,
-  deleteGarden
+  deleteGarden,
+  updateCameraToGarden
 } = require('../models/repositories/garden.repo')
 const { MethodFailureError, BadRequestError, NotFoundError } = require('../core/error.response')
 const { isValidObjectId } = require('../utils')
@@ -98,6 +99,18 @@ class GardenService {
     return garden
   }
 
+  static async getCameraInGarden({ gardenId }) {
+    if (!gardenId) throw new BadRequestError('GardenId is required')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
+    // get camera in garden
+    const gardenItem = await getGardenById({ gardenId })
+    if (!gardenItem) {
+      throw new NotFoundError('Garden not found')
+    }
+    const camera = gardenItem.camera
+    return camera || []
+  }
+
   static async createGarden({
     farmId,
     clientId,
@@ -167,7 +180,7 @@ class GardenService {
       startDate
     }
 
-    const projectItem = await initProject({ farmId, project, isGarden: true, status: 'inProgress', startDate })
+    const projectItem = await initProject({ farmId, project, status: 'inProgress', startDate })
     if (!projectItem) {
       throw new MethodFailureError('Create project failed')
     }
@@ -429,6 +442,22 @@ class GardenService {
       throw new MethodFailureError('Delete clientRequest failed')
     }
     return modifiedCount
+  }
+
+  static async updateCameraToGarden({ gardenId, cameraId }) {
+    if (!gardenId) throw new BadRequestError('Missing garden id')
+    if (!cameraId) throw new BadRequestError('Missing camera id')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('Invalid garden id')
+    // cameraId is a list of Object id
+    if (!Array.isArray(cameraId)) throw new BadRequestError('Invalid camera id')
+    // check each item in cameraId is valid ObjectId
+    for (const id of cameraId) {
+      if (!isValidObjectId(id)) throw new BadRequestError('Invalid camera id')
+    }
+
+    const updatedGarden = await updateCameraToGarden({ gardenId, cameraId })
+    if (!updatedGarden) throw new MethodFailureError('Cannot update camera to garden')
+    return updatedGarden
   }
 }
 
