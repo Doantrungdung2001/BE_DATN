@@ -9,7 +9,7 @@ const dev = {
     host: process.env.DEV_DB_HOST || 'localhost',
     port: process.env.DEV_DB_PORT || 27017,
     name: process.env.DEV_DB_NAME || 'shopDEV',
-    user_name: process.env.DEV_DB_USERNAME || 'huy',
+    user_name: process.env.DEV_DB_USERNAME || 'dung',
     password: process.env.DEV_DB_PASSWORD || '12345678',
     MONGO_URI: process.env.DEV_MONGO_URI
   }
@@ -23,7 +23,7 @@ const pro = {
     host: process.env.PRO_DB_HOST || 'localhost',
     port: process.env.PRO_DB_PORT || 27017,
     name: process.env.PRO_DB_NAME || 'shopDEV',
-    user_name: process.env.PRO_DB_USERNAME || 'huy',
+    user_name: process.env.PRO_DB_USERNAME || 'dung',
     password: process.env.PRO_DB_PASSWORD || '12345678',
     MONGO_URI: process.env.PRO_MONGO_URI
   }

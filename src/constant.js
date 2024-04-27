@@ -1,3 +1,5 @@
-const admin_id = '65bf53967517b61da58eaaba'
+require('dotenv').config()
+const admin_id = process.env.ADMIN_ID
 
 module.exports = { admin_id }
+
