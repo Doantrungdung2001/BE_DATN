@@ -1,5 +1,6 @@
 const { Types } = require('mongoose')
 const {
+  getAllGardensByClient,
   getAllGardensByFarm,
   getGardenById,
   getProjectsInfoByGarden,
@@ -26,6 +27,15 @@ const { getSeedDefaultFromPlantId } = require('./seed.service')
 const { getPlantFarmingBySeedId } = require('./plantFarming.service')
 
 class GardenService {
+  static async getAllGardenByClient({ clientId, limit, sort, page }) {
+    if (!clientId) throw new BadRequestError('clientId is required')
+    if (!isValidObjectId(clientId)) throw new BadRequestError('clientId is not valid')
+    const filter = { client: new Types.ObjectId(clientId) }
+    const gardens = await getAllGardensByClient({ limit, sort, page, filter })
+
+    return gardens
+  }
+
   static async getAllGardensByFarm({ farmId, limit, sort, page }) {
     if (!farmId) throw new BadRequestError('FarmId is required')
     if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')

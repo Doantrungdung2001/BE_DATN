@@ -4,6 +4,44 @@ const { garden } = require('../../models/garden.model')
 const { Types } = require('mongoose')
 const { getSelectData, unGetSelectData } = require('../../utils/index')
 
+const getAllGardensByClient = async ({ limit, sort, page, filter } = {}) => {
+  let query = garden
+    .find(filter || {})
+    .populate('farm')
+    .populate('client')
+    .populate('gardenServiceTemplate')
+    .populate('gardenServiceRequest')
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: { path: 'herbList' }
+    })
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: { path: 'leafyList' }
+    })
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: { path: 'rootList' }
+    })
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: { path: 'fruitList' }
+    })
+
+  if (sort) {
+    const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
+    query = query.sort(sortBy)
+  }
+
+  if (page && limit) {
+    const skip = (page - 1) * limit
+    query = query.skip(skip).limit(limit)
+  }
+
+  const gardens = await query.lean().exec()
+  return gardens
+}
+
 const getAllGardensByFarm = async ({ limit, sort, page, filter } = {}) => {
   let query = garden
     .find(filter || {})
@@ -353,6 +391,7 @@ const updateCameraToGarden = async ({ gardenId, cameraId }) => {
 }
 
 module.exports = {
+  getAllGardensByClient,
   getAllGardensByFarm,
   getGardenById,
   getProjectsInfoByGarden,

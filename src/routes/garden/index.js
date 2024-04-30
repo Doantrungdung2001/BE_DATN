@@ -6,7 +6,7 @@ const asyncHandler = require('../../helpers/asyncHandler')
 const { authenticationV2, isClient } = require('../../auth/authUtils')
 
 const router = express.Router()
-
+router.get('/client/:clientId', asyncHandler(gardenController.getAllGardensByClient))
 router.get('/farm/:farmId', asyncHandler(gardenController.getAllGardensByFarm))
 router.get('/:gardenId/plantFarming/:projectId', asyncHandler(gardenController.getProjectPlantFarmingByGarden))
 router.get('/:gardenId/process/:projectId', asyncHandler(gardenController.getProjectProcessByGarden))

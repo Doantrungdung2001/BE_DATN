@@ -128,6 +128,15 @@ class GardenController {
 
   // QUERY //
 
+  getAllGardensByClient = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get list getAllGardenByClient success!',
+      metadata: await GardenService.getAllGardenByClient({
+        clientId: req.params.clientId,
+        ...req.query
+      })
+    }).send(res)
+  }
   getAllGardensByFarm = async (req, res, next) => {
     return new SuccessResponse({
       message: 'Get list getAllGardensByFarm success!',
