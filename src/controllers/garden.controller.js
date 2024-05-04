@@ -167,8 +167,17 @@ class GardenController {
 
   getProjectsPlantFarmingByGarden = async (req, res, next) => {
     return new SuccessResponse({
-      message: 'Get ProjectsInfo success!',
+      message: 'Get getProjectsPlantFarmingByGarden success!',
       metadata: await GardenService.getProjectsPlantFarmingByGarden({
+        gardenId: req.params.gardenId
+      })
+    }).send(res)
+  }
+
+  getProjectsProcessByGarden = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get getProjectsProcessByGarden success!',
+      metadata: await GardenService.getProjectsProcessByGarden({
         gardenId: req.params.gardenId
       })
     }).send(res)

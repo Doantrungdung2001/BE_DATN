@@ -5,6 +5,7 @@ const {
   getGardenById,
   getProjectsInfoByGarden,
   getProjectsPlantFarmingByGarden,
+  getProjectsProcessByGarden,
   getProjectPlantFarmingByGarden,
   getProjectProcessByGarden,
   getClientRequestsByGarden,
@@ -70,6 +71,16 @@ class GardenService {
     if (!gardenId) throw new BadRequestError('GardenId is required')
     if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
     const garden = await getProjectsPlantFarmingByGarden({ gardenId })
+    if (!garden) {
+      throw new NotFoundError('Garden not found')
+    }
+    return garden
+  }
+
+  static async getProjectsProcessByGarden({ gardenId }) {
+    if (!gardenId) throw new BadRequestError('GardenId is required')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
+    const garden = await getProjectsProcessByGarden({ gardenId })
     if (!garden) {
       throw new NotFoundError('Garden not found')
     }

@@ -137,6 +137,22 @@ const getProjectsPlantFarmingByGarden = async ({ gardenId }) => {
   return foundGarden.projects
 }
 
+const getProjectsProcessByGarden = async ({ gardenId }) => {
+  const foundGarden = await garden
+    .findOne({
+      _id: new Types.ObjectId(gardenId)
+    })
+    .populate({
+      path: 'projects',
+      populate: { path: 'plant' },
+      select: '_id plant seed startDate status process'
+    })
+    .exec()
+
+  return foundGarden.projects
+}
+
+
 const getProjectPlantFarmingByGarden = async ({ gardenId }) => {
   const foundGarden = await garden
     .findOne({
@@ -429,5 +445,6 @@ module.exports = {
   updateClientRequest,
   deleteClientRequest,
   updateCameraToGarden,
-  getProjectsPlantFarmingByGarden
+  getProjectsPlantFarmingByGarden,
+  getProjectsProcessByGarden
 }

@@ -12,6 +12,7 @@ router.get('/:gardenId/plantFarming/:projectId', asyncHandler(gardenController.g
 router.get('/:gardenId/process/:projectId', asyncHandler(gardenController.getProjectProcessByGarden))
 router.get('/:gardenId/projects', asyncHandler(gardenController.getProjectsInfoByGarden))
 router.get('/:gardenId/plantFarmingProjects', asyncHandler(gardenController.getProjectsPlantFarmingByGarden))
+router.get('/:gardenId/processProjects', asyncHandler(gardenController.getProjectsProcessByGarden))
 router.get('/:gardenId/clientRequest', asyncHandler(gardenController.getClientRequestsByGarden))
 router.get('/:gardenId/delivery', asyncHandler(gardenController.getDeliveriesByGarden))
 router.get('/:gardenId/camera', asyncHandler(gardenController.getCameraInGarden))
