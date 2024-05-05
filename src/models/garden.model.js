@@ -44,6 +44,7 @@ const gardenSchema = new Schema(
     gardenServiceRequest: { type: Schema.Types.ObjectId, ref: 'GardenServiceRequest' },
     note: String,
     startDate: Date,
+    endDate: Date,
     clientRequests: [clientRequestSchema],
     deliveries: [deliverySchema],
     status: {

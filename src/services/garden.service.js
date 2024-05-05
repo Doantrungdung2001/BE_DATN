@@ -27,8 +27,42 @@ const { isValidObjectId } = require('../utils')
 const { initProject, addPlantFarmingToProject, deleteProject } = require('./project.service')
 const { getSeedDefaultFromPlantId } = require('./seed.service')
 const { getPlantFarmingBySeedId } = require('./plantFarming.service')
+const { getObjectDetectionByCameraIdAndTime } = require('./objectDetection.service')
 
 class GardenService {
+  static async getObjectsDetectionByGardenId({ gardenId }) {
+    if (!gardenId) throw new BadRequestError('GardenId is required')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
+    const garden = await getGardenById({ gardenId })
+    if (!garden) {
+      throw new NotFoundError('Garden not found')
+    }
+    const cameraIds = garden.cameraIds
+    const startDate = garden.startDate
+    const endDate = garden.endDate || new Date()
+
+    const objectDetectionList = []
+    for (const cameraId of cameraIds) {
+      const objectDetection = await getObjectDetectionByCameraIdAndTime({ cameraId, startTime: startDate, endTime: endDate })
+      objectDetectionList.push(...objectDetection)
+    }
+
+    // transform objectDetectionList to formatedObjectDetectionList with format [{date, objectDetections}] with objectDetections is array of objectDetection with same date of start_time
+    const formatedObjectDetectionList = []
+    for (const objectDetection of objectDetectionList) {
+      console.log("objectDetection", objectDetection)
+        const date = objectDetection.start_time.toLocaleDateString()
+        const index = formatedObjectDetectionList.findIndex((item) => item.date === date)
+        if (index === -1) {
+          formatedObjectDetectionList.push({ date, objectDetections: [objectDetection] })
+        } else {
+          formatedObjectDetectionList[index].objectDetections.push(objectDetection)
+        }
+    }
+
+    return formatedObjectDetectionList
+  }
+
   static async getAllGardenByClient({ clientId, limit, sort, page }) {
     if (!clientId) throw new BadRequestError('clientId is required')
     if (!isValidObjectId(clientId)) throw new BadRequestError('clientId is not valid')
@@ -155,6 +189,7 @@ class GardenService {
     if (!gardenServiceTemplateId) throw new BadRequestError('GardenServiceTemplateId is required')
     if (!isValidObjectId(gardenServiceTemplateId)) throw new BadRequestError('GardenServiceTemplateId is not valid')
     if (!startDate) throw new BadRequestError('StartDate is required')
+    const endDate = null
     const status = 'started'
     const garden = await createGarden({
       farmId,
@@ -163,6 +198,7 @@ class GardenService {
       gardenServiceTemplateId,
       gardenServiceRequestId,
       startDate,
+      endDate,
       note,
       status
     })
@@ -257,10 +293,16 @@ class GardenService {
     if (gardenItem.farm._id.toString() !== farmId) {
       throw new BadRequestError('Not permission to update garden status')
     }
-    const garden = await updateGardenStatus({ gardenId, status })
+    const endDate = null
+    if(status === 'end') {
+      endDate = new Date()
+    }
+    const garden = await updateGardenStatus({ gardenId, status, endDate })
     if (!garden) {
       throw new MethodFailureError('Update garden status failed')
     }
+
+    
     return garden
   }
 

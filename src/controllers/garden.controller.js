@@ -229,6 +229,15 @@ class GardenController {
       })
     }).send(res)
   }
+
+  getObjectsDetectionByGardenId = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get ObjectsDetection success!',
+      metadata: await GardenService.getObjectsDetectionByGardenId({
+        gardenId: req.params.gardenId
+      })
+    }).send(res)
+  }
 }
 
 module.exports = new GardenController()

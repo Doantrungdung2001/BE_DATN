@@ -16,6 +16,7 @@ router.get('/:gardenId/processProjects', asyncHandler(gardenController.getProjec
 router.get('/:gardenId/clientRequest', asyncHandler(gardenController.getClientRequestsByGarden))
 router.get('/:gardenId/delivery', asyncHandler(gardenController.getDeliveriesByGarden))
 router.get('/:gardenId/camera', asyncHandler(gardenController.getCameraInGarden))
+router.get('/:gardenId/objectDetections', asyncHandler(gardenController.getObjectsDetectionByGardenId))
 router.get('/:gardenId', asyncHandler(gardenController.getGardenById))
 
 // Authentication

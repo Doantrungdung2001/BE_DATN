@@ -106,12 +106,12 @@ const getProjectsInfoByGarden = async ({ gardenId }) => {
     .populate({
       path: 'projects',
       populate: { path: 'plant' },
-      select: '_id plant seed startDate status'
+      select: '_id plant seed startDate status endDate'
     })
     .populate({
       path: 'projects',
       populate: { path: 'seed' },
-      select: '_id plant seed startDate status'
+      select: '_id plant seed startDate status endDate'
     })
     .exec()
 
@@ -126,7 +126,7 @@ const getProjectsPlantFarmingByGarden = async ({ gardenId }) => {
     .populate({
       path: 'projects',
       populate: { path: 'plant' },
-      select: '_id plant seed startDate status'
+      select: '_id plant seed startDate status endDate'
     })
     .populate({
       path: 'projects',
@@ -145,7 +145,7 @@ const getProjectsProcessByGarden = async ({ gardenId }) => {
     .populate({
       path: 'projects',
       populate: { path: 'plant' },
-      select: '_id plant seed startDate status process'
+      select: '_id plant seed startDate status process endDate'
     })
     .exec()
 
@@ -223,6 +223,7 @@ const createGarden = async ({
   gardenServiceRequestId,
   note,
   startDate,
+  endDate,
   status
 }) => {
   const newGarden = new garden({
@@ -233,6 +234,7 @@ const createGarden = async ({
     gardenServiceRequest: new Types.ObjectId(gardenServiceRequestId),
     note,
     startDate,
+    endDate,
     status
   })
 
@@ -261,7 +263,7 @@ const addNewProjectToGarden = async ({ gardenId, projectId }) => {
   return foundGarden
 }
 
-const updateGardenStatus = async ({ gardenId, status }) => {
+const updateGardenStatus = async ({ gardenId, status, endDate }) => {
   const foundGarden = await garden
     .findOne({
       _id: new Types.ObjectId(gardenId)
@@ -270,6 +272,7 @@ const updateGardenStatus = async ({ gardenId, status }) => {
 
   if (!foundGarden) return null
   foundGarden.status = status
+  foundGarden.endDate = endDate
 
   await foundGarden.save()
 
