@@ -18,7 +18,9 @@ const farmSchema = new Schema(
       enum: ['active', 'inactive'],
       default: 'active'
     },
-    avatar: [String],
+    avatar: {
+      type: String
+    },
     phone: [String],
     email: [String],
     description: {
