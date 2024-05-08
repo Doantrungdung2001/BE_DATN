@@ -34,13 +34,14 @@ class FarmService {
       throw new BadRequestError('Farm is required')
     }
 
-    const { name, description, status, district, address, images, lat, lng, phone, email } = farm
+    const { name, description, status, district, address, images, lat, lng, phone, email, name_slug, avatar } = farm
 
     return await updateFarm({
       farmId,
       farmInfo: removeUndefinedObject({
         name,
         description,
+        name_slug,
         status,
         district,
         address,
@@ -48,7 +49,8 @@ class FarmService {
         lat,
         lng,
         phone,
-        email
+        email,
+        avatar
       })
     })
   }
@@ -72,7 +74,9 @@ class FarmService {
           createdAt: farm.createdAt,
           email: user.email,
           roles: user.roles[0],
-          walletAddress: farm.walletAddress
+          lat: farm.lat,
+          lng: farm.lng,
+          avatar: farm.avatar
         }
       })
     )
