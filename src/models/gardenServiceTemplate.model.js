@@ -23,6 +23,9 @@ const gardenServiceTemplateSchema = new Schema(
     leafyMax: Number,
     rootMax: Number,
     fruitMax: Number,
+    avatarGarden: {
+      type: String
+    },
     isDeleted: {
       type: Boolean,
       default: false
