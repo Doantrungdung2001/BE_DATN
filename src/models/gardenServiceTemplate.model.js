@@ -8,6 +8,12 @@ const COLLECTION_NAME = 'GardenServiceTemplates'
 const gardenServiceTemplateSchema = new Schema(
   {
     farm: { type: Schema.Types.ObjectId, ref: 'Farm' },
+    quantity: Number,
+    status: {
+      type: String,
+      enum: ['active', 'inactive'],
+      default: 'active'
+    },
     square: Number,
     expectDeliveryPerWeek: Number,
     expectedOutput: Number,
