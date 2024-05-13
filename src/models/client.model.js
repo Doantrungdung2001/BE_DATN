@@ -15,8 +15,10 @@ const clientSchema = new Schema(
     name: String,
     phone: String,
     address: String,
+    email: String,
     map: Object,
     district: String,
+    birthDate: Date,
     history: [scanHistory],
     status: {
       type: String,
