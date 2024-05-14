@@ -10,7 +10,7 @@ const {
 } = require('../models/repositories/plant.repo')
 const { updateNestedObjectParser, removeUndefinedObject, isValidObjectId } = require('../utils')
 const { BadRequestError, MethodFailureError, NotFoundError } = require('../core/error.response')
-const { getAllPlantFarmingByPlant } = require('./plantFarming.service')
+const { getAllPlantFarmingByPlant } = require('../models/repositories/plantFarming.repo')
 
 class PlantService {
   static async searchPlantByUser({ keySearch }) {
@@ -33,7 +33,12 @@ class PlantService {
 
     // Lặp qua mỗi cây trồng để lấy danh sách plantFarming tương ứng
     const plantsWithTimeCultivatives = await Promise.all(plants.map(async (plant) => {
-        const plantFarmings = await getAllPlantFarmingByPlant({ plantId: plant._id });
+      const filter = {
+        plant: new Types.ObjectId(plant._id),
+        isPlantFarmingDefault: true,
+        $or: [{ isDeleted: { $exists: false } }, { isDeleted: false }]
+      }
+        const plantFarmings = await getAllPlantFarmingByPlant({ filter });
 
         // Lấy trường timeCultivatives từ mỗi plantFarming
         const timeCultivatives = plantFarmings.map(farming => farming.timeCultivates);
