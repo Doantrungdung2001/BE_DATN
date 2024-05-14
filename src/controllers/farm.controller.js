@@ -33,6 +33,20 @@ class FarmController {
       metadata: await FarmService.updateStatusFarm({ farmId: req.params.farmId, status: req.body.status })
     }).send(res)
   }
+
+  searchFarms = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Search Farm success!',
+      metadata: await FarmService.searchFarms(
+        { 
+          priceRange: req.body.priceRange, 
+          squareRange: req.body.squareRange,
+          plantNames: req.body.plantNames,
+          district: req.body.district
+       }
+      )
+    }).send(res)
+  }
 }
 
 module.exports = new FarmController()

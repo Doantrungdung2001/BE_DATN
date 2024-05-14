@@ -8,6 +8,7 @@ const router = express.Router()
 
 router.get('/:farmId', asyncHandler(farmController.getFarm))
 router.get('/', asyncHandler(farmController.getAllFarms))
+router.post('/search', asyncHandler(farmController.searchFarms))
 // Authentication
 router.use(authenticationV2)
 //////////

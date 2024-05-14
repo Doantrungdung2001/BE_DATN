@@ -10,6 +10,7 @@ const {
 } = require('../models/repositories/plant.repo')
 const { updateNestedObjectParser, removeUndefinedObject, isValidObjectId } = require('../utils')
 const { BadRequestError, MethodFailureError, NotFoundError } = require('../core/error.response')
+const { getAllPlantFarmingByPlant } = require('./plantFarming.service')
 
 class PlantService {
   static async searchPlantByUser({ keySearch }) {
@@ -17,13 +18,35 @@ class PlantService {
   }
 
   static async getAllPlantsByFarm({ farmId, limit, sort, page }) {
-    if (!farmId) throw new BadRequestError('FarmId is required')
-    if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid')
-    const filter = { farm: new Types.ObjectId(farmId), $or: [{ isDeleted: { $exists: false } }, { isDeleted: false }] }
-    const plants = await getAllPlantsByFarm({ limit, sort, page, filter })
+    if (!farmId) throw new BadRequestError('FarmId is required');
+    if (!isValidObjectId(farmId)) throw new BadRequestError('FarmId is not valid');
+    
+    const filter = { farm: new Types.ObjectId(farmId), $or: [{ isDeleted: { $exists: false } }, { isDeleted: false }] };
+    
+    // Lấy danh sách các cây trồng từ trang trại
+    const plants = await getAllPlantsByFarm({ limit, sort, page, filter });
 
-    return plants
-  }
+    // Kiểm tra nếu không có cây trồng nào thì trả về danh sách trống
+    if (!plants || plants.length === 0) {
+        return [];
+    }
+
+    // Lặp qua mỗi cây trồng để lấy danh sách plantFarming tương ứng
+    const plantsWithTimeCultivatives = await Promise.all(plants.map(async (plant) => {
+        const plantFarmings = await getAllPlantFarmingByPlant({ plantId: plant._id });
+
+        // Lấy trường timeCultivatives từ mỗi plantFarming
+        const timeCultivatives = plantFarmings.map(farming => farming.timeCultivates);
+
+        // Thêm trường timeCultivatives vào đối tượng plant
+        return {
+            ...plant,
+            timeCultivatives
+        };
+    }));
+
+    return plantsWithTimeCultivatives;
+}
 
   static async getPlantByPlantId({ plantId }) {
     if (!plantId) throw new BadRequestError('PlantId is required')

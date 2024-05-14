@@ -4,6 +4,9 @@ const { findFarmByEmail, getFarm, updateFarm, getAllFarms } = require('../models
 const { BadRequestError, MethodFailureError } = require('../core/error.response')
 const { removeUndefinedObject, isValidObjectId } = require('../utils')
 const { findUserByEmail, getUser } = require('./user.service')
+const { plant } = require('../models/plant.model')
+const { gardenServiceTemplate } = require('../models/gardenServiceTemplate.model')
+const { farm } = require('../models/farm.model')
 
 class FarmService {
   static async findByEmail({ email }) {
@@ -110,6 +113,46 @@ class FarmService {
 
     return updatedFarm
   }
+
+  static async searchFarms({ priceRange, squareRange, plantNames, district }) {
+    const filter = {};
+
+    // Filter theo tỉnh
+    if (district) {
+        filter.district = district;
+    }
+
+    // Tìm các farmId dựa trên bộ lọc GardenServiceTemplate
+    const gardenServiceFilter = {};
+
+    if (priceRange) {
+        gardenServiceFilter.price = { $gte: priceRange.min, $lte: priceRange.max };
+    }
+
+    if (squareRange) {
+        gardenServiceFilter.square = { $gte: squareRange.min, $lte: squareRange.max };
+    }
+
+    const gardenServices = await gardenServiceTemplate.find(gardenServiceFilter).select('farm');
+    const farmIdsFromGardenService = gardenServices.map(gs => gs.farm);
+    console.log("farmIdsFromGardenService", farmIdsFromGardenService)
+
+    // Filter theo cây trồng
+    if (plantNames && plantNames.length > 0) {
+        const plants = await plant.find({ plant_name: { $in: plantNames } }).select('farm');
+        const farmIdsFromPlants = plants.map(plant => plant.farm);
+        const farmIdsFromPlantsString = farmIdsFromPlants.map(id => id.toString())
+
+        filter._id = { $in: farmIdsFromGardenService.filter(farmId => farmIdsFromPlantsString.includes(farmId.toString())) };
+
+        console.log("farmIdsFromPlants", farmIdsFromPlants)
+    } else {
+        filter._id = { $in: farmIdsFromGardenService };
+    }
+
+    const farms = await farm.find(filter);
+    return farms;
+};
 }
 
 module.exports = FarmService
