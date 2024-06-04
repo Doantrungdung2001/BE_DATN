@@ -52,6 +52,15 @@ class GardenServiceRequestService {
 
     return gardenServiceRequests
   }
+  //CLIENT
+  static async getAllGardenServiceRequestsWaitingByClient({ clientId, limit, sort, page }) {
+    if (!clientId) throw new BadRequestError('clientId is required')
+    if (!isValidObjectId(clientId)) throw new BadRequestError('clientId is not valid')
+    const filter = { client: new Types.ObjectId(clientId), status: 'waiting' }
+    const gardenServiceRequests = await getAllGardenServiceRequestsByFarm({ limit, sort, page, filter })
+
+    return gardenServiceRequests
+  }
 
   static async getGardenServiceRequestByGardenServiceRequestId({ gardenServiceRequestId }) {
     if (!gardenServiceRequestId) throw new BadRequestError('GardenServiceRequestId is required')

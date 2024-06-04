@@ -110,6 +110,18 @@ class GardenServiceRequestController {
       })
     }).send(res)
   }
+
+  //CLIENT
+
+  getAllGardenServiceRequestsWaitingByClient = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get list getAllGardenServiceRequestsWaitingByClient success!',
+      metadata: await GardenServiceRequestService.getAllGardenServiceRequestsRejectedByFarm({
+        farmId: req.user.userId,
+        ...req.query
+      })
+    }).send(res)
+  }
 }
 
 module.exports = new GardenServiceRequestController()

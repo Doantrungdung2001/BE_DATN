@@ -29,6 +29,10 @@ router.get(
 router.use(authenticationV2)
 ////////////
 router.post('/', isClient, asyncHandler(gardenServiceRequestController.addGardenServiceRequest))
+router.get(
+  '/user/waiting',
+  asyncHandler(gardenServiceRequestController.getAllGardenServiceRequestsWaitingByClient)
+)
 router.patch(
   '/:gardenServiceRequestId',
   isClient,
