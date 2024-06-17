@@ -116,8 +116,8 @@ class GardenServiceRequestController {
   getAllGardenServiceRequestsWaitingByClient = async (req, res, next) => {
     return new SuccessResponse({
       message: 'Get list getAllGardenServiceRequestsWaitingByClient success!',
-      metadata: await GardenServiceRequestService.getAllGardenServiceRequestsRejectedByFarm({
-        farmId: req.user.userId,
+      metadata: await GardenServiceRequestService.getAllGardenServiceRequestsWaitingByClient({
+        clientId: req.user.userId,
         ...req.query
       })
     }).send(res)

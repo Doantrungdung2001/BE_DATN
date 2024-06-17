@@ -29,6 +29,30 @@ const getAllGardenServiceRequestsByFarm = async ({ limit, sort, page, filter } =
   return gardenServiceRequests
 }
 
+const getAllGardenServiceRequestsByClient = async ({ limit, sort, page, filter } = {}) => {
+  let query = gardenServiceRequest
+    .find(filter || {})
+    .populate('farm')
+    .populate('gardenServiceTemplate')
+    .populate('herbList')
+    .populate('leafyList')
+    .populate('rootList')
+    .populate('fruitList')
+
+  if (sort) {
+    const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
+    query = query.sort(sortBy)
+  }
+
+  if (page && limit) {
+    const skip = (page - 1) * limit
+    query = query.skip(skip).limit(limit)
+  }
+
+  const gardenServiceRequests = await query.lean().exec()
+  return gardenServiceRequests
+}
+
 const getGardenServiceRequestByGardenServiceRequestId = async ({ gardenServiceRequestId }, unSelect = ['__v']) => {
   return await gardenServiceRequest
     .findById(gardenServiceRequestId)
@@ -114,6 +138,7 @@ const deleteGardenServiceRequest = async ({ gardenServiceRequestId }) => {
 
 module.exports = {
   getAllGardenServiceRequestsByFarm,
+  getAllGardenServiceRequestsByClient,
   getGardenServiceRequestByGardenServiceRequestId,
   addGardenServiceRequest,
   updateGardenServiceRequest,
