@@ -8,8 +8,9 @@ const { authenticationV2, isAdmin } = require('../../auth/authUtils')
 const router = express.Router()
 
 router.use(authenticationV2)
-router.get('/', isAdmin, asyncHandler(clientController.getAllClients))
 router.get('/:clientId', asyncHandler(clientController.getClientById))
+
+router.get('/', isAdmin, asyncHandler(clientController.getAllClients))
 
 router.patch('/admin/:clientId', isAdmin, asyncHandler(clientController.updateClientByAdmin))
 router.delete('/admin/:clientId', isAdmin, asyncHandler(clientController.deleteClient))
