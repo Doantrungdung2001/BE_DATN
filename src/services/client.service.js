@@ -1,5 +1,6 @@
 const { Types } = require('mongoose')
 const { getClientById, getAllClients, updateClient, deleteClient } = require('../models/repositories/client.repo')
+const { getUser } = require('./user.service')
 const { MethodFailureError, BadRequestError, NotFoundError } = require('../core/error.response')
 const { isValidObjectId } = require('../utils')
 
@@ -11,8 +12,16 @@ class ClientService {
     }
 
     const foundClient = await getClientById({ clientId })
-    if (!foundClient) {
-      throw new NotFoundError('Client not found')
+    // if (!foundClient) {
+    //   throw new NotFoundError('Client not found')
+    // }
+    if (foundClient) {
+      const user = await getUser({ userId: clientId });
+      if (user && user.email) {
+        foundClient.email = user.email;
+      } else {
+        throw new NotFoundError('Email not found for user');
+      }
     }
 
     return foundClient

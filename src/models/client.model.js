@@ -5,10 +5,6 @@ const { Schema, model } = require('mongoose')
 const DOCUMENT_NAME = 'Client'
 const COLLECTION_NAME = 'Clients'
 
-const scanHistory = new Schema({
-  qr: { type: Schema.Types.ObjectId, ref: 'QR' },
-  time: Date
-})
 
 const clientSchema = new Schema(
   {
@@ -19,7 +15,6 @@ const clientSchema = new Schema(
     map: Object,
     district: String,
     birthDate: Date,
-    history: [scanHistory],
     status: {
       type: String,
       enum: ['active', 'inactive'],

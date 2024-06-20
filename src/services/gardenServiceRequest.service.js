@@ -1,6 +1,7 @@
 const { Types } = require('mongoose')
 const {
   getAllGardenServiceRequestsByFarm,
+  getAllGardenServiceRequestsByClient,
   getGardenServiceRequestByGardenServiceRequestId,
   addGardenServiceRequest,
   updateGardenServiceRequest,
@@ -57,7 +58,7 @@ class GardenServiceRequestService {
     if (!clientId) throw new BadRequestError('clientId is required')
     if (!isValidObjectId(clientId)) throw new BadRequestError('clientId is not valid')
     const filter = { client: new Types.ObjectId(clientId), status: 'waiting' }
-    const gardenServiceRequests = await getAllGardenServiceRequestsByFarm({ limit, sort, page, filter })
+    const gardenServiceRequests = await getAllGardenServiceRequestsByClient({ limit, sort, page, filter })
 
     return gardenServiceRequests
   }
