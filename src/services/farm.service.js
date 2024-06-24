@@ -1,6 +1,6 @@
 'use strict'
 const { Types } = require('mongoose')
-const { findFarmByEmail, getFarm, updateFarm, getAllFarms } = require('../models/repositories/farm.repo')
+const { findFarmByEmail, getFarm, updateFarm, getAllFarms, deleteFarm } = require('../models/repositories/farm.repo')
 const { BadRequestError, MethodFailureError } = require('../core/error.response')
 const { removeUndefinedObject, isValidObjectId } = require('../utils')
 const { findUserByEmail, getUser } = require('./user.service')
@@ -115,44 +115,64 @@ class FarmService {
   }
 
   static async searchFarms({ priceRange, squareRange, plantNames, district }) {
-    const filter = {};
+    const filter = {}
 
     // Filter theo tỉnh
     if (district) {
-        filter.district = district;
+      filter.district = district
     }
 
     // Tìm các farmId dựa trên bộ lọc GardenServiceTemplate
-    const gardenServiceFilter = {};
+    const gardenServiceFilter = {}
 
     if (priceRange) {
-        gardenServiceFilter.price = { $gte: priceRange.min, $lte: priceRange.max };
+      gardenServiceFilter.price = { $gte: priceRange.min, $lte: priceRange.max }
     }
 
     if (squareRange) {
-        gardenServiceFilter.square = { $gte: squareRange.min, $lte: squareRange.max };
+      gardenServiceFilter.square = { $gte: squareRange.min, $lte: squareRange.max }
     }
 
-    const gardenServices = await gardenServiceTemplate.find(gardenServiceFilter).select('farm');
-    const farmIdsFromGardenService = gardenServices.map(gs => gs.farm);
-    console.log("farmIdsFromGardenService", farmIdsFromGardenService)
+    const gardenServices = await gardenServiceTemplate.find(gardenServiceFilter).select('farm')
+    const farmIdsFromGardenService = gardenServices.map((gs) => gs.farm)
+    console.log('farmIdsFromGardenService', farmIdsFromGardenService)
 
     // Filter theo cây trồng
     if (plantNames && plantNames.length > 0) {
-        const plants = await plant.find({ plant_name: { $in: plantNames } }).select('farm');
-        const farmIdsFromPlants = plants.map(plant => plant.farm);
-        const farmIdsFromPlantsString = farmIdsFromPlants.map(id => id.toString())
+      const plants = await plant.find({ plant_name: { $in: plantNames } }).select('farm')
+      const farmIdsFromPlants = plants.map((plant) => plant.farm)
+      const farmIdsFromPlantsString = farmIdsFromPlants.map((id) => id.toString())
 
-        filter._id = { $in: farmIdsFromGardenService.filter(farmId => farmIdsFromPlantsString.includes(farmId.toString())) };
+      filter._id = {
+        $in: farmIdsFromGardenService.filter((farmId) => farmIdsFromPlantsString.includes(farmId.toString()))
+      }
 
-        console.log("farmIdsFromPlants", farmIdsFromPlants)
+      console.log('farmIdsFromPlants', farmIdsFromPlants)
     } else {
-        filter._id = { $in: farmIdsFromGardenService };
+      filter._id = { $in: farmIdsFromGardenService }
     }
 
-    const farms = await farm.find(filter);
-    return farms;
-};
+    const farms = await farm.find(filter)
+    return farms
+  }
+
+  static async deleteFarm({ farmId }) {
+    if (!farmId) {
+      throw new BadRequestError('Farm ID is required')
+    }
+    if (!isValidObjectId(farmId)) {
+      throw new BadRequestError('Farm ID is invalid')
+    }
+    const farm = await getFarm(farmId)
+    if (!farm) {
+      throw new NotFoundError('Farm not found')
+    }
+    const deleteFarmbyId = await deleteFarm(farmId)
+    if (!deleteFarmbyId) {
+      throw new MethodFailureError('Delete farm failed')
+    }
+    return deleteFarmbyId
+  }
 }
 
 module.exports = FarmService

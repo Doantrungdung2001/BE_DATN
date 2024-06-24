@@ -47,6 +47,13 @@ class FarmController {
       )
     }).send(res)
   }
+
+  deleteFarm = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Delete Farm success!',
+      metadata: await FarmService.deleteFarm({ farmId: req.params.farmId })
+    }).send(res)
+  }
 }
 
 module.exports = new FarmController()

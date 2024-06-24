@@ -17,5 +17,5 @@ router.patch('/', asyncHandler(farmController.updateFarm))
 
 router.patch('/:farmId/status', isAdmin, asyncHandler(farmController.updateStatusFarm))
 router.patch('/:farmId/walletAddress', isAdmin, asyncHandler(farmController.updateWalletAddress))
-
+router.delete('/:farmId', asyncHandler(farmController.deleteFarm))
 module.exports = router
