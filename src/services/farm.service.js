@@ -163,7 +163,7 @@ class FarmService {
     if (!isValidObjectId(farmId)) {
       throw new BadRequestError('Farm ID is invalid')
     }
-    const farm = await getFarm(farmId)
+    const farm = await getFarm({ farmId })
     if (!farm) {
       throw new NotFoundError('Farm not found')
     }
