@@ -94,6 +94,8 @@ class CameraService {
       throw new NotFoundError('Camera not found')
     }
 
+    console.log('Du lieu camera', foundCamera, farmId)
+
     if (foundCamera.farm._id.toString() !== farmId) {
       throw new BadRequestError('Camera does not belong to this farm')
     }
