@@ -33,9 +33,18 @@ const getAllFarms = async () => {
   return await farm.find().lean().exec()
 }
 
+const deleteFarm = async (farmId) => {
+  const bodyUpdate = {
+    isDeleted: true,
+    deletedAt: new Date()
+  }
+  return await farm.findByIdAndUpdate(farmId, bodyUpdate, { new: true }).exec()
+}
+
 module.exports = {
   getFarm,
   findFarmByEmail,
   updateFarm,
-  getAllFarms
+  getAllFarms,
+  deleteFarm,
 }
