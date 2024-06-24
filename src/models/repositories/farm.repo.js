@@ -34,11 +34,13 @@ const getAllFarms = async () => {
 }
 
 const deleteFarm = async (farmId) => {
-  const bodyUpdate = {
-    isDeleted: true,
-    deletedAt: new Date()
-  }
-  return await farm.findByIdAndUpdate(farmId, bodyUpdate, { new: true }).exec()
+  // const bodyUpdate = {
+  //   isDeleted: true,
+  //   deletedAt: new Date()
+  // }
+  // return await farm.findByIdAndUpdate(farmId, bodyUpdate, { new: true }).exec()
+  const deletedFarm = await farm.findByIdAndDelete(farmId).exec();
+    return deletedFarm;
 }
 
 module.exports = {
