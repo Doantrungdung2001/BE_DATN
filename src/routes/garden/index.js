@@ -6,6 +6,7 @@ const asyncHandler = require('../../helpers/asyncHandler')
 const { authenticationV2, isClient } = require('../../auth/authUtils')
 
 const router = express.Router()
+router.get('/client/:clientId/delivery', asyncHandler(gardenController.getDeliveriesByClient))
 router.get('/client/:clientId', asyncHandler(gardenController.getAllGardensByClient))
 router.get('/farm/:farmId', asyncHandler(gardenController.getAllGardensByFarm))
 router.get('/:gardenId/plantFarming/:projectId', asyncHandler(gardenController.getProjectPlantFarmingByGarden))
@@ -15,6 +16,7 @@ router.get('/:gardenId/plantFarmingProjects', asyncHandler(gardenController.getP
 router.get('/:gardenId/processProjects', asyncHandler(gardenController.getProjectsProcessByGarden))
 router.get('/:gardenId/clientRequest', asyncHandler(gardenController.getClientRequestsByGarden))
 router.get('/:gardenId/delivery', asyncHandler(gardenController.getDeliveriesByGarden))
+
 router.get('/:gardenId/camera', asyncHandler(gardenController.getCameraInGarden))
 router.get('/:gardenId/objectDetections', asyncHandler(gardenController.getObjectsDetectionByGardenId))
 router.get('/:gardenId', asyncHandler(gardenController.getGardenById))
@@ -22,7 +24,6 @@ router.get('/:gardenId', asyncHandler(gardenController.getGardenById))
 // Authentication
 router.use(authenticationV2)
 ////////////
-
 router.post('/:gardenId/addNewProject', asyncHandler(gardenController.addNewProjectToGarden))
 
 router.post('/:gardenId/delivery', asyncHandler(gardenController.addDelivery))

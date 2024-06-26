@@ -221,6 +221,16 @@ class GardenController {
     }).send(res)
   }
 
+  getDeliveriesByClient = async (req, res, next) => {
+    return new SuccessResponse({
+      message: 'Get All Deliveries by Client success!',
+      metadata: await GardenService.getAllDeliveriesByClient({
+        clientId: req.params.clientId,
+        ...req.query
+      })
+    }).send(res)
+  }
+
   getCameraInGarden = async (req, res, next) => {
     return new SuccessResponse({
       message: 'Get Camera success!',
