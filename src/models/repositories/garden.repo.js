@@ -92,7 +92,7 @@ const getGardenById = async ({ gardenId }) => {
       path: 'gardenServiceRequest',
       populate: [{ path: 'herbList' }, { path: 'leafyList' }, { path: 'rootList' }, { path: 'fruitList' }]
     })
-    .populate('cameraIds')
+    // .populate('cameraIds')
     .exec()
 
   return foundGarden
@@ -130,7 +130,7 @@ const getProjectsPlantFarmingByGarden = async ({ gardenId }) => {
     })
     .populate({
       path: 'projects',
-      populate: { path: 'plantFarming' },
+      populate: { path: 'plantFarming' }
     })
     .exec()
 
@@ -151,7 +151,6 @@ const getProjectsProcessByGarden = async ({ gardenId }) => {
 
   return foundGarden.projects
 }
-
 
 const getProjectPlantFarmingByGarden = async ({ gardenId }) => {
   const foundGarden = await garden
@@ -211,9 +210,50 @@ const getDeliveriesByGarden = async ({ gardenId }) => {
       populate: { path: 'deliveryDetails.plant' }
     })
     .exec()
-
   return foundGarden.deliveries
 }
+
+const getAllDeliveriesByClient = async ({ limit, sort, page, filter } = {}) => {
+  let query = garden
+    .find(filter || {})
+    .populate('farm')
+    .populate('client')
+    .populate('gardenServiceRequest')
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: { path: 'herbList' }
+    })
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: { path: 'leafyList' }
+    })
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: { path: 'rootList' }
+    })
+    .populate({
+      path: 'gardenServiceRequest',
+      populate: { path: 'fruitList' }
+    })
+    .populate({
+      path: 'deliveries',
+      populate: { path: 'deliveryDetails.plant' }
+    })
+
+  if (sort) {
+    const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
+    query = query.sort(sortBy)
+  }
+
+  if (page && limit) {
+    const skip = (page - 1) * limit
+    query = query.skip(skip).limit(limit)
+  }
+
+  const gardens = await query.lean().exec()
+  return gardens
+}
+
 
 const createGarden = async ({
   farmId,
@@ -437,6 +477,7 @@ module.exports = {
   getProjectProcessByGarden,
   getClientRequestsByGarden,
   getDeliveriesByGarden,
+  getAllDeliveriesByClient,
   createGarden,
   deleteGarden,
   addNewProjectToGarden,
