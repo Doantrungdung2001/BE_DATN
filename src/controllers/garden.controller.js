@@ -18,12 +18,23 @@ class GardenController {
     }).send(res)
   }
 
-  // delete farden
+  // delete farmer
   deleteGarden = async (req, res, next) => {
     new SuccessResponse({
       message: 'Delete Garden success!',
       metadata: await GardenService.deleteGarden({
         farmId: req.user.userId,
+        gardenId: req.params.gardenId
+      })
+    }).send(res)
+  }
+
+  // delete client
+  deleteGardenbyClient = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Delete Garden success by Client!',
+      metadata: await GardenService.deleteGardenbyClient({
+        clientId: req.user.userId,
         gardenId: req.params.gardenId
       })
     }).send(res)
@@ -35,6 +46,17 @@ class GardenController {
       message: 'Update Garden status success!',
       metadata: await GardenService.updateGardenStatus({
         farmId: req.user.userId,
+        gardenId: req.params.gardenId,
+        status: req.body.status
+      })
+    }).send(res)
+  }
+
+  updateGardenStatusbyClient = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Update Garden status by Client success!',
+      metadata: await GardenService.updateGardenStatusbyClient({
+        clientId: req.user.userId,
         gardenId: req.params.gardenId,
         status: req.body.status
       })
@@ -62,6 +84,18 @@ class GardenController {
         gardenId: req.params.gardenId,
         deliveryId: req.params.deliveryId,
         deliveryData: req.body
+      })
+    }).send(res)
+  }
+
+  updateDeliverybyClient = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Update Delivery success!',
+      metadata: await GardenService.updateDeliverybyClient({
+        clientId: req.user.userId,
+        gardenId: req.params.gardenId,
+        deliveryId: req.params.deliveryId,
+        status: req.body.status
       })
     }).send(res)
   }

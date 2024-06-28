@@ -23,6 +23,10 @@ router.get('/:gardenId', asyncHandler(gardenController.getGardenById))
 
 // Authentication
 router.use(authenticationV2)
+//client
+router.patch('/client/:gardenId', asyncHandler(gardenController.updateGardenStatusbyClient))
+router.delete('/client/:gardenId', asyncHandler(gardenController.deleteGardenbyClient))
+router.patch('/:gardenId/client/delivery/:deliveryId', asyncHandler(gardenController.updateDeliverybyClient))
 ////////////
 router.post('/:gardenId/addNewProject', asyncHandler(gardenController.addNewProjectToGarden))
 

@@ -156,7 +156,7 @@ class GardenServiceRequestService {
       throw new NotFoundError('GardenServiceRequest not found')
     }
 
-    if (gardenServiceRequestItem.client.toString() !== clientId) {
+    if (gardenServiceRequestItem.client._id.toString() !== clientId) {
       throw new MethodFailureError('Not authorized to delete this GardenServiceRequest')
     }
 

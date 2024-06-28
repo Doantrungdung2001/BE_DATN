@@ -29,7 +29,7 @@ const { initProject, addPlantFarmingToProject, deleteProject } = require('./proj
 const { getSeedDefaultFromPlantId } = require('./seed.service')
 const { getPlantFarmingBySeedId } = require('./plantFarming.service')
 const { getObjectDetectionByCameraIdAndTime } = require('./objectDetection.service')
-
+const { getCameraById } = require('./camera.service')
 class GardenService {
   static async getObjectsDetectionByGardenId({ gardenId }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
@@ -173,22 +173,36 @@ class GardenService {
 
   static async getAllDeliveriesByClient({ clientId, limit, sort, page }) {
     if (!clientId) throw new BadRequestError('clientId is required')
-      if (!isValidObjectId(clientId)) throw new BadRequestError('clientId is not valid')
-      const filter = { client: new Types.ObjectId(clientId) }
-      const gardens = await getAllDeliveriesByClient({ limit, sort, page, filter })
-      return gardens
+    if (!isValidObjectId(clientId)) throw new BadRequestError('clientId is not valid')
+    const filter = { client: new Types.ObjectId(clientId) }
+    const gardens = await getAllDeliveriesByClient({ limit, sort, page, filter })
+    return gardens
   }
 
   static async getCameraInGarden({ gardenId }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
     if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
-    // get camera in garden
+
+    // get garden item
     const gardenItem = await getGardenById({ gardenId })
     if (!gardenItem) {
       throw new NotFoundError('Garden not found')
     }
-    const camera = gardenItem.camera
-    return camera || []
+
+    const listCameraIds = gardenItem.cameraIds
+    const ListCameraData = []
+
+    for (const cameraId of listCameraIds) {
+      const dataCamera = await getCameraById({ cameraId })
+      if (dataCamera) {
+        ListCameraData.push(dataCamera)
+      } else {
+        // Handle case where dataCamera is falsy (optional)
+        console.log(`Camera with ID ${cameraId} not found or data is empty.`)
+      }
+    }
+
+    return ListCameraData
   }
 
   static async createGarden({
@@ -240,6 +254,23 @@ class GardenService {
         throw new MethodFailureError('Delete project failed')
       }
     }
+    const modifiedCount = await deleteGarden({ gardenId })
+    if (!modifiedCount) {
+      throw new MethodFailureError('Delete garden failed')
+    }
+    return modifiedCount
+  }
+  static async deleteGardenbyClient({ clientId, gardenId }) {
+    if (!clientId) throw new BadRequestError('Client is required')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
+    const gardenItem = await getGardenById({ gardenId })
+    if (!gardenItem) {
+      throw new NotFoundError('Garden not found')
+    }
+    if (gardenItem.client._id.toString() !== clientId) {
+      throw new BadRequestError('Not Garden by client')
+    }
+
     const modifiedCount = await deleteGarden({ gardenId })
     if (!modifiedCount) {
       throw new MethodFailureError('Delete garden failed')
@@ -306,6 +337,32 @@ class GardenService {
     }
     if (gardenItem.farm._id.toString() !== farmId) {
       throw new BadRequestError('Not permission to update garden status')
+    }
+    const endDate = null
+    if (status === 'end') {
+      endDate = new Date()
+    }
+    const garden = await updateGardenStatus({ gardenId, status, endDate })
+    if (!garden) {
+      throw new MethodFailureError('Update garden status failed')
+    }
+
+    return garden
+  }
+
+  static async updateGardenStatusbyClient({ clientId, gardenId, status }) {
+    if (!clientId) throw new BadRequestError('Client is required')
+    if (!isValidObjectId(clientId)) throw new BadRequestError('clientId is not valid')
+    if (!status) throw new BadRequestError('Status is required')
+    const gardenItem = await getGardenById({ gardenId })
+    if (!gardenItem) {
+      throw new NotFoundError('Garden not found')
+    }
+    if (gardenItem.status === status) {
+      throw new BadRequestError('Status is not changed')
+    }
+    if (gardenItem.client._id.toString() !== clientId) {
+      throw new BadRequestError('This garden not of client')
     }
     const endDate = null
     if (status === 'end') {
@@ -404,6 +461,37 @@ class GardenService {
       deliveryId,
       deliveryDetails: formattedDeliveryDetails,
       note,
+      status
+    })
+    if (!garden) {
+      throw new MethodFailureError('Update delivery failed')
+    }
+    return garden
+  }
+
+  static async updateDeliverybyClient({ clientId, gardenId, deliveryId, status }) {
+    if (!gardenId) throw new BadRequestError('GardenId is required')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
+    if (!status) throw new BadRequestError('Data is required')
+    if (!deliveryId) throw new BadRequestError('DeliveryId is required')
+    if (!isValidObjectId(deliveryId)) throw new BadRequestError('DeliveryId is not valid')
+    const gardenItem = await getGardenById({ gardenId })
+    if (!gardenItem) {
+      throw new NotFoundError('Garden not found')
+    }
+
+    if (gardenItem.client._id.toString() !== clientId) {
+      throw new BadRequestError('Not garden by client')
+    }
+    console.log("Du lieu status",status)
+    if (status) {
+      if (status !== 'coming' && status !== 'done' && status !== 'cancel')
+        throw new BadRequestError('Status is not valid')
+    }
+
+    const garden = await updateDelivery({
+      gardenId,
+      deliveryId,
       status
     })
     if (!garden) {
