@@ -18,12 +18,24 @@ class GardenController {
     }).send(res)
   }
 
-  // delete farden
+  // delete farmer
   deleteGarden = async (req, res, next) => {
     new SuccessResponse({
       message: 'Delete Garden success!',
       metadata: await GardenService.deleteGarden({
         farmId: req.user.userId,
+        gardenId: req.params.gardenId
+      })
+    }).send(res)
+  }
+
+
+   // delete client
+  deleteGardenbyClient = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Delete Garden success by Client!',
+      metadata: await GardenService.deleteGardenbyClient({
+        clientId: req.user.userId,
         gardenId: req.params.gardenId
       })
     }).send(res)

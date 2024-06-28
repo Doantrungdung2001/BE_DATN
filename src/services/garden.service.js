@@ -260,6 +260,23 @@ class GardenService {
     }
     return modifiedCount
   }
+  static async deleteGardenbyClient({ clientId, gardenId }) {
+    if (!clientId) throw new BadRequestError('Client is required')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
+    const gardenItem = await getGardenById({ gardenId })
+    if (!gardenItem) {
+      throw new NotFoundError('Garden not found')
+    }
+    if (gardenItem.client._id.toString() !== clientId) {
+      throw new BadRequestError('Not Garden by client')
+    }
+    
+    const modifiedCount = await deleteGarden({ gardenId })
+    if (!modifiedCount) {
+      throw new MethodFailureError('Delete garden failed')
+    }
+    return modifiedCount
+  }
 
   static async addNewProjectToGarden({ farmId, gardenId, plantId, seedId, startDate }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
