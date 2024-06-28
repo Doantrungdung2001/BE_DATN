@@ -270,7 +270,7 @@ class GardenService {
     if (gardenItem.client._id.toString() !== clientId) {
       throw new BadRequestError('Not Garden by client')
     }
-    
+
     const modifiedCount = await deleteGarden({ gardenId })
     if (!modifiedCount) {
       throw new MethodFailureError('Delete garden failed')
@@ -461,6 +461,37 @@ class GardenService {
       deliveryId,
       deliveryDetails: formattedDeliveryDetails,
       note,
+      status
+    })
+    if (!garden) {
+      throw new MethodFailureError('Update delivery failed')
+    }
+    return garden
+  }
+
+  static async updateDeliverybyClient({ clientId, gardenId, deliveryId, status }) {
+    if (!gardenId) throw new BadRequestError('GardenId is required')
+    if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
+    if (!status) throw new BadRequestError('Data is required')
+    if (!deliveryId) throw new BadRequestError('DeliveryId is required')
+    if (!isValidObjectId(deliveryId)) throw new BadRequestError('DeliveryId is not valid')
+    const gardenItem = await getGardenById({ gardenId })
+    if (!gardenItem) {
+      throw new NotFoundError('Garden not found')
+    }
+
+    if (gardenItem.client._id.toString() !== clientId) {
+      throw new BadRequestError('Not garden by client')
+    }
+    console.log("Du lieu status",status)
+    if (status) {
+      if (status !== 'coming' && status !== 'done' && status !== 'cancel')
+        throw new BadRequestError('Status is not valid')
+    }
+
+    const garden = await updateDelivery({
+      gardenId,
+      deliveryId,
       status
     })
     if (!garden) {
