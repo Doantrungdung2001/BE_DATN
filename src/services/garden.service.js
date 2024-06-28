@@ -333,6 +333,32 @@ class GardenService {
     return garden
   }
 
+  static async updateGardenStatusbyClient({ clientId, gardenId, status }) {
+    if (!clientId) throw new BadRequestError('Client is required')
+    if (!isValidObjectId(clientId)) throw new BadRequestError('clientId is not valid')
+    if (!status) throw new BadRequestError('Status is required')
+    const gardenItem = await getGardenById({ gardenId })
+    if (!gardenItem) {
+      throw new NotFoundError('Garden not found')
+    }
+    if (gardenItem.status === status) {
+      throw new BadRequestError('Status is not changed')
+    }
+    if (gardenItem.client._id.toString() !== clientId) {
+      throw new BadRequestError('This garden not of client')
+    }
+    const endDate = null
+    if (status === 'end') {
+      endDate = new Date()
+    }
+    const garden = await updateGardenStatus({ gardenId, status, endDate })
+    if (!garden) {
+      throw new MethodFailureError('Update garden status failed')
+    }
+
+    return garden
+  }
+
   static async addDelivery({ farmId, gardenId, deliveryData }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
     if (!deliveryData) throw new BadRequestError('Delivery data is required')
