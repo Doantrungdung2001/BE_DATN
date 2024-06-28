@@ -22,7 +22,7 @@ class CameraService {
     if (!isValidObjectId(cameraId)) {
       throw new BadRequestError('Invalid camera id')
     }
-
+    console.log('Id camemra', cameraId)
     const foundCamera = await getCameraById({ cameraId })
     if (!foundCamera) {
       throw new NotFoundError('Camera not found')

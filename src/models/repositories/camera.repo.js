@@ -22,14 +22,19 @@ const getAllCameras = async ({ limit, sort, page, filter } = {}) => {
 }
 
 const getCameraById = async ({ cameraId }) => {
-  const foundCamera = await camera
-    .findOne({
-      _id: new Types.ObjectId(cameraId)
-    })
-    .exec()
-
-  return foundCamera
-}
+  try {
+    const foundCamera = await camera
+      .findOne({
+        _id: new Types.ObjectId(cameraId)
+      })
+      .exec();
+    
+    return foundCamera; // If found, return the camera document
+  } catch (error) {
+    console.error(`Error while retrieving camera: ${error.message}`);
+    throw new NotFoundError('Camera not found'); // Throw custom NotFoundError if camera not found
+  }
+};
 
 const addCamera = async ({ cameraData }) => {
   const newCamera = new camera(cameraData)
@@ -48,8 +53,8 @@ const deleteCamera = async ({ cameraId }) => {
   //   deletedAt: new Date()
   // }
   // return await camera.findByIdAndUpdate(cameraId, bodyUpdate, { new: true }).exec()
-  const deletedCamera = await camera.findByIdAndDelete(cameraId).exec();
-  return deletedCamera;
+  const deletedCamera = await camera.findByIdAndDelete(cameraId).exec()
+  return deletedCamera
 }
 
 module.exports = {

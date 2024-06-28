@@ -29,7 +29,7 @@ const { initProject, addPlantFarmingToProject, deleteProject } = require('./proj
 const { getSeedDefaultFromPlantId } = require('./seed.service')
 const { getPlantFarmingBySeedId } = require('./plantFarming.service')
 const { getObjectDetectionByCameraIdAndTime } = require('./objectDetection.service')
-
+const { getCameraById } = require('./camera.service')
 class GardenService {
   static async getObjectsDetectionByGardenId({ gardenId }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
@@ -173,22 +173,36 @@ class GardenService {
 
   static async getAllDeliveriesByClient({ clientId, limit, sort, page }) {
     if (!clientId) throw new BadRequestError('clientId is required')
-      if (!isValidObjectId(clientId)) throw new BadRequestError('clientId is not valid')
-      const filter = { client: new Types.ObjectId(clientId) }
-      const gardens = await getAllDeliveriesByClient({ limit, sort, page, filter })
-      return gardens
+    if (!isValidObjectId(clientId)) throw new BadRequestError('clientId is not valid')
+    const filter = { client: new Types.ObjectId(clientId) }
+    const gardens = await getAllDeliveriesByClient({ limit, sort, page, filter })
+    return gardens
   }
 
   static async getCameraInGarden({ gardenId }) {
     if (!gardenId) throw new BadRequestError('GardenId is required')
     if (!isValidObjectId(gardenId)) throw new BadRequestError('GardenId is not valid')
-    // get camera in garden
+
+    // get garden item
     const gardenItem = await getGardenById({ gardenId })
     if (!gardenItem) {
       throw new NotFoundError('Garden not found')
     }
-    const camera = gardenItem.camera
-    return camera || []
+
+    const listCameraIds = gardenItem.cameraIds
+    const ListCameraData = []
+
+    for (const cameraId of listCameraIds) {
+      const dataCamera = await getCameraById({ cameraId })
+      if (dataCamera) {
+        ListCameraData.push(dataCamera)
+      } else {
+        // Handle case where dataCamera is falsy (optional)
+        console.log(`Camera with ID ${cameraId} not found or data is empty.`)
+      }
+    }
+
+    return ListCameraData
   }
 
   static async createGarden({
