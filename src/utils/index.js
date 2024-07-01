@@ -68,7 +68,7 @@ const sendEmail = async ({ email, resetToken, userType }) => {
   // Create the email content based on user type
   let htmlContent
   if (userType === 'farm') {
-    htmlContent = `<p>Click vào link sau: <a href="https://agritech-fe-urw9.onrender.com/reset-password/${resetToken}/${email}">Click here</a></p>`
+    htmlContent = `<p>Click vào link sau: <a href="https://farm-garden.onrender.com/reset-password/${resetToken}/${email}">Click here</a></p>`
   } else if (userType === 'client') {
     htmlContent = `<p>Nếu là người tiêu dùng thì copy đoạn token sau: <strong>${resetToken}</strong></p>`
   } else {
