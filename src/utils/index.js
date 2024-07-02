@@ -69,9 +69,9 @@ const sendEmail = async ({ email, resetToken, userType }) => {
   let htmlContent
   if (userType === 'farm') {
     // htmlContent = `<p>Click vào link sau: <a href="https://farm-garden.onrender.com/reset-password/${resetToken}/${email}">Click here</a></p>`
-    htmlContent = `<p>Nếu là người tiêu dùng thì copy đoạn token sau: <strong>${resetToken}</strong></p>`
+    htmlContent = `<p>Đây là mã token để đổi lại mật khẩu: <strong>${resetToken}</strong></p>`
   } else if (userType === 'client') {
-    htmlContent = `<p>Nếu là người tiêu dùng thì copy đoạn token sau: <strong>${resetToken}</strong></p>`
+    htmlContent = `<p>Đây là mã token để đổi lại mật khẩu: <strong>${resetToken}</strong></p>`
   } else {
     throw new Error('Invalid user type')
   }
