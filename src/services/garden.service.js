@@ -338,7 +338,7 @@ class GardenService {
     if (gardenItem.farm._id.toString() !== farmId) {
       throw new BadRequestError('Not permission to update garden status')
     }
-    const endDate = null
+    let endDate = null
     if (status === 'end') {
       endDate = new Date()
     }
