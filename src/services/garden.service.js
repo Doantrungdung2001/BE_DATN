@@ -28,7 +28,7 @@ const { isValidObjectId } = require('../utils')
 const { initProject, addPlantFarmingToProject, deleteProject } = require('./project.service')
 const { getSeedDefaultFromPlantId } = require('./seed.service')
 const { getPlantFarmingBySeedId } = require('./plantFarming.service')
-const { getObjectDetectionByCameraIdAndTime } = require('./objectDetection.service')
+const { getAllObjectDetectionByCameraId } = require('./objectDetection.service')
 const { getCameraById } = require('./camera.service')
 class GardenService {
   static async getObjectsDetectionByGardenId({ gardenId }) {
@@ -39,23 +39,16 @@ class GardenService {
       throw new NotFoundError('Garden not found')
     }
     const cameraIds = garden.cameraIds
-    const startDate = garden.startDate
-    const endDate = garden.endDate || new Date()
-
-    const objectDetectionList = []
+    let objectDetectionList = []
     for (const cameraId of cameraIds) {
-      const objectDetection = await getObjectDetectionByCameraIdAndTime({
-        cameraId,
-        startTime: startDate,
-        endTime: endDate
+      const objectDetection = await getAllObjectDetectionByCameraId({
+        cameraId
       })
       objectDetectionList.push(...objectDetection)
     }
-
     // transform objectDetectionList to formatedObjectDetectionList with format [{date, objectDetections}] with objectDetections is array of objectDetection with same date of start_time
-    const formatedObjectDetectionList = []
+    let formatedObjectDetectionList = []
     for (const objectDetection of objectDetectionList) {
-      console.log('objectDetection', objectDetection)
       const date = objectDetection.start_time.toLocaleDateString()
       const index = formatedObjectDetectionList.findIndex((item) => item.date === date)
       if (index === -1) {
@@ -64,7 +57,6 @@ class GardenService {
         formatedObjectDetectionList[index].objectDetections.push(objectDetection)
       }
     }
-
     return formatedObjectDetectionList
   }
 
@@ -483,7 +475,7 @@ class GardenService {
     if (gardenItem.client._id.toString() !== clientId) {
       throw new BadRequestError('Not garden by client')
     }
-    console.log("Du lieu status",status)
+    console.log('Du lieu status', status)
     if (status) {
       if (status !== 'coming' && status !== 'done' && status !== 'cancel')
         throw new BadRequestError('Status is not valid')
